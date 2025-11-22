@@ -1,0 +1,18 @@
+<h2>Patrimonio total por categoría</h2>
+
+<table>
+  <tr>
+    <th>Categoría</th>
+    <th>Total (€)</th>
+  </tr>
+
+  <tr *ngFor="let p of patrimonio">
+    <td>{{ p.categoria }}</td>
+    <td>{{ p.total | number:'1.0-0' }}</td>
+  </tr>
+
+  <tr>
+    <td><strong>TOTAL</strong></td>
+    <td><strong>{{ total | number:'1.0-0' }}</strong></td>
+  </tr>
+</table>
