@@ -1,18 +1,33 @@
-<h2>Patrimonio total por categoría</h2>
+<mat-card class="card">
+  <mat-card-title>
+    <span class="icon">📊</span>
+    Patrimonio total por categoría
+  </mat-card-title>
 
-<table>
-  <tr>
-    <th>Categoría</th>
-    <th>Total (€)</th>
-  </tr>
+  <mat-card-content>
 
-  <tr *ngFor="let p of patrimonio">
-    <td>{{ p.categoria }}</td>
-    <td>{{ p.total | number:'1.0-0' }}</td>
-  </tr>
+    <table mat-table [dataSource]="patrimonio" class="mat-elevation-z2">
 
-  <tr>
-    <td><strong>TOTAL</strong></td>
-    <td><strong>{{ total | number:'1.0-0' }}</strong></td>
-  </tr>
-</table>
+      <!-- Categoría -->
+      <ng-container matColumnDef="categoria">
+        <th mat-header-cell *matHeaderCellDef> Categoría </th>
+        <td mat-cell *matCellDef="let r"> {{ r.categoria }} </td>
+      </ng-container>
+
+      <!-- Total -->
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef> Total (€) </th>
+        <td mat-cell *matCellDef="let r"> {{ r.total | number:'1.0-0' }} € </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+    </table>
+
+    <div class="total-global">
+      <strong>Total global:</strong> 
+      {{ total | number:'1.0-0' }} €
+    </div>
+
+  </mat-card-content>
+</mat-card>

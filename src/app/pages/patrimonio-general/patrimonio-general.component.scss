@@ -1,0 +1,33 @@
+.card {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 15px;
+}
+
+.icon {
+  font-size: 28px;
+  margin-right: 8px;
+}
+
+table {
+  width: 100%;
+  margin-top: 15px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+th {
+  font-weight: bold;
+  background: #f4f4f4;
+}
+
+td, th {
+  padding: 12px;
+}
+
+.total-global {
+  margin-top: 20px;
+  font-size: 18px;
+  text-align: right;
+  padding-right: 10px;
+}
