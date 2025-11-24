@@ -32,10 +32,7 @@ export class PatrimonioMensualComponent {
   constructor(private patrimonioService: PatrimonioService) {}
 
   ngOnInit() {
-    const guardado = localStorage.getItem('patrimonioMensual');
-    if (guardado) {
-      this.registros = JSON.parse(guardado);
-    }
+    this.registros = this.patrimonioService.getRegistros();
   }
 
   guardar() {
@@ -73,7 +70,7 @@ export class PatrimonioMensualComponent {
     // Reset valores
     this.valor = 0;
 
-    localStorage.setItem('patrimonioMensual', JSON.stringify(this.registros));
+    this.patrimonioService.actualizarRegistros(this.registros);
   }
 
   getTotal(r: RegistroMensual): number {
