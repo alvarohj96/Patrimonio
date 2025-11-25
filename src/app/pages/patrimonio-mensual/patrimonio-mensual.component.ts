@@ -21,7 +21,7 @@ interface RegistroMensual {
 
 export class PatrimonioMensualComponent {
 
-  categorias = ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
+  categorias = ['Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
 
   categoria = '';
   valor = 0;
