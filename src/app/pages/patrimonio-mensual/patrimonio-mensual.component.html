@@ -26,28 +26,28 @@
   </form>
 </div>
 
-<div class="tabla-card" *ngIf="registros.length > 0">
-  <h3>Resumen por mes</h3>
+<div class="tabla-container">
+  <div class="table-wrapper">
 
-  <table class="tabla-patrimonio">
-    <thead>
-      <tr>
-        <th>Mes</th>
-        <th *ngFor="let c of categorias">{{ c }}</th>
-        <th>Total</th>
-      </tr>
-    </thead>
+    <table class="tabla-patrimonio">
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th *ngFor="let c of categorias">{{ c }}</th>
+          <th>Total</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      <tr *ngFor="let r of registros">
-        <td>{{ r.mes }}</td>
+      <tbody>
+        <tr *ngFor="let r of registros">
+          <td>{{ r.mes }}</td>
+          <td *ngFor="let c of categorias">{{ r.valores[c] }}</td>
+          <td>{{ getTotal(r) }}</td>
+          <td><button class="btn-eliminar" (click)="eliminarRegistro(r)">Eliminar</button></td>
+        </tr>
+      </tbody>
+    </table>
 
-        <td *ngFor="let c of categorias">
-          {{ r.valores[c] | number:'1.0-0' }}
-        </td>
-
-        <td>{{ getTotal(r) | number:'1.0-0' }}</td>
-      </tr>
-    </tbody>
-  </table>
+  </div>
 </div>

@@ -41,31 +41,28 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="card" *ngIf="datosUltimoMes.length > 0" style="margin-top: 20px;">
-  <mat-card-title>
-   Distribución por categorías
-  </mat-card-title>
+<div class="charts-row">
 
-  <mat-card-content>
-    <canvas
-      baseChart
-      [data]="chartData"
-      [type]="'doughnut'">
-    </canvas>
-  </mat-card-content>
-</mat-card>
+  <mat-card class="chart-card" *ngIf="datosUltimoMes.length > 0" style="margin-top: 20px;">
+    <mat-card-title>
+      Distribución por categorías
+    </mat-card-title>
 
-<mat-card>
+    <mat-card-content>
+      <canvas baseChart [data]="chartData" [type]="'doughnut'">
+      </canvas>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="chart-card">
     <mat-card-header>
-        <mat-card-title>Evolución por Activo</mat-card-title>
+      <mat-card-title>Evolución por Activo</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <div style="display: block; height: 600px;">
-            <canvas baseChart
-                    [data]="barChartData"
-                    [options]="barChartOptions"
-                    [type]="barChartType">
-            </canvas>
-        </div>
+      <div style="display: block; height: 500px;">
+        <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType">
+        </canvas>
+      </div>
     </mat-card-content>
-</mat-card>
+  </mat-card>
+</div>

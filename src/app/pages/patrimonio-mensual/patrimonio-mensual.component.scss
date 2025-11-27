@@ -82,3 +82,58 @@ h2 {
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
+
+.btn-eliminar {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-eliminar:hover {
+  background-color: #c62828;
+}
+
+/* Contenedor centrado y con ancho limitado */
+.tabla-container {
+  max-width: 900px;     /* 🔧 Ajusta aquí el tamaño que quieras */
+  margin: 0 auto;       /* Centra la tabla */
+  padding: 10px;
+}
+
+/* Tabla más compacta */
+.table-wrapper {
+  overflow-x: auto;     /* Por si hay muchas columnas */
+}
+
+.tabla-patrimonio {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;      /* Reduce tamaño del texto */
+}
+
+/* Encabezados más pequeños */
+.tabla-patrimonio th {
+  padding: 8px;
+  background: #f1f1f1;
+  text-align: left;
+}
+
+/* Filas compactas */
+.tabla-patrimonio td {
+  padding: 6px 8px;
+}
+
+.tabla-patrimonio tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Botón Eliminar más pequeño */
+.btn-eliminar {
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  border-radius: 4px !important;
+}
