@@ -97,43 +97,61 @@ h2 {
   background-color: #c62828;
 }
 
-/* Contenedor centrado y con ancho limitado */
+/* Contenedor centrado */
 .tabla-container {
-  max-width: 900px;     /* 🔧 Ajusta aquí el tamaño que quieras */
-  margin: 0 auto;       /* Centra la tabla */
+  max-width: 900px;
+  margin: 0 auto;
   padding: 10px;
 }
 
-/* Tabla más compacta */
+/* Scroll horizontal si hay muchas columnas */
 .table-wrapper {
-  overflow-x: auto;     /* Por si hay muchas columnas */
+  overflow-x: auto;
+  max-height: 500px; /* 🔧 Tamaño vertical de la tabla (ajustable) */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
+/* Tabla */
 .tabla-patrimonio {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;      /* Reduce tamaño del texto */
+  font-size: 14px;
 }
 
-/* Encabezados más pequeños */
+/* Cabecera sticky */
 .tabla-patrimonio th {
+  position: sticky;
+  top: 0;
+  background: #f0f0f0;
+  z-index: 2;       /* Para que no quede oculta */
   padding: 8px;
-  background: #f1f1f1;
   text-align: left;
+  border-bottom: 2px solid #ccc;
 }
 
-/* Filas compactas */
+/* Filas */
 .tabla-patrimonio td {
   padding: 6px 8px;
+  border-bottom: 1px solid #eee;
 }
 
 .tabla-patrimonio tr:nth-child(even) {
   background: #fafafa;
 }
 
-/* Botón Eliminar más pequeño */
+/* Botón eliminar pequeño */
 .btn-eliminar {
-  padding: 4px 8px !important;
-  font-size: 12px !important;
-  border-radius: 4px !important;
+  padding: 4px 8px;
+  font-size: 12px;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-eliminar:hover {
+  background-color: #c62828;
 }

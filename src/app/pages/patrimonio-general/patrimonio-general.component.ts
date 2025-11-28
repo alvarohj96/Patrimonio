@@ -13,9 +13,12 @@ import {
   Legend,
   DoughnutController,
   BarElement,
+  BarController,
+  LineElement,
+  PointElement,
   CategoryScale,
   LinearScale,
-  BarController
+  LineController
 } from 'chart.js';
 
 Chart.register(
@@ -26,7 +29,12 @@ Chart.register(
   BarElement,
   CategoryScale,
   LinearScale,
-  BarController
+  BarController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  LineController
 );
 import { PatrimonioService } from '../../services/patrimonio.service';
 
@@ -77,6 +85,11 @@ export class PatrimonioGeneralComponent implements OnInit {
       data: number[];
       backgroundColor: string; // Opcional, o usar colores dinámicos
     }[]
+  };
+
+  lineChartData = {
+    labels: [] as string[], // meses
+    datasets: [] as { label: string; data: number[]; borderColor: string; tension: number }[]
   };
 
   public barChartOptions: ChartOptions<'bar'> = {
@@ -171,6 +184,34 @@ export class PatrimonioGeneralComponent implements OnInit {
           backgroundColor: this.generateDynamicColor(index)
         };
       });
+
+      // ===============================================
+      // 📈 GENERAR GRÁFICA DE LÍNEAS POR CATEGORÍA
+      // ===============================================
+      const categorias = Object.keys(registros[0].valores);
+
+      // eje X = todos los meses ordenados
+      const mesesOrdenados = registros.map(r => r.mes);
+
+      // inicializar datasets
+      const datasets = categorias.map((categoria, idx) => {
+        // color automático
+        const colores = ["#2196F3", "#4CAF50", "#FFC107", "#9C27B0", "#FF5722", "#009688"];
+        const color = colores[idx % colores.length];
+
+        // valores por mes
+        const valores = registros.map(r => r.valores[categoria] || 0);
+
+        return {
+          label: categoria,
+          data: valores,
+          borderColor: color,
+          tension: 0.2
+        };
+      });
+
+      this.lineChartData.labels = mesesOrdenados;
+      this.lineChartData.datasets = datasets;
     });
   }
 }

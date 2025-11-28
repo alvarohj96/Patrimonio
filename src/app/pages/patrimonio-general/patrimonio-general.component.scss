@@ -1,41 +1,51 @@
-.chart-card {
-  width: 100%;
-  max-width: 600px;            /* Ambos gráficos mismo ancho */
-  max-height: 600px;
+.pg-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
 }
 
-.card {
-  max-width: 600px;
-  margin: 30px auto;
+/* Tarjetas secciones amplias */
+.section-card {
   padding: 15px;
 }
 
-.icon {
-  font-size: 28px;
-  margin-right: 8px;
+/* Grid de gráficos (2 columnas) */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 20px;
 }
 
-.charts-row {
-  display: flex;
-  justify-content: center;    /* Centra los gráficos */
-  align-items: flex-start;
-  gap: 20px;                   /* Separación entre gráficos */
-  flex-wrap: wrap;             /* Responsivo: si no cabe, baja uno */
-  margin-top: 20px;
+.chart-card {
+  padding: 10px;
 }
 
-table {
+.chart-card-content {
+  height: 550px;
+}
+
+/* Tabla último mes */
+.tabla-ultimo-mes {
   width: 100%;
-  margin-top: 15px;
-  border-radius: 6px;
-  overflow: hidden;
+  margin-top: 10px;
 }
 
-th {
-  font-weight: bold;
-  background: #f4f4f4;
+.total-line {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  font-size: 16px;
 }
 
-td, th {
-  padding: 12px;
+.total-line strong {
+  margin-left: 8px;
+}
+
+/* Gráficas */
+canvas {
+  width: 100% !important;
+  height: auto !important;
 }

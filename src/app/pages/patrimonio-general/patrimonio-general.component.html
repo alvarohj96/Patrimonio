@@ -1,49 +1,51 @@
-<mat-card class="card" *ngIf="datosUltimoMes.length > 0">
+<div class="pg-container">
 
-  <mat-card-title>
-    📊 Patrimonio del último mes disponible
-  </mat-card-title>
+  <!-- ===============================
+       SECCIÓN 1: TABLA ÚLTIMO MES
+  ================================== -->
+  <mat-card class="section-card">
+    <mat-card-title>
+      💰 Patrimonio del último mes
+    </mat-card-title>
 
-  <mat-card-subtitle>
-    Último mes: <strong>{{ ultimoMes }}</strong>
-  </mat-card-subtitle>
+    <mat-card-subtitle *ngIf="ultimoMes">
+      Último mes disponible: <strong>{{ ultimoMes }}</strong>
+    </mat-card-subtitle>
 
-  <mat-card-content>
+    <mat-card-content>
+      <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla-ultimo-mes">
 
-    <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2">
+        <!-- Categoría -->
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef> Categoría </th>
+          <td mat-cell *matCellDef="let d"> {{ d.categoria }} </td>
+        </ng-container>
 
-      <ng-container matColumnDef="categoria">
-        <th mat-header-cell *matHeaderCellDef>Categoría</th>
-        <td mat-cell *matCellDef="let r">{{ r.categoria }}</td>
-      </ng-container>
+        <!-- Valor -->
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef> Valor (€) </th>
+          <td mat-cell *matCellDef="let d"> {{ d.valor | number:'1.0-0' }} </td>
+        </ng-container>
 
-      <ng-container matColumnDef="valor">
-        <th mat-header-cell *matHeaderCellDef>Valor (€)</th>
-        <td mat-cell *matCellDef="let r">{{ r.valor | number:'1.0-0' }}</td>
-      </ng-container>
+        <tr mat-header-row *matHeaderRowDef="['categoria','valor']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['categoria','valor']"></tr>
+      </table>
 
-      <tr mat-header-row *matHeaderRowDef="['categoria','valor']"></tr>
-      <tr mat-row *matRowDef="let fila; columns: ['categoria','valor'];"></tr>
+      <div class="total-line">
+        <span>Total patrimonio:</span>
+        <strong>{{ total | number:'1.0-0' }} €</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
-    </table>
 
-    <div class="total-global">
-      <strong>Total global:</strong> {{ total | number:'1.0-0' }} €
-    </div>
+  <!-- ===============================
+       SECCIÓN 2: GRÁFICOS (2 columnas)
+  ================================== -->
+  <div class="charts-grid">
 
-  </mat-card-content>
-
-</mat-card>
-
-<mat-card *ngIf="datosUltimoMes.length === 0">
-  <mat-card-content>
-    No hay datos registrados todavía.
-  </mat-card-content>
-</mat-card>
-
-<div class="charts-row">
-
-  <mat-card class="chart-card" *ngIf="datosUltimoMes.length > 0" style="margin-top: 20px;">
+    <!-- Donut -->
+    <mat-card class="chart-card" *ngIf="datosUltimoMes.length > 0" style="margin-top: 20px;">
     <mat-card-title>
       Distribución por categorías
     </mat-card-title>
@@ -54,15 +56,36 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card class="chart-card">
+    <!-- Barras -->
+    <mat-card class="chart-card">
     <mat-card-header>
       <mat-card-title>Evolución por Activo</mat-card-title>
     </mat-card-header>
-    <mat-card-content>
-      <div style="display: block; height: 500px;">
+    <mat-card-content >
+      <div class="chart-card-content" style="display: block;">
         <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType">
         </canvas>
       </div>
     </mat-card-content>
   </mat-card>
+
+  </div>
+
+
+  <!-- ===============================
+       SECCIÓN 3: GRÁFICA DE LÍNEAS
+  ================================== -->
+  <mat-card class="section-card">
+    <mat-card-title>
+      📈 Evolución por categoría
+    </mat-card-title>
+    <mat-card-subtitle>
+      Comparativa de activos mes a mes
+    </mat-card-subtitle>
+
+    <mat-card-content>
+      <canvas baseChart [data]="lineChartData" [type]="'line'"></canvas>
+    </mat-card-content>
+  </mat-card>
+
 </div>
