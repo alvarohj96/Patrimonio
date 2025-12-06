@@ -1,53 +1,127 @@
-<h2>Registrar patrimonio mensual</h2>
+<h2 class="titulo">📊 Registrar patrimonio mensual</h2>
 
-<div class="form-card">
-  <form (ngSubmit)="guardar()" class="form">
+<div class="header-actions">
+  <button mat-raised-button color="accent" (click)="abrirGestionSubcategorias()">
+    Gestionar subcategorías
+  </button>
+</div>
 
-    <div class="form-group">
-      <label for="categoria">Categoría</label>
-      <select id="categoria" [(ngModel)]="categoria" name="categoria" required>
-        <option value="">Seleccione una categoría</option>
-        <option *ngFor="let c of categorias" [ngValue]="c">{{ c }}</option>
-      </select>
-    </div>
+<!-- Tarjeta del formulario -->
+<mat-card class="form-card">
 
-    <div class="form-group">
-      <label for="mes">Mes</label>
-      <input id="mes" type="month" [(ngModel)]="mes" name="mes" required/>
-    </div>
+  <form (ngSubmit)="guardar()" class="form-grid">
 
-    <div class="form-group">
-      <label for="valor">Valor (€)</label>
-      <input id="valor" type="number" [(ngModel)]="valor" name="valor" required/>
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+      <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required>
+        <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-    <button type="submit">Guardar</button>
+    <mat-form-field appearance="outline" *ngIf="categoria">
+      <mat-label>Subcategoría</mat-label>
+      <mat-select [(ngModel)]="subcategoria" name="subcategoria" required>
+        <mat-option *ngFor="let s of subcategoriasPorCategoria[categoria]" [value]="s">
+          {{ s }}
+        </mat-option>
+        <mat-option value="__nueva__">➕ Añadir nueva…</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="subcategoria === '__nueva__'">
+      <mat-label>Nueva subcategoría</mat-label>
+      <input matInput [(ngModel)]="nuevaSubcategoria" name="nuevaSubcategoria">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Mes</mat-label>
+      <input matInput type="month" [(ngModel)]="mes" name="mes" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Valor (€)</mat-label>
+      <input matInput type="number" [(ngModel)]="valor" name="valor" required>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" class="btn-guardar">
+      Guardar
+    </button>
 
   </form>
-</div>
 
-<div class="tabla-container">
-  <div class="table-wrapper">
+</mat-card>
 
-    <table class="tabla-patrimonio">
-      <thead>
-        <tr>
-          <th>Mes</th>
-          <th *ngFor="let c of categorias">{{ c }}</th>
-          <th>Total</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
 
-      <tbody>
-        <tr *ngFor="let r of registros">
-          <td>{{ r.mes }}</td>
-          <td *ngFor="let c of categorias">{{ r.valores[c] }}</td>
-          <td>{{ getTotal(r) }}</td>
-          <td><button class="btn-eliminar" (click)="eliminarRegistro(r)">Eliminar</button></td>
-        </tr>
-      </tbody>
-    </table>
+<h2 class="titulo">📁 Datos registrados</h2>
 
-  </div>
-</div>
+<mat-accordion class="meses-accordion">
+
+  <mat-expansion-panel *ngFor="let r of registros">
+
+    <!-- CABECERA DEL MES -->
+    <mat-expansion-panel-header>
+
+      <mat-panel-title>
+        <span class="mes-titulo">{{ formatMes(r.mes) }}</span>
+      </mat-panel-title>
+
+      <mat-panel-description>
+        <div class="resumen-categorias">
+          <strong>Total:</strong> {{ getTotalMes(r) | number:'1.0-0' }} €
+          <span *ngFor="let cat of categorias">
+            <ng-container *ngIf="getTotalCategoria(r, cat) > 0">
+              • {{ cat }}: {{ getTotalCategoria(r, cat) | number:'1.0-0' }} €
+            </ng-container>
+          </span>
+        </div>
+      </mat-panel-description>
+
+      <button mat-icon-button color="warn"
+              (click)="eliminarRegistro(r); $event.stopPropagation();">
+        <mat-icon>delete</mat-icon>
+      </button>
+
+    </mat-expansion-panel-header>
+
+
+    <!-- CONTENIDO EXPANDIDO -->
+    <div class="panel-content">
+
+      <div class="categoria-bloque" *ngFor="let cat of getCategoriasParaMes(r)">
+
+        <h3 class="cat-titulo">
+          {{ cat }}
+          <span>{{ getTotalCategoria(r, cat) | number:'1.0-0' }} €</span>
+        </h3>
+
+        <table class="tabla-subcategorias">
+          <tr *ngFor="let s of getSubcategoriasPara(r, cat)">
+
+            <td class="nombre">
+              <mat-select [ngModel]="s" (ngModelChange)="actualizarSubcategoria(r, cat, s, $event)">
+                <mat-option *ngFor="let op of subcategoriasPorCategoria[cat]" [value]="op">
+                  {{ op }}
+                </mat-option>
+              </mat-select>
+            </td>
+
+            <td class="valor">
+              {{ r.valores[cat][s] | number:'1.0-0' }} €
+            </td>
+
+            <td class="acciones">
+              <button mat-icon-button color="warn" (click)="eliminarSubcategoria(r, cat, s)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+
+          </tr>
+        </table>
+
+      </div>
+
+    </div>
+
+  </mat-expansion-panel>
+
+</mat-accordion>

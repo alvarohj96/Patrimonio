@@ -1,51 +1,32 @@
-.pg-container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-/* Tarjetas secciones amplias */
-.section-card {
-  padding: 15px;
-}
-
-/* Grid de gráficos (2 columnas) */
-.charts-grid {
+.contenedor {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
+  padding: 20px;
 }
 
-.chart-card {
-  padding: 10px;
+.card {
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
 }
 
-.chart-card-content {
-  height: 550px;
+.card h2 {
+  margin-bottom: 12px;
+  font-weight: 600;
 }
 
-/* Tabla último mes */
-.tabla-ultimo-mes {
-  width: 100%;
-  margin-top: 10px;
+.card-wide {
+  grid-column: 1 / -1;
 }
 
-.total-line {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-  font-size: 16px;
-}
-
-.total-line strong {
-  margin-left: 8px;
-}
-
-/* Gráficas */
 canvas {
-  width: 100% !important;
+  max-width: 100% !important;
   height: auto !important;
+}
+
+.tabla {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
 }

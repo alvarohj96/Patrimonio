@@ -1,47 +1,41 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { ChartOptions } from 'chart.js';
 
-// Import chart directive (ng2-charts v8)
 import { BaseChartDirective } from 'ng2-charts';
+import { PatrimonioService, RegistroMensual } from '../../services/patrimonio.service';
+
 import {
   Chart,
   ArcElement,
-  Tooltip,
-  Legend,
   DoughnutController,
-  BarElement,
   BarController,
+  LineController,
+  BarElement,
   LineElement,
   PointElement,
   CategoryScale,
   LinearScale,
-  LineController
+  Tooltip,
+  Legend
 } from 'chart.js';
 
 Chart.register(
   ArcElement,
-  Tooltip,
-  Legend,
   DoughnutController,
-  BarElement,
-  CategoryScale,
-  LinearScale,
   BarController,
+  LineController,
+  BarElement,
   LineElement,
   PointElement,
   CategoryScale,
   LinearScale,
-  LineController
+  Tooltip,
+  Legend
 );
-import { PatrimonioService } from '../../services/patrimonio.service';
 
-interface RegistroMensual {
-  mes: string;
-  valores: { [categoria: string]: number };
-}
 
 @Component({
   selector: 'app-patrimonio-general',
@@ -56,162 +50,140 @@ interface RegistroMensual {
   templateUrl: './patrimonio-general.component.html',
   styleUrls: ['./patrimonio-general.component.scss']
 })
-export class PatrimonioGeneralComponent implements OnInit {
+export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
-  ultimoMes = '';
-  datosUltimoMes: { categoria: string, valor: number }[] = [];
-  total = 0;
+  registros: RegistroMensual[] = [];
+  datosUltimoMes: { categoria: string; total: number }[] = [];
 
-  // 🔵 Gráfico DONUT (ng2-charts 8 usa esta estructura)
-  chartData = {
-    labels: [] as string[],
-    datasets: [
-      {
-        data: [] as number[],
-        backgroundColor: [
-          '#2196F3',
-          '#FFC107',
-          '#FF5722',
-          '#9C27B0'
-        ]
-      }
-    ]
-  };
+  // Gráfico donut (último mes)
+  chartLabels: string[] = [];
+  chartData: number[] = [];
+  chartColors = [{ backgroundColor: ['#1e88e5', '#43a047', '#fb8c00', '#8e24aa', '#e53935'] }];
 
-  barChartData = {
-    labels: [] as string[],
-    datasets: [] as {
-      label: string;
-      data: number[];
-      backgroundColor: string; // Opcional, o usar colores dinámicos
-    }[]
-  };
-
-  lineChartData = {
-    labels: [] as string[], // meses
-    datasets: [] as { label: string; data: number[]; borderColor: string; tension: number }[]
-  };
-
-  public barChartOptions: ChartOptions<'bar'> = {
+  // Gráfico de barras (acumulado por mes)
+  barLabels: string[] = [];
+  barData: any = { labels: [], datasets: [] };
+  barOptions = {
     responsive: true,
-    maintainAspectRatio: false,
     scales: {
-      x: {
-        stacked: true,
-      },
-      y: {
-        stacked: true,
-        title: {
-          display: true,
-          text: 'Valor (€)'
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top',
-      },
-      tooltip: {
-        mode: 'index' as const, // Mantener 'as const' aquí
-        intersect: false,
-      }
+      x: { stacked: true },
+      y: { stacked: true }
     }
   };
 
-  public barChartType = 'bar' as const;
+  // Gráfico de líneas (evolución por categoría)
+  lineLabels: string[] = [];
+  lineData: any = { labels: [], datasets: [] };
+
+  sub: any;
 
   constructor(private patrimonioService: PatrimonioService) { }
 
-  private generateDynamicColor(index: number): string {
-    const hue = (index * 137.508) % 360;
-    // Saturation y Lightness fijos para buena visibilidad.
-    return `hsl(${hue}, 70%, 50%)`;
+  ngOnInit(): void {
+    this.sub = this.patrimonioService.registros$.subscribe(regs => {
+      this.registros = regs || [];
+      this.procesarDatos();
+    });
   }
 
-  ngOnInit(): void {
-    this.patrimonioService.registros$.subscribe(registros => {
+  ngOnDestroy(): void {
+    if (this.sub) this.sub.unsubscribe();
+  }
 
-      if (!registros || registros.length === 0) {
-        this.datosUltimoMes = [];
-        this.ultimoMes = '';
-        this.total = 0;
-        this.chartData.labels = [];
-        this.chartData.datasets[0].data = [];
-        return;
-      }
+  // ======================================================
+  // Procesamiento general de datos
+  // ======================================================
+  procesarDatos() {
+    if (!this.registros.length) {
+      this.chartLabels = [];
+      this.chartData = [];
+      return;
+    }
 
-      // 💡 1. Obtener todas las categorías únicas de *todos* los registros
-      const todasLasCategorias = new Set<string>();
-      registros.forEach(r => {
-        Object.keys(r.valores).forEach(cat => todasLasCategorias.add(cat));
-      });
-      const categoriasArray = Array.from(todasLasCategorias);
+    this.registros.sort((a, b) => a.mes.localeCompare(b.mes));
+    const ultimo = this.registros[this.registros.length - 1];
 
-      // 📌 Obtener el último mes disponible
-      registros.sort((a, b) => a.mes.localeCompare(b.mes));
-      const ultimo = registros[registros.length - 1];
+    this.procesarUltimoMes(ultimo);
+    this.procesarBarras();
+    this.procesarLineas();
+  }
 
-      this.ultimoMes = ultimo.mes;
+  // ======================================================
+  // GRÁFICO DONUT (último mes)
+  // ======================================================
+  procesarUltimoMes(ultimo: RegistroMensual) {
+    const categorias = Object.keys(ultimo.valores);
+    const resumen = categorias.map(cat => ({
+      categoria: cat,
+      total: Object.values(ultimo.valores[cat]).reduce((a, b) => a + b, 0)
+    }));
 
-      // 📌 Convertir valores en array usable para tabla y gráfico
-      this.datosUltimoMes = Object.keys(ultimo.valores).map(cat => ({
-        categoria: cat,
-        valor: ultimo.valores[cat] || 0
-      }));
+    this.datosUltimoMes = resumen;
 
-      // 📌 Total global
-      this.total = this.datosUltimoMes.reduce((s, x) => s + x.valor, 0);
+    this.chartLabels = resumen.map(r => r.categoria);
+    this.chartData = resumen.map(r => r.total);
+  }
 
-      // 🔥 Actualizar GRÁFICO en tiempo real
-      this.chartData.labels = this.datosUltimoMes.map(d => d.categoria);
-      this.chartData.datasets[0].data = this.datosUltimoMes.map(d => d.valor);
+  // ======================================================
+  // GRÁFICO DE BARRAS (totales por mes)
+  // ======================================================
+  procesarBarras() {
+    this.barLabels = this.registros.map(r => r.mes);
 
-      // 🔍 Reemplaza 'this.categorias' con las categorías del último mes o las categorías únicas de *todos* los registros
-      const categoriasUnicas = Object.keys(ultimo.valores); // Usando las categorías del último mes como base.
+    const categorias = this.obtenerCategoriasGlobales();
 
-      const totalesPorMes = registros.map(r =>
-        categoriasUnicas.reduce((s, cat) => s + (r.valores[cat] || 0), 0));
-      this.barChartData.labels = registros.map(r => r.mes);
+    this.barData = {
+      labels: this.barLabels,
+      datasets: categorias.map((categoria, idx) => ({
+        label: categoria,
+        data: this.registros.map(r =>
+          this.sumarCategoria(r.valores[categoria])
+        ),
+        backgroundColor: this.obtenerColor(idx)
+      }))
+    };
+  }
 
-      this.barChartData.datasets = categoriasArray.map((categoria, index) => {
-        // Mapea el valor de esta *categoría* para *cada mes*
-        const dataPorMes = registros.map(r => r.valores[categoria] || 0);
+  // ======================================================
+  // GRÁFICO DE LÍNEAS (evolución por categoría)
+  // ======================================================
+  procesarLineas() {
+    this.lineLabels = this.registros.map(r => r.mes);
 
-        return {
-          label: categoria,
-          data: dataPorMes,
-          backgroundColor: this.generateDynamicColor(index)
-        };
-      });
+    const categorias = this.obtenerCategoriasGlobales();
 
-      // ===============================================
-      // 📈 GENERAR GRÁFICA DE LÍNEAS POR CATEGORÍA
-      // ===============================================
-      const categorias = Object.keys(registros[0].valores);
+    this.lineData = {
+      labels: this.lineLabels,
+      datasets: categorias.map((categoria, idx) => ({
+        label: categoria,
+        data: this.registros.map(r =>
+          this.sumarCategoria(r.valores[categoria])
+        ),
+        borderColor: this.obtenerColor(idx),
+        tension: 0.3,
+        fill: false
+      }))
+    };
+  }
 
-      // eje X = todos los meses ordenados
-      const mesesOrdenados = registros.map(r => r.mes);
-
-      // inicializar datasets
-      const datasets = categorias.map((categoria, idx) => {
-        // color automático
-        const colores = ["#2196F3", "#4CAF50", "#FFC107", "#9C27B0", "#FF5722", "#009688"];
-        const color = colores[idx % colores.length];
-
-        // valores por mes
-        const valores = registros.map(r => r.valores[categoria] || 0);
-
-        return {
-          label: categoria,
-          data: valores,
-          borderColor: color,
-          tension: 0.2
-        };
-      });
-
-      this.lineChartData.labels = mesesOrdenados;
-      this.lineChartData.datasets = datasets;
+  // ======================================================
+  // Utilidades
+  // ======================================================
+  obtenerCategoriasGlobales(): string[] {
+    const set = new Set<string>();
+    this.registros.forEach(r => {
+      Object.keys(r.valores).forEach(cat => set.add(cat));
     });
+    return Array.from(set);
+  }
+
+  sumarCategoria(obj?: { [sub: string]: number }): number {
+    if (!obj) return 0;
+    return Object.values(obj).reduce((a, b) => a + b, 0);
+  }
+
+  obtenerColor(i: number): string {
+    const colores = ['#1e88e5', '#43a047', '#fb8c00', '#8e24aa', '#e53935'];
+    return colores[i % colores.length];
   }
 }

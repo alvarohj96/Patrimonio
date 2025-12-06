@@ -6,16 +6,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
 
-import { PatrimonioService } from '../../services/patrimonio.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-
-interface RegistroMensual {
-  mes: string; // formato "YYYY-MM"
-  valores: { [categoria: string]: number };
-}
+import { GestionarSubcategoriasComponent } from '../../shared/gestionar-subcategorias/gestionar-subcategorias.component';
+import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.service';
 
 @Component({
   selector: 'app-patrimonio-mensual',
@@ -27,22 +25,28 @@ interface RegistroMensual {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatTableModule,
+    MatIconModule,
+    MatExpansionModule,
     MatDialogModule,
-    ConfirmDialogComponent
+    MatCardModule
   ],
   templateUrl: './patrimonio-mensual.component.html',
   styleUrls: ['./patrimonio-mensual.component.scss']
 })
 export class PatrimonioMensualComponent implements OnInit {
 
-  categorias = ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
-
-  categoria = '';
-  mes = '';         // tipo "2025-02" (input type="month")
-  valor = 0;
+  categorias: string[] = ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
 
   registros: RegistroMensual[] = [];
+
+  // Subcategorías 100% centralizadas en el servicio
+  subcategoriasPorCategoria: { [cat: string]: string[] } = {};
+
+  categoria = '';
+  subcategoria = '';
+  nuevaSubcategoria = '';
+  mes = '';
+  valor = 0;
 
   constructor(
     private patrimonioService: PatrimonioService,
@@ -51,67 +55,134 @@ export class PatrimonioMensualComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // 1) Cargar inicialmente desde el servicio (si hay datos)
-    this.registros = this.patrimonioService.getRegistros() || [];
 
-    // 2) Suscribirse para recibir actualizaciones en tiempo real
+    // Subcategorías iniciales desde el servicio
+    this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
+
+    // Cargar registros actuales
+    this.registros = this.patrimonioService.getRegistros();
+
+    // Subscribirse a cambios futuros
     this.patrimonioService.registros$.subscribe(regs => {
-      // reasignamos referencia (mejor para que Angular detecte cambios)
-      this.registros = regs || [];
-      // por si acaso forzamos la detección
-      try { this.cdr.detectChanges(); } catch (e) { /* noop */ }
+      this.registros = regs;
+      this.cdr.detectChanges();
     });
+  }
+
+  abrirGestionSubcategorias() {
+    this.dialog.open(GestionarSubcategoriasComponent, {
+      width: '480px'
+    }).afterClosed().subscribe(() => {
+      // Recargar mapa desde el servicio
+      this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
+      this.cdr.detectChanges();
+    });
+  }
+
+  onCategoriaChange() {
+    this.subcategoria = '';
+    this.nuevaSubcategoria = '';
   }
 
   guardar() {
-    if (!this.categoria || !this.mes || !this.valor) return;
+    const subOk = this.subcategoria === '__nueva__'
+      ? this.nuevaSubcategoria.trim()
+      : this.subcategoria;
 
-    const mesNormalizado = this.mes; // asumimos formato "YYYY-MM"
+    if (!this.categoria || !subOk || !this.mes || !this.valor) return;
 
-    let existente = this.registros.find(r => r.mes === mesNormalizado);
+    // Buscar mes existente
+    let registro = this.registros.find(r => r.mes === this.mes);
 
-    if (!existente) {
-      existente = {
-        mes: mesNormalizado,
-        valores: {}
-      };
-      // inicializar categorías a 0 para consistencia
-      this.categorias.forEach(cat => existente!.valores[cat] = 0);
-      this.registros.push(existente);
+    // Si no existe → crear
+    if (!registro) {
+      registro = { mes: this.mes, valores: {} };
+      this.registros.push(registro);
     }
 
-    // actualizar solo la categoría indicada
-    existente.valores[this.categoria] = this.valor;
+    // Asegurar estructura de categoría
+    if (!registro.valores[this.categoria]) {
+      registro.valores[this.categoria] = {};
+    }
 
-    // ordenar y persistir mediante el servicio (emite y guarda en localStorage)
-    this.registros.sort((a, b) => a.mes.localeCompare(b.mes));
+    // Guardar valor por subcategoría
+    registro.valores[this.categoria][subOk] = this.valor;
+
+    // Registrar subcategoría en el servicio (persistente)
+    this.patrimonioService.addSubcategoria(this.categoria, subOk);
+
+    // Guardar cambios globales
     this.patrimonioService.actualizarRegistros(this.registros);
 
-    // reset campo valor para nueva entrada
+    // Reset formulario
     this.valor = 0;
+    this.subcategoria = '';
+    this.nuevaSubcategoria = '';
   }
 
-  getTotal(r: RegistroMensual): number {
-    return this.categorias.reduce((s, c) => s + (r.valores[c] || 0), 0);
+  getCategoriasParaMes(reg: RegistroMensual): string[] {
+    return Object.keys(reg.valores);
   }
 
-  // Método con diálogo y actualización vía servicio (esto dispara la suscripción)
-  eliminarRegistro(registro: RegistroMensual) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { mensaje: `¿Eliminar los datos del mes ${registro.mes}?` },
-      width: '420px'
+  getSubcategoriasPara(reg: RegistroMensual, categoria: string): string[] {
+    return Object.keys(reg.valores[categoria] || {});
+  }
+
+  getTotalCategoria(reg: RegistroMensual, categoria: string): number {
+    const valores = reg.valores[categoria] || {};
+    return Object.values(valores).reduce((a, b) => a + b, 0);
+  }
+
+  getTotalMes(reg: RegistroMensual): number {
+    return Object.keys(reg.valores)
+      .reduce((sum, cat) => sum + this.getTotalCategoria(reg, cat), 0);
+  }
+
+  eliminarRegistro(reg: RegistroMensual) {
+    this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: { mensaje: `¿Eliminar mes ${this.formatMes(reg.mes)}?` }
+    }).afterClosed().subscribe(ok => {
+      if (!ok) return;
+      this.registros = this.registros.filter(r => r !== reg);
+      this.patrimonioService.actualizarRegistros(this.registros);
+      this.cdr.detectChanges();
     });
+  }
 
-    dialogRef.afterClosed().subscribe(confirmado => {
-      if (!confirmado) return;
-
-      const nuevos = this.registros.filter(r => r.mes !== registro.mes);
-
-      // Actualizamos por el servicio -> guarda + .next() -> todos los suscriptores reaccionan
-      this.patrimonioService.actualizarRegistros(nuevos);
-
-      // forzar detección por si la vista no se actualiza instant
-      try { this.cdr.detectChanges(); } catch (e) {}
+  eliminarSubcategoria(reg: RegistroMensual, categoria: string, sub: string) {
+    this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: { mensaje: `¿Eliminar subcategoría "${sub}" de ${categoria}?` }
+    }).afterClosed().subscribe(ok => {
+      if (!ok) return;
+      delete reg.valores[categoria][sub];
+      this.patrimonioService.actualizarRegistros(this.registros);
+      this.cdr.detectChanges();
     });
+  }
+
+  actualizarSubcategoria(
+    reg: RegistroMensual,
+    categoria: string,
+    subAnt: string,
+    subNueva: string
+  ) {
+    if (subAnt === subNueva) return;
+
+    const valor = reg.valores[categoria][subAnt];
+    delete reg.valores[categoria][subAnt];
+    reg.valores[categoria][subNueva] = valor;
+
+    this.patrimonioService.addSubcategoria(categoria, subNueva);
+    this.patrimonioService.actualizarRegistros(this.registros);
+
+    this.cdr.detectChanges();
+  }
+
+  formatMes(m: string): string {
+    const [y, mm] = m.split('-');
+    const nombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `${nombres[+mm - 1]} ${y}`;
   }
 }

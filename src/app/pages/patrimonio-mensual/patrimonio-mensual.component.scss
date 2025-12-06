@@ -1,157 +1,101 @@
-h2 {
-    margin-bottom: 20px;
-    font-size: 22px;
-    text-align: center;
-  }
-  
-  .form-card {
-    max-width: 400px;
-    margin: auto;
-    padding: 25px;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  label {
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-  
-  input, select {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #cccccc;
-    font-size: 14px;
-  }
-  
-  button {
-    padding: 12px;
-    background-color: #1f73ff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  button:hover {
-    background-color: #145bd1;
-  }
-
-  .tabla-card {
-  margin: 30px auto;
-  max-width: 600px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.tabla-card h3 {
-  margin-bottom: 15px;
+.titulo {
   text-align: center;
-  font-size: 20px;
+  margin: 25px 0 10px;
+  font-weight: 600;
+  font-size: 24px;
 }
 
-.tabla-patrimonio {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
+.header-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  button {
+    font-size: 15px;
+  }
 }
 
-.tabla-patrimonio th {
-  background: #f1f1f1;
-  padding: 10px;
-  border-bottom: 2px solid #ddd;
-  text-align: left;
+.form-card {
+  max-width: 650px;
+  margin: 0 auto 30px auto;
+  padding: 25px;
+  border-radius: 16px;
 }
 
-.tabla-patrimonio td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  align-items: end;
 }
 
-.btn-eliminar {
-  background-color: #e53935;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
+.btn-guardar {
+  grid-column: 1 / -1;
+  justify-self: center;
+  padding: 10px 22px;
+  width: auto !important;
 }
 
-.btn-eliminar:hover {
-  background-color: #c62828;
-}
-
-/* Contenedor centrado */
-.tabla-container {
+.meses-accordion {
   max-width: 900px;
   margin: 0 auto;
-  padding: 10px;
 }
 
-/* Scroll horizontal si hay muchas columnas */
-.table-wrapper {
-  overflow-x: auto;
-  max-height: 500px; /* 🔧 Tamaño vertical de la tabla (ajustable) */
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.mat-expansion-panel-header {
+  padding-right: 15px !important;
 }
 
-/* Tabla */
-.tabla-patrimonio {
+.resumen-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.panel-content {
+  padding: 20px;
+}
+
+.categoria-bloque {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+
+.cat-titulo {
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tabla-subcategorias {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+
+  td {
+    padding: 8px 0;
+  }
+
+  .nombre mat-select {
+    width: 150px;
+  }
+
+  .valor {
+    font-weight: 600;
+    width: 100px;
+  }
+
+  .acciones {
+    width: 35px;
+    text-align: right;
+  }
 }
 
-/* Cabecera sticky */
-.tabla-patrimonio th {
-  position: sticky;
-  top: 0;
-  background: #f0f0f0;
-  z-index: 2;       /* Para que no quede oculta */
-  padding: 8px;
-  text-align: left;
-  border-bottom: 2px solid #ccc;
-}
-
-/* Filas */
-.tabla-patrimonio td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #eee;
-}
-
-.tabla-patrimonio tr:nth-child(even) {
-  background: #fafafa;
-}
-
-/* Botón eliminar pequeño */
-.btn-eliminar {
-  padding: 4px 8px;
-  font-size: 12px;
-  background-color: #e53935;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-eliminar:hover {
-  background-color: #c62828;
+/* Reactivar selector type="month" que Material desactiva */
+input[type="month"] {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
 }
