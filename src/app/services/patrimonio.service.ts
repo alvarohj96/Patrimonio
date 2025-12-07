@@ -24,6 +24,13 @@ export class PatrimonioService {
   private registrosSubject = new BehaviorSubject<RegistroMensual[]>([]);
   registros$ = this.registrosSubject.asObservable();
 
+  private categorias: string[] = [];
+  private categoriasKey = 'categorias_patrimonio';
+
+  categoriaSubject = new BehaviorSubject<string[]>(this.categorias);
+  categorias$ = this.categoriaSubject.asObservable();
+
+
   // Mapa de subcategorías por categoría
   private subcategoriasMap: { [categoria: string]: string[] } = {
     Acciones: [],
@@ -34,6 +41,9 @@ export class PatrimonioService {
   };
 
   constructor() {
+    const stored = localStorage.getItem(this.categoriasKey);
+    this.categorias = stored ? JSON.parse(stored) : ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
+
     // cargar subcategorías guardadas (si existen)
     const guardadasSubs = localStorage.getItem(this.LS_SUBS);
     if (guardadasSubs) {
@@ -74,6 +84,37 @@ export class PatrimonioService {
     this.registrosSubject.next(JSON.parse(JSON.stringify(registros)));
   }
 
+  getCategorias(): string[] {
+    return [...this.categorias];
+  }
+
+  addCategoria(cat: string) {
+    if (!this.categorias.includes(cat)) {
+      this.categorias.push(cat);
+      localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));
+
+      // Crear categoría vacía en todos los registros
+      const registros = this.getRegistros();
+      registros.forEach(r => {
+        if (!r.valores[cat]) r.valores[cat] = {};
+      });
+      this.actualizarRegistros(registros);
+    }
+  }
+
+
+  removeCategoria(cat: string) {
+    this.categorias = this.categorias.filter(c => c !== cat);
+    localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));
+
+    // Eliminar categoría de todos los registros
+    const registros = this.getRegistros();
+    registros.forEach(r => {
+      delete r.valores[cat];
+    });
+    this.actualizarRegistros(registros);
+  }
+
   // -------------------------
   // Subcategorías API pública
   // -------------------------
@@ -98,6 +139,12 @@ export class PatrimonioService {
     if (!this.subcategoriasMap[categoria]) return;
     this.subcategoriasMap[categoria] = this.subcategoriasMap[categoria].filter(s => s !== subcat);
     this.saveSubcategorias();
+  }
+
+  ordenarCategorias(cats: string[]) {
+    this.categorias = [...cats];
+    localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));
+    this.categoriaSubject.next([...this.categorias]);
   }
 
   private saveSubcategorias() {

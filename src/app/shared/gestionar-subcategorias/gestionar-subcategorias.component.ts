@@ -61,7 +61,7 @@ import { PatrimonioService } from '../../services/patrimonio.service';
 })
 export class GestionarSubcategoriasComponent {
 
-  categorias = ["Acciones","Fondos","Inmuebles","Liquidez","Cripto"];
+  categorias: string[] = [];
   categoria = "";
   nuevaSub = "";
   subs: string[] = [];
@@ -70,6 +70,11 @@ export class GestionarSubcategoriasComponent {
     private serv: PatrimonioService,
     public dialogRef: MatDialogRef<GestionarSubcategoriasComponent>
   ) {}
+
+  ngOnInit() {
+    // Obtener categorías dinámicas del servicio
+    this.categorias = this.serv.getCategorias();
+  }
 
   cargar() {
     this.subs = [...this.serv.getSubcategorias(this.categoria)];

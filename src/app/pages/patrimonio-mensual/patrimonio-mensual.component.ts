@@ -12,6 +12,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { GestionarCategoriasComponent } from '../../shared/gestionar-categorias/gestionar-categorias.component';
 import { GestionarSubcategoriasComponent } from '../../shared/gestionar-subcategorias/gestionar-subcategorias.component';
 import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.service';
 
@@ -35,7 +36,7 @@ import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.se
 })
 export class PatrimonioMensualComponent implements OnInit {
 
-  categorias: string[] = ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
+  categorias: string[] = [];
 
   registros: RegistroMensual[] = [];
 
@@ -52,15 +53,21 @@ export class PatrimonioMensualComponent implements OnInit {
     private patrimonioService: PatrimonioService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+
+    this.categorias = this.patrimonioService.getCategorias();
 
     // Subcategorías iniciales desde el servicio
     this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
 
     // Cargar registros actuales
     this.registros = this.patrimonioService.getRegistros();
+
+    this.patrimonioService.registros$.subscribe(() => {
+      this.categorias = this.patrimonioService.getCategorias();
+    });
 
     // Subscribirse a cambios futuros
     this.patrimonioService.registros$.subscribe(regs => {
@@ -182,7 +189,16 @@ export class PatrimonioMensualComponent implements OnInit {
 
   formatMes(m: string): string {
     const [y, mm] = m.split('-');
-    const nombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return `${nombres[+mm - 1]} ${y}`;
+  }
+
+  abrirGestionCategorias() {
+    this.dialog.open(GestionarCategoriasComponent, {
+      width: '480px'
+    }).afterClosed().subscribe(() => {
+      this.categorias = this.patrimonioService.getCategorias();
+      this.cdr.detectChanges();
+    });
   }
 }
