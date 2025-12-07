@@ -1,10 +1,9 @@
 <h2 class="titulo">📊 Registrar patrimonio mensual</h2>
 
 <div class="header-actions">
-  <button mat-raised-button color="primary" class="btn-gestionar"
-        (click)="abrirGestionCategorias()">
-  Gestionar categorías
-</button>
+  <button mat-raised-button color="primary" class="btn-gestionar" (click)="abrirGestionCategorias()">
+    Gestionar categorías
+  </button>
   <button mat-raised-button color="accent" (click)="abrirGestionSubcategorias()">
     Gestionar subcategorías
   </button>
@@ -39,7 +38,11 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Mes</mat-label>
-      <input matInput type="month" [(ngModel)]="mes" name="mes" required>
+      <input matInput [matDatepicker]="pickerMes" [(ngModel)]="mesSeleccionado" name="mesSeleccionado"
+        (dateChange)="onMesSeleccionado($event)" required />
+      <mat-datepicker-toggle matSuffix [for]="pickerMes"></mat-datepicker-toggle>
+      <mat-datepicker #pickerMes startView="multi-year" (monthSelected)="seleccionarMes($event, pickerMes)"
+        panelClass="month-picker"></mat-datepicker>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -80,8 +83,7 @@
         </div>
       </mat-panel-description>
 
-      <button mat-icon-button color="warn"
-              (click)="eliminarRegistro(r); $event.stopPropagation();">
+      <button mat-icon-button color="warn" (click)="eliminarRegistro(r); $event.stopPropagation();">
         <mat-icon>delete</mat-icon>
       </button>
 

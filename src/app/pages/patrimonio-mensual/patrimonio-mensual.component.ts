@@ -10,6 +10,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
+import { MAT_DATE_FORMATS } from '@angular/material/core';
+export const FORMATO_MES = {
+  parse: {
+    dateInput: 'MM/YYYY',
+  },
+  display: {
+    dateInput: 'MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY'
+  }
+};
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { GestionarCategoriasComponent } from '../../shared/gestionar-categorias/gestionar-categorias.component';
@@ -29,10 +43,15 @@ import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.se
     MatIconModule,
     MatExpansionModule,
     MatDialogModule,
-    MatCardModule
+    MatCardModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './patrimonio-mensual.component.html',
-  styleUrls: ['./patrimonio-mensual.component.scss']
+  styleUrls: ['./patrimonio-mensual.component.scss'],
+  providers: [
+    { provide: MAT_DATE_FORMATS, useValue: FORMATO_MES }
+  ]
 })
 export class PatrimonioMensualComponent implements OnInit {
 
@@ -48,6 +67,7 @@ export class PatrimonioMensualComponent implements OnInit {
   nuevaSubcategoria = '';
   mes = '';
   valor = 0;
+  mesSeleccionado: Date | null = null;
 
   constructor(
     private patrimonioService: PatrimonioService,
@@ -200,5 +220,18 @@ export class PatrimonioMensualComponent implements OnInit {
       this.categorias = this.patrimonioService.getCategorias();
       this.cdr.detectChanges();
     });
+  }
+
+  onMesSeleccionado(e: any) {
+    // No se usa, pero lo dejamos por compatibilidad.
+  }
+
+  seleccionarMes(event: Date, datepicker: any) {
+    const year = event.getFullYear();
+    const month = (event.getMonth() + 1).toString().padStart(2, '0');
+
+    this.mes = `${year}-${month}`;   // <-- Aquí guardamos el formato YYYY-MM
+    this.mesSeleccionado = event;
+    datepicker.close();
   }
 }

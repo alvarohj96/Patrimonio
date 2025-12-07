@@ -21,7 +21,37 @@
       <tr mat-header-row *matHeaderRowDef="['categoria','total']"></tr>
       <tr mat-row *matRowDef="let row; columns: ['categoria','total']"></tr>
     </table>
+
+    <h3 style="text-align:center; font-weight:600; margin-bottom:15px;">
+      Total mes: {{ totalUltimoMes | number:'1.0-0' }} €
+    </h3>
   </mat-card>
+
+  <!-- 🔥 TARJETA DE VARIACIÓN -->
+  <div class="resumen-variacion">
+
+    <div class="numero-principal">
+      {{ totalUltimoMes | number:'1.0-0' }} €
+    </div>
+
+    <div class="detalle-anterior">
+      Mes anterior: {{ totalMesAnterior | number:'1.0-0' }} €
+    </div>
+
+    <div class="variacion" [ngClass]="{
+         'sube': tendencia === 'sube',
+         'baja': tendencia === 'baja',
+         'igual': tendencia === 'igual'
+       }">
+
+      <mat-icon *ngIf="tendencia === 'sube'">trending_up</mat-icon>
+      <mat-icon *ngIf="tendencia === 'baja'">trending_down</mat-icon>
+      <mat-icon *ngIf="tendencia === 'igual'">horizontal_rule</mat-icon>
+
+      {{ variacionAbsoluta | number:'1.0-0' }} €
+      ({{ variacionPorcentaje | number:'1.0-2' }} %)
+    </div>
+  </div>
 
 
   <!-- ================================

@@ -29,6 +29,7 @@
   align-items: end;
 }
 
+
 .btn-guardar {
   grid-column: 1 / -1;
   justify-self: center;
@@ -36,9 +37,12 @@
   width: auto !important;
 }
 
-.meses-accordion {
-  max-width: 900px;
-  margin: 0 auto;
+.meses-accordion .mat-expansion-panel-header {
+  padding: 0 20px !important;
+}
+
+.panel-content {
+  padding: 20px 30px;
 }
 
 .mat-expansion-panel-header {
@@ -51,10 +55,6 @@
   gap: 10px;
   font-size: 13px;
   opacity: 0.85;
-}
-
-.panel-content {
-  padding: 20px;
 }
 
 .categoria-bloque {
@@ -73,6 +73,8 @@
 
 .tabla-subcategorias {
   width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   border-collapse: collapse;
 
   td {
@@ -92,6 +94,10 @@
     width: 35px;
     text-align: right;
   }
+}
+
+.tabla-subcategorias td select {
+  width: 150px;
 }
 
 /* Reactivar selector type="month" que Material desactiva */

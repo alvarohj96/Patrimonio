@@ -30,3 +30,41 @@ canvas {
   border-radius: 12px;
   overflow: hidden;
 }
+
+.resumen-variacion {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.numero-principal {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.detalle-anterior {
+  margin-top: 4px;
+  font-size: 15px;
+  opacity: 0.7;
+}
+
+.variacion {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.variacion.sube {
+  color: #43a047; /* verde */
+}
+
+.variacion.baja {
+  color: #e53935; /* rojo */
+}
+
+.variacion.igual {
+  color: #555;
+}

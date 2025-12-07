@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-
+import { MatIconModule } from '@angular/material/icon';
 import { BaseChartDirective } from 'ng2-charts';
 import { PatrimonioService, RegistroMensual } from '../../services/patrimonio.service';
 
@@ -45,7 +45,8 @@ Chart.register(
     DecimalPipe,
     MatCardModule,
     MatTableModule,
-    BaseChartDirective
+    BaseChartDirective,
+    MatIconModule
   ],
   templateUrl: './patrimonio-general.component.html',
   styleUrls: ['./patrimonio-general.component.scss']
@@ -54,6 +55,12 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
   registros: RegistroMensual[] = [];
   datosUltimoMes: { categoria: string; total: number }[] = [];
+  totalUltimoMes = 0;
+  totalMesAnterior = 0;
+  variacionAbsoluta = 0;
+  variacionPorcentaje = 0;
+  tendencia: 'sube' | 'baja' | 'igual' = 'igual';
+
 
   // Gráfico donut (último mes)
   chartLabels: string[] = [];
@@ -104,6 +111,30 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     const ultimo = this.registros[this.registros.length - 1];
 
     this.procesarUltimoMes(ultimo);
+    const anterior = this.registros.length > 1
+      ? this.registros[this.registros.length - 2]
+      : null;
+
+    if (anterior) {
+      this.totalMesAnterior = this.sumarTotalMes(anterior);
+
+      this.variacionAbsoluta = this.totalUltimoMes - this.totalMesAnterior;
+
+      this.variacionPorcentaje =
+        this.totalMesAnterior > 0
+          ? (this.variacionAbsoluta / this.totalMesAnterior) * 100
+          : 0;
+
+      if (this.variacionAbsoluta > 0) this.tendencia = 'sube';
+      else if (this.variacionAbsoluta < 0) this.tendencia = 'baja';
+      else this.tendencia = 'igual';
+
+    } else {
+      this.totalMesAnterior = 0;
+      this.variacionAbsoluta = 0;
+      this.variacionPorcentaje = 0;
+      this.tendencia = 'igual';
+    }
     this.procesarBarras();
     this.procesarLineas();
   }
@@ -122,6 +153,10 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.chartLabels = resumen.map(r => r.categoria);
     this.chartData = resumen.map(r => r.total);
+
+    // ➜ TOTAL GENERAL DEL MES
+    this.totalUltimoMes = this.datosUltimoMes
+      .reduce((s, c) => s + c.total, 0);
   }
 
   // ======================================================
@@ -186,4 +221,12 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     const colores = ['#1e88e5', '#43a047', '#fb8c00', '#8e24aa', '#e53935'];
     return colores[i % colores.length];
   }
+
+  sumarTotalMes(r: RegistroMensual): number {
+    return Object.keys(r.valores)
+      .reduce((sum, cat) =>
+        sum + this.sumarCategoria(r.valores[cat])
+        , 0);
+  }
+
 }
