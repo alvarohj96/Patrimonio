@@ -78,6 +78,28 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     }
   };
 
+  doughnutOptions = {
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const label = context.label || '';
+            const value = context.raw || 0;
+
+            // Obtener todos los valores del dataset
+            const dataArray = context.chart.data.datasets[0].data;
+            const total = dataArray.reduce((a: number, b: number) => a + b, 0);
+
+            // Calcular porcentaje
+            const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+
+            return `${label}: ${value.toLocaleString()} € (${pct}%)`;
+          }
+        }
+      }
+    }
+  };
+
   // Gráfico de líneas (evolución por categoría)
   lineLabels: string[] = [];
   lineData: any = { labels: [], datasets: [] };

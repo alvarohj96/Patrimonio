@@ -1,23 +1,35 @@
-.contenedor {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 24px;
+.contenedor-general {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
+}
+
+.fila-superior {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap; /* para móviles */
+  margin-bottom: 25px;
+}
+
+.mitad {
+  width: 38%;
+  min-width: 300px;
+}
+
+.amplia {
+  margin: 20px auto;
+  width: 78%;
 }
 
 .card {
   padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
 }
 
 .card h2 {
   margin-bottom: 12px;
   font-weight: 600;
-}
-
-.card-wide {
-  grid-column: 1 / -1;
 }
 
 canvas {
@@ -57,11 +69,13 @@ canvas {
 }
 
 .variacion.sube {
-  color: #43a047; /* verde */
+  color: #43a047;
+  /* verde */
 }
 
 .variacion.baja {
-  color: #e53935; /* rojo */
+  color: #e53935;
+  /* rojo */
 }
 
 .variacion.igual {
