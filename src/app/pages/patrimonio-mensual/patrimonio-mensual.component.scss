@@ -37,16 +37,23 @@
   width: auto !important;
 }
 
-.meses-accordion .mat-expansion-panel-header {
-  padding: 0 20px !important;
+.meses-accordion {
+  max-width: 600px;   /* controla el ancho */
+  margin: 0 auto;     /* centra la tabla */
+}
+
+/* Panel de cada mes */
+mat-expansion-panel {
+  border-radius: 12px !important;
+  overflow: hidden;
 }
 
 .panel-content {
   padding: 20px 30px;
 }
 
-.mat-expansion-panel-header {
-  padding-right: 15px !important;
+mat-expansion-panel-header {
+  padding: 12px 18px !important;
 }
 
 .resumen-categorias {
@@ -57,11 +64,22 @@
   opacity: 0.85;
 }
 
+.panel-content {
+  padding: 20px;
+}
+
+/* Bloques de categoría */
 .categoria-bloque {
-  background: #fafafa;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 25px;
+}
+
+/* Títulos de categoría */
+.categoria-bloque h3 {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .cat-titulo {
@@ -98,6 +116,31 @@
 
 .tabla-subcategorias td select {
   width: 150px;
+}
+
+.contenedor-centrado {
+  max-width: auto;   /* Ajusta aquí el ancho deseado */
+  margin: 0 auto;     /* Centra el bloque */
+  padding: 0 10%;    /* Pequeño margen lateral */
+}
+
+.diff {
+  width: 80px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.positivo {
+  color: #2e7d32 !important; /* verde */
+}
+
+.negativo {
+  color: #c62828 !important; /* rojo */
+}
+
+.diff span {
+  display: inline-block;
+  min-width: 60px;
 }
 
 /* Reactivar selector type="month" que Material desactiva */

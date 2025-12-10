@@ -234,4 +234,39 @@ export class PatrimonioMensualComponent implements OnInit {
     this.mesSeleccionado = event;
     datepicker.close();
   }
+
+  getDiferenciaMes(regActual: RegistroMensual): number | null {
+    // Obtener posición del registro actual
+    const index = this.registros.indexOf(regActual);
+
+    // Si es el primer mes, no hay diferencia
+    if (index <= 0) return null;
+
+    const regAnterior = this.registros[index - 1];
+    if (!regAnterior) return null;
+
+    const totalActual = this.getTotalMes(regActual);
+    const totalAnterior = this.getTotalMes(regAnterior);
+
+    return totalActual - totalAnterior;
+  }
+
+  getPorcentajeMes(regActual: RegistroMensual): number | null {
+    const index = this.registros.indexOf(regActual);
+    if (index <= 0) return null;
+
+    const regAnterior = this.registros[index - 1];
+    if (!regAnterior) return null;
+
+    const totalActual = this.getTotalMes(regActual);
+    const totalAnterior = this.getTotalMes(regAnterior);
+
+    if (totalAnterior === 0) return null;
+
+    const diferencia = totalActual - totalAnterior;
+
+    return (diferencia / totalAnterior) * 100;
+  }
+
+
 }

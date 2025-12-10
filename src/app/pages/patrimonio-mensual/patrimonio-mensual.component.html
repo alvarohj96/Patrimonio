@@ -61,73 +61,99 @@
 
 <h2 class="titulo">📁 Datos registrados</h2>
 
-<mat-accordion class="meses-accordion">
+<div class="contenedor-centrado">
+  <mat-accordion class="meses-accordion">
 
-  <mat-expansion-panel *ngFor="let r of registros">
+    <mat-expansion-panel *ngFor="let r of registros">
 
-    <!-- CABECERA DEL MES -->
-    <mat-expansion-panel-header>
+      <!-- CABECERA DEL MES -->
+      <mat-expansion-panel-header>
 
-      <mat-panel-title>
-        <span class="mes-titulo">{{ formatMes(r.mes) }}</span>
-      </mat-panel-title>
+        <mat-panel-title>
+          <span class="mes-titulo">{{ formatMes(r.mes) }}</span>
+        </mat-panel-title>
 
-      <mat-panel-description>
-        <div class="resumen-categorias">
-          <strong>Total:</strong> {{ getTotalMes(r) | number:'1.0-0' }} €
-          <span *ngFor="let cat of categorias">
-            <ng-container *ngIf="getTotalCategoria(r, cat) > 0">
-              • {{ cat }}: {{ getTotalCategoria(r, cat) | number:'1.0-0' }} €
+        <mat-panel-description>
+          <div class="resumen-categorias">
+            <strong>Total:</strong> {{ getTotalMes(r) | number:'1.0-0' }} €
+            <span *ngFor="let cat of categorias">
+              <ng-container *ngIf="getTotalCategoria(r, cat) > 0">
+                • {{ cat }}: {{ getTotalCategoria(r, cat) | number:'1.0-0' }} €
+              </ng-container>
+            </span>
+            <!-- DIFERENCIA CON EL MES ANTERIOR -->
+            <ng-container *ngIf="getDiferenciaMes(r) as diff">
+
+              <!-- Positivo -->
+              <span *ngIf="diff > 0" style="color: #2e7d32; font-weight: bold;">
+                ▲ +{{ diff | number:'1.0-0' }} €
+
+                <!-- porcentaje positivo -->
+                <ng-container *ngIf="getPorcentajeMes(r) as pct">
+                  ( +{{ pct | number:'1.2-2' }}% )
+                </ng-container>
+              </span>
+
+              <!-- Negativo -->
+              <span *ngIf="diff < 0" style="color: #c62828; font-weight: bold;">
+                ▼ {{ diff | number:'1.0-0' }} €
+
+                <!-- porcentaje negativo -->
+                <ng-container *ngIf="getPorcentajeMes(r) as pct">
+                  ( {{ pct | number:'1.2-2' }}% )
+                </ng-container>
+              </span>
+
             </ng-container>
-          </span>
+          </div>
+        </mat-panel-description>
+
+        <button mat-icon-button color="warn" (click)="eliminarRegistro(r); $event.stopPropagation();">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </mat-expansion-panel-header>
+
+
+      <!-- CONTENIDO EXPANDIDO -->
+      <div class="panel-content">
+
+        <div class="categoria-bloque" *ngFor="let cat of getCategoriasParaMes(r)">
+
+          <h3 class="cat-titulo">
+            {{ cat }}
+            <span>{{ getTotalCategoria(r, cat) | number:'1.0-0' }} €</span>
+          </h3>
+
+          <table class="tabla-subcategorias">
+            <tr *ngFor="let s of getSubcategoriasPara(r, cat)">
+
+              <td class="nombre">
+                <mat-select [ngModel]="s" (ngModelChange)="actualizarSubcategoria(r, cat, s, $event)">
+                  <mat-option *ngFor="let op of subcategoriasPorCategoria[cat]" [value]="op">
+                    {{ op }}
+                  </mat-option>
+                </mat-select>
+              </td>
+
+              <td class="valor">
+                {{ r.valores[cat][s] | number:'1.0-0' }} €
+              </td>
+
+              <td class="acciones">
+                <button mat-icon-button color="warn" (click)="eliminarSubcategoria(r, cat, s)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+
+            </tr>
+          </table>
+
         </div>
-      </mat-panel-description>
-
-      <button mat-icon-button color="warn" (click)="eliminarRegistro(r); $event.stopPropagation();">
-        <mat-icon>delete</mat-icon>
-      </button>
-
-    </mat-expansion-panel-header>
-
-
-    <!-- CONTENIDO EXPANDIDO -->
-    <div class="panel-content">
-
-      <div class="categoria-bloque" *ngFor="let cat of getCategoriasParaMes(r)">
-
-        <h3 class="cat-titulo">
-          {{ cat }}
-          <span>{{ getTotalCategoria(r, cat) | number:'1.0-0' }} €</span>
-        </h3>
-
-        <table class="tabla-subcategorias">
-          <tr *ngFor="let s of getSubcategoriasPara(r, cat)">
-
-            <td class="nombre">
-              <mat-select [ngModel]="s" (ngModelChange)="actualizarSubcategoria(r, cat, s, $event)">
-                <mat-option *ngFor="let op of subcategoriasPorCategoria[cat]" [value]="op">
-                  {{ op }}
-                </mat-option>
-              </mat-select>
-            </td>
-
-            <td class="valor">
-              {{ r.valores[cat][s] | number:'1.0-0' }} €
-            </td>
-
-            <td class="acciones">
-              <button mat-icon-button color="warn" (click)="eliminarSubcategoria(r, cat, s)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-
-          </tr>
-        </table>
 
       </div>
 
-    </div>
+    </mat-expansion-panel>
 
-  </mat-expansion-panel>
-
-</mat-accordion>
+  </mat-accordion>
+</div>
