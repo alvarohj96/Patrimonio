@@ -148,3 +148,73 @@ input[type="month"] {
   appearance: auto !important;
   -webkit-appearance: auto !important;
 }
+/* Contenedor con scroll */
+.tabla-wrapper {
+  max-height: 350px;     /* <-- altura visible sin desplazar toda la pantalla */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+/* Tabla completa */
+.tabla-registros {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabla-registros thead th {
+  background: #f4f4f4;
+  font-weight: 600;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabla-registros td {
+  padding: 8px 10px;
+  text-align: center;
+}
+
+/* Columnas */
+.mes-col {
+  font-weight: 600;
+  text-align: left;
+}
+
+.total-col {
+  font-weight: 700;
+  color: #1e88e5;
+}
+
+.cat-val {
+  color: #444;
+}
+
+/* Variación */
+.positivo {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.negativo {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.neutro {
+  color: #777;
+}
+
+.pct {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* Acciones */
+.acciones button {
+  margin: 0 3px;
+}

@@ -1,1 +1,44 @@
-<p>gestionar-subcategorias.component works!</p>
+<div class="dialog-container">
+
+  <h2 class="titulo">
+    <mat-icon class="titulo-icon">lists</mat-icon>
+    Gestionar subcategorías
+  </h2>
+
+  <!-- SELECCIONAR CATEGORÍA -->
+  <mat-form-field appearance="outline" class="input-full">
+    <mat-label>Categoría</mat-label>
+    <mat-select [(ngModel)]="categoria" (selectionChange)="cargar()">
+      <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- MOSTRAR LISTA DE SUBCATEGORÍAS -->
+  <div *ngIf="categoria" class="lista-categorias">
+
+    <div class="cat-item" *ngFor="let s of subs">
+      <span class="cat-nombre">{{ s }}</span>
+
+      <button mat-icon-button color="warn" (click)="eliminar(s)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- AÑADIR SUBCATEGORÍA -->
+  <mat-form-field appearance="outline" class="input-full">
+    <mat-label>Nueva subcategoría</mat-label>
+    <input matInput [(ngModel)]="nuevaSub">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" class="btn-add" (click)="anyadir()">
+    <mat-icon>add</mat-icon>
+    Añadir subcategoría
+  </button>
+
+  <div class="acciones">
+    <button mat-button (click)="dialogRef.close()">Cerrar</button>
+  </div>
+
+</div>

@@ -29,6 +29,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { GestionarCategoriasComponent } from '../../shared/gestionar-categorias/gestionar-categorias.component';
 import { GestionarSubcategoriasComponent } from '../../shared/gestionar-subcategorias/gestionar-subcategorias.component';
 import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.service';
+import { DetalleMensualDialogComponent } from '../../shared/detalle-mensual-dialog/detalle-mensual-dialog.component';
 
 @Component({
   selector: 'app-patrimonio-mensual',
@@ -268,5 +269,14 @@ export class PatrimonioMensualComponent implements OnInit {
     return (diferencia / totalAnterior) * 100;
   }
 
+  abrirDetalle(reg: RegistroMensual) {
+    this.dialog.open(DetalleMensualDialogComponent, {
+      width: '500px',
+      data: {
+        mes: this.formatMes(reg.mes),
+        valores: reg.valores
+      }
+    });
+  }
 
 }

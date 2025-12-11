@@ -1,0 +1,59 @@
+<div class="dialog-container">
+
+  <h2 class="titulo">Detalle del mes {{ data.mes }}</h2>
+
+  <!-- ===== Gráfico circular ===== -->
+  <div class="chart-container">
+    <canvas
+      baseChart
+      [data]="{
+        labels: donutLabels,
+        datasets: [{ data: donutData, backgroundColor: donutColors[0].backgroundColor }]
+      }"
+      type="doughnut"
+      width="260"
+      height="260"
+    ></canvas>
+  </div>
+
+  <h3 class="subtitulo">Distribución por categorías</h3>
+
+  <!-- ===== Resumen en dos columnas ===== -->
+  <div class="grid-datos">
+    <div *ngFor="let cat of categorias" class="categoria-item">
+
+      <div class="cat-header">
+        <div class="cat-nombre">{{ cat }}</div>
+        <div class="cat-total">
+          {{ totalesPorCategoria[cat] | number:'1.0-0' }} €  
+          <span class="pct">({{ getPorcentajeCategoria(cat) | number:'1.0-1' }}%)</span>
+        </div>
+      </div>
+
+      <!-- Subcategorías -->
+      <div class="sub-lista">
+        <div *ngFor="let s of getSubcategorias(cat)" class="sub-item">
+          <span>{{ s }}</span>
+
+          <span class="sub-valor">
+            {{ getValorSubcategoria(cat, s) | number:'1.0-0' }} €
+            <span class="sub-pct">
+              ({{ getPorcentajeSubcategoria(cat, s) | number:'1.0-1' }}%)
+            </span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="total-general">
+    Total del mes:
+    <strong>{{ totalMes | number:'1.0-0' }} €</strong>
+  </div>
+
+  <div class="acciones">
+    <button mat-raised-button color="primary" (click)="dialogRef.close()">Cerrar</button>
+  </div>
+
+</div>

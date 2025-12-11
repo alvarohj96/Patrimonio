@@ -1,1 +1,34 @@
-<p>gestionar-categorias works!</p>
+<div class="dialog-container">
+
+  <h2 class="titulo">
+    <mat-icon class="titulo-icon">category</mat-icon>
+    Gestionar categorías
+  </h2>
+
+  <!-- LISTA DE CATEGORÍAS -->
+  <div class="lista-categorias">
+    <div class="cat-item" *ngFor="let c of categorias">
+      <span class="cat-nombre">{{ c }}</span>
+
+      <button mat-icon-button color="warn" (click)="removeCat(c)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- AÑADIR CATEGORÍA -->
+  <mat-form-field appearance="outline" class="input-full">
+    <mat-label>Nueva categoría</mat-label>
+    <input matInput [(ngModel)]="nuevaCat">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" class="btn-add" (click)="addCat()">
+    <mat-icon>add</mat-icon>
+    Añadir categoría
+  </button>
+
+  <div class="acciones">
+    <button mat-button (click)="dialogRef.close()">Cerrar</button>
+  </div>
+
+</div>

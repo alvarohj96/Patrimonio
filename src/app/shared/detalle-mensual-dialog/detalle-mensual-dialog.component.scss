@@ -1,0 +1,90 @@
+.dialog-container {
+  padding: 25px;
+  max-width: 650px;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.subtitulo {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.grid-datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 25px;
+}
+
+.categoria-item {
+  padding: 15px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+}
+
+.cat-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cat-nombre {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.cat-total {
+  font-weight: 700;
+  color: #1e88e5;
+}
+
+.pct {
+  font-weight: 500;
+  color: #6a6a6a;
+}
+
+.sub-lista {
+  margin-top: 8px;
+}
+
+.sub-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.sub-valor {
+  font-weight: 600;
+}
+
+.sub-pct {
+  color: #888;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.total-general {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 18px;
+}
+
+.acciones {
+  text-align: right;
+  margin-top: 20px;
+}
