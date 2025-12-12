@@ -8,7 +8,7 @@
 .header-actions {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
   button {
     font-size: 15px;
@@ -39,6 +39,7 @@
 
 .botones-datos {
   justify-self: center;
+  padding-bottom: 10px;
 }
 
 .meses-accordion {
