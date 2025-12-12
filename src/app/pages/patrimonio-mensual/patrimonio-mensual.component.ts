@@ -99,13 +99,14 @@ export class PatrimonioMensualComponent implements OnInit {
 
   abrirGestionSubcategorias() {
     this.dialog.open(GestionarSubcategoriasComponent, {
-      width: '480px'
-    }).afterClosed().subscribe(() => {
-      // Recargar mapa desde el servicio
-      this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
-      this.cdr.detectChanges();
+      width: 'auto',
+      maxWidth: '95vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'dialogo-ancho'
     });
   }
+
 
   onCategoriaChange() {
     this.subcategoria = '';
@@ -216,10 +217,11 @@ export class PatrimonioMensualComponent implements OnInit {
 
   abrirGestionCategorias() {
     this.dialog.open(GestionarCategoriasComponent, {
-      width: '480px'
-    }).afterClosed().subscribe(() => {
-      this.categorias = this.patrimonioService.getCategorias();
-      this.cdr.detectChanges();
+      width: 'auto',
+      maxWidth: '95vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'dialogo-ancho'
     });
   }
 

@@ -150,7 +150,7 @@ input[type="month"] {
 }
 /* Contenedor con scroll */
 .tabla-wrapper {
-  max-height: 350px;     /* <-- altura visible sin desplazar toda la pantalla */
+  max-height: auto;
   overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 10px;
