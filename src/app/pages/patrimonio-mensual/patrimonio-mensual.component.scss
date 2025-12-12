@@ -37,9 +37,15 @@
   width: auto !important;
 }
 
+.botones-datos {
+  justify-self: center;
+}
+
 .meses-accordion {
-  max-width: 600px;   /* controla el ancho */
-  margin: 0 auto;     /* centra la tabla */
+  max-width: 600px;
+  /* controla el ancho */
+  margin: 0 auto;
+  /* centra la tabla */
 }
 
 /* Panel de cada mes */
@@ -119,9 +125,12 @@ mat-expansion-panel-header {
 }
 
 .contenedor-centrado {
-  max-width: auto;   /* Ajusta aquí el ancho deseado */
-  margin: 0 auto;     /* Centra el bloque */
-  padding: 0 10%;    /* Pequeño margen lateral */
+  max-width: auto;
+  /* Ajusta aquí el ancho deseado */
+  margin: 0 auto;
+  /* Centra el bloque */
+  padding: 0 10%;
+  /* Pequeño margen lateral */
 }
 
 .diff {
@@ -131,11 +140,13 @@ mat-expansion-panel-header {
 }
 
 .positivo {
-  color: #2e7d32 !important; /* verde */
+  color: #2e7d32 !important;
+  /* verde */
 }
 
 .negativo {
-  color: #c62828 !important; /* rojo */
+  color: #c62828 !important;
+  /* rojo */
 }
 
 .diff span {
@@ -148,6 +159,7 @@ input[type="month"] {
   appearance: auto !important;
   -webkit-appearance: auto !important;
 }
+
 /* Contenedor con scroll */
 .tabla-wrapper {
   max-height: auto;

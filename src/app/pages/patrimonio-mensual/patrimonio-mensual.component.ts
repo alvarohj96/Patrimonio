@@ -281,4 +281,130 @@ export class PatrimonioMensualComponent implements OnInit {
     });
   }
 
+  exportarCSV() {
+    if (!this.registros || this.registros.length === 0) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    let lineas: string[] = [];
+
+    // Cabecera CSV
+    lineas.push("Mes;Categoría;Subcategoría;Valor (€)");
+
+    // Cada registro → muchas líneas
+    this.registros.forEach(reg => {
+      const mes = reg.mes;
+
+      Object.keys(reg.valores).forEach(cat => {
+        const subs = reg.valores[cat];
+
+        Object.keys(subs).forEach(sub => {
+          const valor = subs[sub];
+          lineas.push(`${mes};${cat};${sub};${valor}`);
+        });
+      });
+    });
+
+    // Convertir a CSV texto
+    const csvContent = lineas.join("\n");
+
+    // Crear Blob descargable
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    // Crear enlace temporal
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "patrimonio_mensual.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+  }
+
+  importarCSV(event: any) {
+    const archivo: File = event.target.files[0];
+    if (!archivo) return;
+
+    const lector = new FileReader();
+
+    lector.onload = () => {
+      const texto = lector.result as string;
+
+      const lineas = texto.split(/\r?\n/).filter(l => l.trim() !== "");
+
+      if (lineas.length <= 1) {
+        alert("El archivo CSV está vacío o no tiene datos válidos.");
+        return;
+      }
+
+      // Saltamos la cabecera
+      lineas.shift();
+
+      const registrosMap: { [mes: string]: any } = {};
+
+      lineas.forEach(linea => {
+        const [mes, categoria, subcategoria, valorStr] = linea.split(";");
+
+        if (!mes || !categoria || !subcategoria || !valorStr) return;
+
+        const valor = Number(valorStr);
+        if (isNaN(valor)) return;
+
+        // Crear registro si no existe
+        if (!registrosMap[mes]) {
+          registrosMap[mes] = {
+            mes,
+            valores: {}
+          };
+        }
+
+        // Crear categoría si no existe
+        if (!registrosMap[mes].valores[categoria]) {
+          registrosMap[mes].valores[categoria] = {};
+        }
+
+        // Asignar valor
+        registrosMap[mes].valores[categoria][subcategoria] = valor;
+      });
+
+      // Pasar de mapa a array
+      const registrosImportados = Object.values(registrosMap);
+
+      // Guardar en servicio
+      this.patrimonioService.actualizarRegistros(registrosImportados as any);
+
+      // Sincronizar subcategorías
+      registrosImportados.forEach((reg: any) => {
+        Object.keys(reg.valores).forEach(cat => {
+          Object.keys(reg.valores[cat]).forEach(sub => {
+            this.patrimonioService.addSubcategoria(cat, sub);
+          });
+        });
+      });
+
+      alert("Datos importados correctamente.");
+      event.target.value = ""; // Reset input
+    };
+
+    lector.readAsText(archivo, "utf-8");
+  }
+
+  confirmarBorradoTotal() {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+    width: "420px",
+    data: { mensaje: "¿Seguro que quieres borrar TODOS los datos?" }
+  });
+
+  ref.afterClosed().subscribe(ok => {
+    if (!ok) return;
+
+    this.patrimonioService.resetearTodo();
+    this.registros = [];
+    this.categorias = this.patrimonioService.getCategorias();
+    this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
+  });
+  }
 }

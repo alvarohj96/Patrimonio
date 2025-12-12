@@ -123,9 +123,29 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // Procesamiento general de datos
   // ======================================================
   procesarDatos() {
+
     if (!this.registros.length) {
+      this.datosUltimoMes = [];
+
+      // Donut
       this.chartLabels = [];
       this.chartData = [];
+
+      // Barras
+      this.barLabels = [];
+      this.barData = { labels: [], datasets: [] };
+
+      // Líneas
+      this.lineLabels = [];
+      this.lineData = { labels: [], datasets: [] };
+
+      // Variación
+      this.totalUltimoMes = 0;
+      this.totalMesAnterior = 0;
+      this.variacionAbsoluta = 0;
+      this.variacionPorcentaje = 0;
+      this.tendencia = 'igual';
+
       return;
     }
 

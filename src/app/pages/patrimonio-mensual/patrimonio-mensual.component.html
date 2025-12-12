@@ -60,6 +60,22 @@
 
 <h2 class="titulo">📁 Datos registrados</h2>
 
+<div class="botones-datos">
+  <button mat-raised-button color="warn" class="btn-exportar" (click)="exportarCSV()">
+    Exportar datos
+  </button>
+
+  <button mat-raised-button color="primary" class="btn-importar" (click)="inputImport.click()">
+    Importar datos
+  </button>
+
+  <button mat-raised-button color="warn" class="btn-borrar-todo" (click)="confirmarBorradoTotal()">
+    Borrar todos los datos
+  </button>
+</div>
+
+<input #inputImport type="file" accept=".csv" style="display:none" (change)="importarCSV($event)">
+
 <div class="tabla-wrapper">
 
   <table class="tabla-registros mat-elevation-z2">

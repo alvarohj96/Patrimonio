@@ -37,13 +37,13 @@ export class PatrimonioService {
     Fondos: [],
     Inmuebles: [],
     Liquidez: ['Efectivo', 'Santander', 'Revolut'],
-    Cripto: ['Bitcoin', 'Ethereum']
+    Cripto: ['Bitcoin']
   };
 
   constructor() {
     const stored = localStorage.getItem(this.categoriasKey);
     this.categorias = stored ? JSON.parse(stored) : ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
-
+    this.categoriaSubject.next([...this.categorias]);
     // cargar subcategorías guardadas (si existen)
     const guardadasSubs = localStorage.getItem(this.LS_SUBS);
     if (guardadasSubs) {
@@ -206,4 +206,36 @@ export class PatrimonioService {
 
     return converted;
   }
+  // --------------------------------------------------------------------
+  // RESET TOTAL DEL SISTEMA 
+  // --------------------------------------------------------------------
+  resetearTodo() {
+
+    // 1. Vaciar localStorage
+    localStorage.removeItem(this.LS_KEY);
+    localStorage.removeItem(this.LS_SUBS);
+    localStorage.removeItem(this.categoriasKey);
+
+    // 2. Restaurar categorías por defecto
+    this.categorias = ['Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
+    this.categoriaSubject.next([...this.categorias]);
+
+    // 3. Restaurar mapa de subcategorías por defecto
+    this.subcategoriasMap = {
+      Acciones: [],
+      Fondos: [],
+      Inmuebles: [],
+      Liquidez: ['Efectivo', 'Santander', 'Revolut'],
+      Cripto: ['Bitcoin']
+    };
+
+    // Guardar subcategorías base
+    this.saveSubcategorias();
+
+    // 4. Emitir lista de registros vacía
+    this.registrosSubject.next([]);
+
+    console.warn("⚠️ TODO EL SISTEMA HA SIDO RESETEADO");
+  }
+
 }
