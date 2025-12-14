@@ -83,3 +83,69 @@ canvas {
 .variacion.igual {
   color: #555;
 }
+
+.filtros-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.filtro-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.filtro-item input {
+  accent-color: #1e88e5;
+}
+
+.filtro-item input:checked {
+  transform: scale(1.15);
+}
+
+.filtro-item:hover {
+  transform: scale(1.05);
+}
+
+.barras {
+  border-left: 4px solid #1e88e5;
+  padding-left: 10px;
+}
+
+.lineas {
+  border-left: 4px solid #43a047;
+  padding-left: 10px;
+}
+
+.acciones-filtro {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.btn-filtro {
+  font-size: 13px;
+  padding: 4px 10px;
+  line-height: 1.2;
+  border-radius: 20px;
+  text-transform: none;
+  transition: all 0.25s ease;
+  background-color: #f5f5f5;
+}
+
+.btn-filtro mat-icon {
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+.btn-filtro:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-1px);
+}

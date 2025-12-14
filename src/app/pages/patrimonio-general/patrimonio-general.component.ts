@@ -61,11 +61,21 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   variacionPorcentaje = 0;
   tendencia: 'sube' | 'baja' | 'igual' = 'igual';
 
+  colorPalette: string[] = [
+    '#1e88e5', // azul
+    '#43a047', // verde
+    '#fb8c00', // naranja
+    '#FFD700',
+    '#e53935', // rojo
+    '#00897b', // teal
+    '#6d4c41', // marrón
+    '#3949ab'  // índigo
+  ];
 
   // Gráfico donut (último mes)
   chartLabels: string[] = [];
   chartData: number[] = [];
-  chartColors = [{ backgroundColor: ['#1e88e5', '#43a047', '#fb8c00', '#8e24aa', '#e53935'] }];
+  chartColors = [{ backgroundColor: ['#1e88e5'] }];
 
   // Gráfico de barras (acumulado por mes)
   barLabels: string[] = [];
@@ -105,6 +115,13 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   lineData: any = { labels: [], datasets: [] };
 
   sub: any;
+
+  categoriasDisponibles: string[] = [];
+
+  // Selección independiente
+  categoriasBarras = new Set<string>();
+  categoriasLineas = new Set<string>();
+  categoriasSeleccionadas = new Set<string>();
 
   constructor(private patrimonioService: PatrimonioService) { }
 
@@ -147,6 +164,17 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       this.tendencia = 'igual';
 
       return;
+    }
+
+    this.categoriasDisponibles = this.obtenerCategoriasGlobales();
+
+    // Inicializar si están vacíos
+    if (this.categoriasBarras.size === 0) {
+      this.categoriasDisponibles.forEach(c => this.categoriasBarras.add(c));
+    }
+
+    if (this.categoriasLineas.size === 0) {
+      this.categoriasDisponibles.forEach(c => this.categoriasLineas.add(c));
     }
 
     this.registros.sort((a, b) => a.mes.localeCompare(b.mes));
@@ -196,6 +224,10 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     this.chartLabels = resumen.map(r => r.categoria);
     this.chartData = resumen.map(r => r.total);
 
+    this.chartColors = [{
+      backgroundColor: resumen.map(r => this.getColorCategoria(r.categoria))
+    }];
+
     // ➜ TOTAL GENERAL DEL MES
     this.totalUltimoMes = this.datosUltimoMes
       .reduce((s, c) => s + c.total, 0);
@@ -207,17 +239,18 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   procesarBarras() {
     this.barLabels = this.registros.map(r => r.mes);
 
-    const categorias = this.obtenerCategoriasGlobales();
-
     this.barData = {
       labels: this.barLabels,
-      datasets: categorias.map((categoria, idx) => ({
-        label: categoria,
-        data: this.registros.map(r =>
-          this.sumarCategoria(r.valores[categoria])
-        ),
-        backgroundColor: this.obtenerColor(idx)
-      }))
+      datasets: this.categoriasDisponibles
+        .filter(cat => this.categoriasBarras.has(cat))
+        .map((categoria, idx) => ({
+          label: categoria,
+          data: this.registros.map(r =>
+            this.sumarCategoria(r.valores[categoria])
+          ),
+          backgroundColor: this.getColorCategoria(categoria),
+          animation: { duration: 700, easing: 'easeInOutQuart' }
+        }))
     };
   }
 
@@ -227,19 +260,23 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   procesarLineas() {
     this.lineLabels = this.registros.map(r => r.mes);
 
-    const categorias = this.obtenerCategoriasGlobales();
-
     this.lineData = {
       labels: this.lineLabels,
-      datasets: categorias.map((categoria, idx) => ({
-        label: categoria,
-        data: this.registros.map(r =>
-          this.sumarCategoria(r.valores[categoria])
-        ),
-        borderColor: this.obtenerColor(idx),
-        tension: 0.3,
-        fill: false
-      }))
+      datasets: this.categoriasDisponibles
+        .filter(cat => this.categoriasLineas.has(cat))
+        .map((categoria, idx) => ({
+          label: categoria,
+          data: this.registros.map(r =>
+            this.sumarCategoria(r.valores[categoria])
+          ),
+          borderColor: this.getColorCategoria(categoria),
+          tension: 0.3,
+          fill: false,
+          animation: {
+            duration: 700,
+            easing: 'easeInOutQuart'
+          }
+        }))
     };
   }
 
@@ -259,11 +296,6 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     return Object.values(obj).reduce((a, b) => a + b, 0);
   }
 
-  obtenerColor(i: number): string {
-    const colores = ['#1e88e5', '#43a047', '#fb8c00', '#8e24aa', '#e53935'];
-    return colores[i % colores.length];
-  }
-
   sumarTotalMes(r: RegistroMensual): number {
     return Object.keys(r.valores)
       .reduce((sum, cat) =>
@@ -271,4 +303,38 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         , 0);
   }
 
+  toggleCategoriaBarra(cat: string, checked: boolean) {
+    checked ? this.categoriasBarras.add(cat) : this.categoriasBarras.delete(cat);
+    this.procesarBarras();
+  }
+
+  toggleCategoriaLinea(cat: string, checked: boolean) {
+    checked ? this.categoriasLineas.add(cat) : this.categoriasLineas.delete(cat);
+    this.procesarLineas();
+  }
+
+  getColorCategoria(categoria: string): string {
+    const idx = this.categoriasDisponibles.indexOf(categoria);
+    return this.colorPalette[idx % this.colorPalette.length];
+  }
+
+  seleccionarTodasBarras() {
+    this.categoriasDisponibles.forEach(c => this.categoriasBarras.add(c));
+    this.procesarBarras();
+  }
+
+  ocultarTodasBarras() {
+    this.categoriasBarras.clear();
+    this.procesarBarras();
+  }
+
+  seleccionarTodasLineas() {
+    this.categoriasDisponibles.forEach(c => this.categoriasLineas.add(c));
+    this.procesarLineas();
+  }
+
+  ocultarTodasLineas() {
+    this.categoriasLineas.clear();
+    this.procesarLineas();
+  }
 }

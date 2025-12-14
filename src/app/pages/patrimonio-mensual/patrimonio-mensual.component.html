@@ -86,7 +86,7 @@
         <th>Mes</th>
         <th>Total</th>
         <th *ngFor="let cat of categorias">{{ cat }}</th>
-        <th>Diferencia</th>
+        <th>Diferencia mes anterior</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -101,14 +101,14 @@
 
         <!-- Total del mes -->
         <td class="total-col">
-          {{ getTotalMes(r) | number:'1.0-0' }} €
+          {{ getTotalMes(r) | number:'1.2-2' }} €
         </td>
 
         <!-- Totales por categoría -->
         <ng-container *ngFor="let cat of categorias">
           <td class="cat-val">
             <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
-              {{ getTotalCategoria(r, cat) | number:'1.0-0' }} €
+              {{ getTotalCategoria(r, cat) | number:'1.2-2' }} €
             </ng-container>
             <ng-template #cero>—</ng-template>
           </td>
@@ -119,12 +119,12 @@
           <ng-container *ngIf="getDiferenciaMes(r) as diff">
 
             <span *ngIf="diff > 0" class="positivo">
-              ▲ +{{ diff | number:'1.0-0' }} €
+              ▲ +{{ diff | number:'1.2-2' }} €
               <span class="pct">(+{{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
             </span>
 
             <span *ngIf="diff < 0" class="negativo">
-              ▼ {{ diff | number:'1.0-0' }} €
+              ▼ {{ diff | number:'1.2-2' }} €
               <span class="pct">({{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
             </span>
 
