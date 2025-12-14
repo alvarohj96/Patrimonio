@@ -11,13 +11,13 @@
       <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla">
 
         <ng-container matColumnDef="categoria">
-          <th mat-header-cell *matHeaderCellDef>Categoría</th>
-          <td mat-cell *matCellDef="let r">{{ r.categoria }}</td>
+          <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
+          <td class="total-col" mat-cell *matCellDef="let r">{{ r.categoria }}</td>
         </ng-container>
 
         <ng-container matColumnDef="total">
-          <th mat-header-cell *matHeaderCellDef>Total</th>
-          <td mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
+          <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
+          <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="['categoria','total']"></tr>

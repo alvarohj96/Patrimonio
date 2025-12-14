@@ -1,4 +1,3 @@
-
 // Include theming for Angular Material with `mat.theme()`.
 // This Sass mixin will define CSS variables that are used for styling Angular Material
 // components according to the Material 3 design spec.
@@ -7,14 +6,12 @@
 @use '@angular/material' as mat;
 
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.theme((color: (primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    ));
 }
 
 body {
@@ -36,5 +33,79 @@ body {
 
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* =====================
+   VARIABLES BASE
+===================== */
+
+/* ===========================
+   TEMA CLARO
+=========================== */
+:root {
+  --app-bg: #f5f7fa;
+  --app-text: #1e1e1e;
+
+  --card-bg: #ffffff;
+  --border-color: #dcdcdc;
+
+  --app-toolbar-bg: #ffffff;
+  --app-toolbar-text: #1e1e1e;
+
+  --table-header-bg: #f0f0f0;
+  --table-header-text: #1e1e1e;
+
+  --hover: #e0e0e0;
+}
+
+/* ===========================
+   TEMA OSCURO
+=========================== */
+.dark-theme {
+  --app-bg: #121212;
+  --app-text: #e0e0e0;
+
+  --card-bg: #1e1e1e;
+  --border-color: #333;
+
+  --app-toolbar-bg: #1c1c1c;
+  --app-toolbar-text: #ffffff;
+
+  --table-header-bg: #2a2a2a;
+  --table-header-text: #ffffff;
+
+  --hover: #333;
+}
+
+/* =====================
+   APLICACIÓN GLOBAL
+===================== */
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+mat-card {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--text-color);
+}
+
+table {
+  color: var(--text-color);
+}

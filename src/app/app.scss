@@ -1,0 +1,85 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 64px;
+
+  background: var(--app-toolbar-bg);
+  color: var(--app-toolbar-text);
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 28px;
+}
+
+.app-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* Tabs más elegantes */
+::ng-deep .mat-mdc-tab-label {
+  font-weight: 500;
+}
+
+::ng-deep .mat-mdc-tab.mdc-tab--active {
+  font-weight: 600;
+}
+
+/* Transición del icono */
+button mat-icon {
+  transition: transform 0.3s ease;
+}
+
+button:hover mat-icon {
+  transform: rotate(25deg);
+}
+
+.mat-header-row {
+  background-color: var(--table-header-bg);
+}
+
+.mat-header-cell {
+  color: var(--table-header-text);
+  font-weight: 600;
+}
+
+/* Texto de las tabs */
+::ng-deep .mdc-tab__text-label {
+  color: var(--app-tab-text) !important;
+  font-weight: 500;
+}
+
+/* Tab activa */
+::ng-deep .mdc-tab--active .mdc-tab__text-label {
+  color: var(--app-toolbar-text) !important;
+  font-weight: 600;
+}
+
+/* Indicador (rayita inferior) */
+::ng-deep .mdc-tab-indicator__content--underline {
+  border-color: var(--accent-color, #90caf9);
+}
+
+::ng-deep .mat-mdc-tab-header-pagination,
+::ng-deep .mat-mdc-tab-header {
+  background-color: var(--app-toolbar-bg);
+}

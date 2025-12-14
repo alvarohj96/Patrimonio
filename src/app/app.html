@@ -1,9 +1,35 @@
-<mat-tab-group>
-  <mat-tab label="Patrimonio general">
-    <app-patrimonio-general></app-patrimonio-general>
-  </mat-tab>
+<mat-toolbar class="app-toolbar" color="primary">
 
-  <mat-tab label="Entrada mensual">
-    <app-patrimonio-mensual></app-patrimonio-mensual>
-  </mat-tab>
-</mat-tab-group>
+  <!-- TÍTULO / LOGO -->
+  <div class="toolbar-left">
+    <mat-icon class="logo-icon">account_balance</mat-icon>
+    <span class="app-title">Mi Patrimonio</span>
+  </div>
+
+  <!-- ESPACIADOR -->
+  <span class="spacer"></span>
+
+  <!-- BOTÓN TEMA -->
+  <button mat-icon-button (click)="theme.toggle()" matTooltip="Cambiar tema" aria-label="Cambiar tema">
+    <mat-icon>
+      {{ theme.isDark() ? 'light_mode' : 'dark_mode' }}
+    </mat-icon>
+  </button>
+
+</mat-toolbar>
+
+<div class="tabs-wrapper">
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <mat-tab-group class="main-tabs" mat-stretch-tabs>
+
+    <mat-tab label="Patrimonio general">
+      <app-patrimonio-general></app-patrimonio-general>
+    </mat-tab>
+
+    <mat-tab label="Entrada mensual">
+      <app-patrimonio-mensual></app-patrimonio-mensual>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

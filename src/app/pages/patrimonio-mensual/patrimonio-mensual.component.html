@@ -28,13 +28,7 @@
         <mat-option *ngFor="let s of subcategoriasPorCategoria[categoria]" [value]="s">
           {{ s }}
         </mat-option>
-        <mat-option value="__nueva__">➕ Añadir nueva…</mat-option>
       </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="subcategoria === '__nueva__'">
-      <mat-label>Nueva subcategoría</mat-label>
-      <input matInput [(ngModel)]="nuevaSubcategoria" name="nuevaSubcategoria">
     </mat-form-field>
 
     <mat-form-field appearance="outline">
