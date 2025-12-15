@@ -15,14 +15,14 @@
 
   <form (ngSubmit)="guardar()" class="form-grid">
 
-    <mat-form-field appearance="outline">
+    <mat-form-field class="formulario" appearance="outline">
       <mat-label>Categoría</mat-label>
       <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required>
         <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" *ngIf="categoria">
+    <mat-form-field class="formulario" appearance="outline" *ngIf="categoria">
       <mat-label>Subcategoría</mat-label>
       <mat-select [(ngModel)]="subcategoria" name="subcategoria" required>
         <mat-option *ngFor="let s of subcategoriasPorCategoria[categoria]" [value]="s">
@@ -31,7 +31,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field class="formulario" appearance="outline">
       <mat-label>Mes</mat-label>
       <input matInput [matDatepicker]="pickerMes" [(ngModel)]="mesSeleccionado" name="mesSeleccionado"
         (dateChange)="onMesSeleccionado($event)" required />
@@ -40,7 +40,7 @@
         panelClass="month-picker"></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field class="formulario" appearance="outline">
       <mat-label>Valor (€)</mat-label>
       <input matInput type="number" [(ngModel)]="valor" name="valor" required>
     </mat-form-field>

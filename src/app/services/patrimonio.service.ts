@@ -217,7 +217,7 @@ export class PatrimonioService {
     localStorage.removeItem(this.categoriasKey);
 
     // 2. Restaurar categorías por defecto
-    this.categorias = ['Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
+    this.categorias = [];
     this.categoriaSubject.next([...this.categorias]);
 
     // 3. Restaurar mapa de subcategorías por defecto
@@ -225,8 +225,8 @@ export class PatrimonioService {
       Acciones: [],
       Fondos: [],
       Inmuebles: [],
-      Liquidez: ['Efectivo', 'Santander', 'Revolut'],
-      Cripto: ['Bitcoin']
+      Liquidez: [],
+      Cripto: []
     };
 
     // Guardar subcategorías base

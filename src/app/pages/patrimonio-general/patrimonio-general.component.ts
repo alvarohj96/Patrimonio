@@ -64,9 +64,9 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   colorPalette: string[] = [
     '#1e88e5', // azul
     '#43a047', // verde
+    '#e53935', // rojo
     '#fb8c00', // naranja
     '#FFD700',
-    '#e53935', // rojo
     '#00897b', // teal
     '#6d4c41', // marrón
     '#3949ab'  // índigo
