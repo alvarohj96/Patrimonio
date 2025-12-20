@@ -394,17 +394,17 @@ export class PatrimonioMensualComponent implements OnInit {
 
   confirmarBorradoTotal() {
     const ref = this.dialog.open(ConfirmDialogComponent, {
-    width: "420px",
-    data: { mensaje: "¿Seguro que quieres borrar TODOS los datos?" }
-  });
+      width: "420px",
+      data: { mensaje: "¿Seguro que quieres borrar TODOS los datos?" }
+    });
 
-  ref.afterClosed().subscribe(ok => {
-    if (!ok) return;
+    ref.afterClosed().subscribe(ok => {
+      if (!ok) return;
 
-    this.patrimonioService.resetearTodo();
-    this.registros = [];
-    this.categorias = this.patrimonioService.getCategorias();
-    this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
-  });
+      this.patrimonioService.resetearTodo();
+      this.registros = [];
+      this.categorias = this.patrimonioService.getCategorias();
+      this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
+    });
   }
 }

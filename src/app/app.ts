@@ -13,11 +13,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDialog } from '@angular/material/dialog';
 
 // Tus componentes standalone
 import { PatrimonioGeneralComponent } from './pages/patrimonio-general/patrimonio-general.component';
 import { PatrimonioMensualComponent } from './pages/patrimonio-mensual/patrimonio-mensual.component';
 import { ThemeService } from './services/theme/theme.service';
+import { ConfiguracionVisualComponent } from './pages/configuracion-visual/configuracion-visual.component';
 
 @Component({
   selector: 'app-root',
@@ -46,5 +48,11 @@ import { ThemeService } from './services/theme/theme.service';
 })
 
 export class App {
-  constructor(public theme: ThemeService) {}
+  constructor(public theme: ThemeService, private dialog: MatDialog) { }
+
+  abrirConfiguracion() {
+    this.dialog.open(ConfiguracionVisualComponent, {
+      width: '380px'
+    });
+  }
 }

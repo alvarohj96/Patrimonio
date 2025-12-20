@@ -6,6 +6,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { BaseChartDirective } from 'ng2-charts';
 import { PatrimonioService, RegistroMensual } from '../../services/patrimonio.service';
+import { ObjetivosComponent } from '../objetivos/objetivos.component';
+import { UiConfigService, UiConfig } from '../../services/ui-config.service';
+import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import {
   Chart,
@@ -46,7 +50,8 @@ Chart.register(
     MatCardModule,
     MatTableModule,
     BaseChartDirective,
-    MatIconModule
+    MatIconModule,
+    ObjetivosComponent
   ],
   templateUrl: './patrimonio-general.component.html',
   styleUrls: ['./patrimonio-general.component.scss']
@@ -123,7 +128,11 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   categoriasLineas = new Set<string>();
   categoriasSeleccionadas = new Set<string>();
 
-  constructor(private patrimonioService: PatrimonioService) { }
+  config$!: Observable<UiConfig>;
+
+  constructor(private patrimonioService: PatrimonioService, private ui: UiConfigService) { 
+    this.config$ = this.ui.config$;
+  }
 
   ngOnInit(): void {
     this.sub = this.patrimonioService.registros$.subscribe(regs => {

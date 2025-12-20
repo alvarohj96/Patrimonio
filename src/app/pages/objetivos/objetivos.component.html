@@ -1,0 +1,56 @@
+<div class="contenedor-centrado">
+  <mat-card class="objetivos-bar">
+
+    <!-- OBJETIVO TOTAL -->
+    <div class="objetivo-total">
+      <div class="titulo">🎯 Objetivo total</div>
+
+      <div class="valores">
+        <span class="actual">
+          {{ patrimonioActual | number:'1.0-0' }} €
+        </span>
+
+        <span class="sep">/</span>
+
+        <input matInput type="number" [(ngModel)]="objetivoTotal" (blur)="guardarTotal()" class="input-objetivo"
+          placeholder="Objetivo">
+      </div>
+
+      <div class="barra-wrapper">
+        <mat-progress-bar [value]="progreso(patrimonioActual, objetivoTotal)"
+          [color]="estado(progreso(patrimonioActual, objetivoTotal))">
+        </mat-progress-bar>
+
+        <span class="porcentaje">
+          {{ progreso(patrimonioActual, objetivoTotal) | number:'1.0-0' }} %
+        </span>
+      </div>
+
+    </div>
+
+    <!-- OBJETIVOS POR CATEGORÍA -->
+    <div class="objetivos-categorias">
+
+      <div class="categoria" *ngFor="let c of objetivosCat">
+
+        <div class="cat-nombre">{{ c.categoria }}</div>
+
+        <div class="cat-valores">
+          {{ c.actual | number:'1.0-0' }} €
+        </div>
+
+        <input matInput type="number" [(ngModel)]="c.objetivo" (blur)="guardarCategoria(c)" placeholder="Objetivo"
+          class="input-cat">
+
+        <div class="barra-wrapper small">
+          <mat-progress-bar [value]="progreso(c.actual, c.objetivo)" [color]="estado(progreso(c.actual, c.objetivo))">
+          </mat-progress-bar>
+
+          <span class="porcentaje">
+            {{ progreso(c.actual, c.objetivo) | number:'1.0-0' }} %
+          </span>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+</div>
