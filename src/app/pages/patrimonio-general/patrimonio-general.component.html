@@ -79,6 +79,13 @@
   ================================= -->
     <mat-card class="card amplia" *ngIf="config?.mostrarBarras">
       <h2>Evolución total por categoría (Barras)</h2>
+      <div class="filtro-meses">
+        <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
+          <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
+          <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
+          <mat-button-toggle value="all">Todos</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
       <div class="filtros-categorias barras">
         <span class="filtro-titulo">📊 Categorías:</span>
         <label *ngFor="let cat of categoriasDisponibles" class="filtro-item">
@@ -97,6 +104,13 @@
   ================================= -->
     <mat-card class="card amplia" *ngIf="config?.mostrarLineas">
       <h2>Evolución por categorías (Líneas)</h2>
+      <div class="filtro-meses">
+        <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
+          <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
+          <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
+          <mat-button-toggle value="all">Todos</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
       <div class="filtros-categorias lineas">
         <span class="filtro-titulo">📈 Categorías:</span>
 

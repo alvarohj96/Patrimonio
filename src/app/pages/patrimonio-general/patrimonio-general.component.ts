@@ -8,8 +8,9 @@ import { BaseChartDirective } from 'ng2-charts';
 import { PatrimonioService, RegistroMensual } from '../../services/patrimonio.service';
 import { ObjetivosComponent } from '../objetivos/objetivos.component';
 import { UiConfigService, UiConfig } from '../../services/ui-config.service';
-import { Subscription } from 'rxjs';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Observable } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 import {
   Chart,
@@ -51,7 +52,9 @@ Chart.register(
     MatTableModule,
     BaseChartDirective,
     MatIconModule,
-    ObjetivosComponent
+    ObjetivosComponent,
+    MatButtonToggleModule,
+    FormsModule
   ],
   templateUrl: './patrimonio-general.component.html',
   styleUrls: ['./patrimonio-general.component.scss']
@@ -130,7 +133,9 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
   config$!: Observable<UiConfig>;
 
-  constructor(private patrimonioService: PatrimonioService, private ui: UiConfigService) { 
+  rangoMeses: 12 | 24 | 'all' = 12;
+
+  constructor(private patrimonioService: PatrimonioService, private ui: UiConfigService) {
     this.config$ = this.ui.config$;
   }
 
@@ -246,7 +251,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // GRÁFICO DE BARRAS (totales por mes)
   // ======================================================
   procesarBarras() {
-    this.barLabels = this.registros.map(r => r.mes);
+    const registros = this.getRegistrosFiltrados();
+    this.barLabels = registros.map(r => r.mes);
 
     this.barData = {
       labels: this.barLabels,
@@ -254,7 +260,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         .filter(cat => this.categoriasBarras.has(cat))
         .map((categoria, idx) => ({
           label: categoria,
-          data: this.registros.map(r =>
+          data: registros.map(r =>
             this.sumarCategoria(r.valores[categoria])
           ),
           backgroundColor: this.getColorCategoria(categoria),
@@ -267,7 +273,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // GRÁFICO DE LÍNEAS (evolución por categoría)
   // ======================================================
   procesarLineas() {
-    this.lineLabels = this.registros.map(r => r.mes);
+    const registros = this.getRegistrosFiltrados();
+    this.lineLabels = registros.map(r => r.mes);
 
     this.lineData = {
       labels: this.lineLabels,
@@ -275,7 +282,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         .filter(cat => this.categoriasLineas.has(cat))
         .map((categoria, idx) => ({
           label: categoria,
-          data: this.registros.map(r =>
+          data: registros.map(r =>
             this.sumarCategoria(r.valores[categoria])
           ),
           borderColor: this.getColorCategoria(categoria),
@@ -346,4 +353,19 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     this.categoriasLineas.clear();
     this.procesarLineas();
   }
+
+  getRegistrosFiltrados(): RegistroMensual[] {
+    if (this.rangoMeses === 'all') {
+      return this.registros;
+    }
+
+    const total = this.rangoMeses;
+    return this.registros.slice(-total);
+  }
+
+  actualizarGraficos() {
+    this.procesarBarras();
+    this.procesarLineas();
+  }
+
 }
