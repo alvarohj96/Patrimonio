@@ -70,6 +70,10 @@ export class PatrimonioMensualComponent implements OnInit {
   valor = 0;
   mesSeleccionado: Date | null = null;
 
+  modoPorcentajePorMes: { [mes: string]: boolean } = {};
+
+  modoPorcentajeGlobal: boolean | null = null;
+
   constructor(
     private patrimonioService: PatrimonioService,
     private dialog: MatDialog,
@@ -407,4 +411,36 @@ export class PatrimonioMensualComponent implements OnInit {
       this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
     });
   }
+
+  togglePorcentajeGlobal() {
+    if (this.modoPorcentajeGlobal === null) {
+      this.modoPorcentajeGlobal = true;
+    } else if (this.modoPorcentajeGlobal === true) {
+      this.modoPorcentajeGlobal = false;
+    } else {
+      this.modoPorcentajeGlobal = null;
+    }
+  }
+
+  togglePorcentaje(reg: RegistroMensual) {
+    if (this.modoPorcentajeGlobal !== null) return;
+    this.modoPorcentajePorMes[reg.mes] = !this.modoPorcentajePorMes[reg.mes];
+  }
+
+  esModoPorcentaje(reg: RegistroMensual): boolean {
+    if (this.modoPorcentajeGlobal !== null) {
+      return this.modoPorcentajeGlobal;
+    }
+    return !!this.modoPorcentajePorMes[reg.mes];
+  }
+
+  getPorcentajeCategoria(reg: RegistroMensual, categoria: string): number {
+    const totalMes = this.getTotalMes(reg);
+    if (!totalMes) return 0;
+
+    const totalCat = this.getTotalCategoria(reg, categoria);
+    return (totalCat / totalMes) * 100;
+  }
+
+
 }

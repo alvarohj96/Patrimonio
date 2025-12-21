@@ -308,3 +308,23 @@ button {
   background-color: #1976d2 !important;
   color: #fff !important;
 }
+
+.cat-val {
+  text-align: right;
+  font-weight: 500;
+}
+
+.cat-val.porcentaje {
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.acciones-globales {
+  margin: 8px 0 16px;
+}
+
+.acciones-globales button {
+  gap: 6px;
+  font-weight: 500;
+}
+

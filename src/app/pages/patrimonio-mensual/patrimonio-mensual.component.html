@@ -1,4 +1,3 @@
-
 <h2 class="titulo">📊 Registrar patrimonio mensual</h2>
 
 <div class="header-actions">
@@ -67,6 +66,28 @@
   <button mat-raised-button color="warn" class="btn-borrar-todo" (click)="confirmarBorradoTotal()">
     Borrar todos los datos
   </button>
+
+  <button class="porcentaje-button" mat-raised-button color="primary" (click)="togglePorcentajeGlobal()">
+    <mat-icon>
+      {{
+      modoPorcentajeGlobal === true
+      ? 'percent'
+      : modoPorcentajeGlobal === false
+      ? 'euro'
+      : 'swap_horiz'
+      }}
+    </mat-icon>
+
+    <span>
+      {{
+      modoPorcentajeGlobal === true
+      ? 'Mostrar todo en %'
+      : modoPorcentajeGlobal === false
+      ? 'Mostrar todo en €'
+      : 'Modo por fila'
+      }}
+    </span>
+  </button>
 </div>
 
 <input #inputImport type="file" accept=".csv" style="display:none" (change)="importarCSV($event)">
@@ -101,10 +122,23 @@
         <!-- Totales por categoría -->
         <ng-container *ngFor="let cat of categorias">
           <td class="cat-val">
-            <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
-              {{ getTotalCategoria(r, cat) | number:'1.2-2' }} €
+
+            <!-- MODO € -->
+            <ng-container *ngIf="!esModoPorcentaje(r); else porcentajeTpl">
+              <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
+                {{ getTotalCategoria(r, cat) | number:'1.2-2' }} €
+              </ng-container>
             </ng-container>
+
+            <!-- MODO % -->
+            <ng-template #porcentajeTpl>
+              <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
+                {{ getPorcentajeCategoria(r, cat) | number:'1.1-1' }} %
+              </ng-container>
+            </ng-template>
+
             <ng-template #cero>—</ng-template>
+
           </td>
         </ng-container>
 
@@ -129,6 +163,12 @@
 
         <!-- Botones -->
         <td class="acciones">
+          <button mat-icon-button color="accent" [disabled]="modoPorcentajeGlobal !== null"
+            (click)="togglePorcentaje(r); $event.stopPropagation()">
+            <mat-icon>
+              {{ esModoPorcentaje(r) ? 'euro' : 'percent' }}
+            </mat-icon>
+          </button>
 
           <button mat-icon-button color="primary" (click)="abrirDetalle(r)">
             <mat-icon>info</mat-icon>
