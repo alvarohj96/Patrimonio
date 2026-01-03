@@ -36,8 +36,8 @@ export class PatrimonioService {
     Acciones: [],
     Fondos: [],
     Inmuebles: [],
-    Liquidez: ['Efectivo', 'Santander', 'Revolut'],
-    Cripto: ['Bitcoin']
+    Liquidez: [],
+    Cripto: []
   };
 
   constructor() {

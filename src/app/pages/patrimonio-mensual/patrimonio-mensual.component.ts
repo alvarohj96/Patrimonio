@@ -277,7 +277,7 @@ export class PatrimonioMensualComponent implements OnInit {
 
   abrirDetalle(reg: RegistroMensual) {
     this.dialog.open(DetalleMensualDialogComponent, {
-      width: '500px',
+      width: '900px',
       data: {
         mes: this.formatMes(reg.mes),
         valores: reg.valores

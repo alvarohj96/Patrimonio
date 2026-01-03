@@ -7,7 +7,7 @@
 
       <div class="valores">
         <span class="actual">
-          {{ patrimonioActual | number:'1.0-0' }} €
+          {{ patrimonioActual | number:'1.2-2' }} €
         </span>
 
         <span class="sep">/</span>
@@ -36,7 +36,7 @@
         <div class="cat-nombre">{{ c.categoria }}</div>
 
         <div class="cat-valores">
-          {{ c.actual | number:'1.0-0' }} €
+          {{ c.actual | number:'1.2-2' }} €
         </div>
 
         <input matInput type="number" [(ngModel)]="c.objetivo" (blur)="guardarCategoria(c)" placeholder="Objetivo"
