@@ -26,8 +26,13 @@
             <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="['categoria','total']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['categoria','total']"></tr>
+          <ng-container matColumnDef="porcentaje">
+            <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
+            <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje']"></tr>
         </table>
 
         <!--   <h3 style="text-align:center; font-weight:600; margin-bottom:15px;">

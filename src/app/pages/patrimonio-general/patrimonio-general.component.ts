@@ -62,7 +62,7 @@ Chart.register(
 export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
   registros: RegistroMensual[] = [];
-  datosUltimoMes: { categoria: string; total: number }[] = [];
+  datosUltimoMes: { categoria: string; total: number, porcentaje: number }[] = [];
   totalUltimoMes = 0;
   totalMesAnterior = 0;
   variacionAbsoluta = 0;
@@ -228,9 +228,25 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // ======================================================
   procesarUltimoMes(ultimo: RegistroMensual) {
     const categorias = Object.keys(ultimo.valores);
-    const resumen = categorias.map(cat => ({
-      categoria: cat,
-      total: Object.values(ultimo.valores[cat]).reduce((a, b) => a + b, 0)
+    const totalesPorCategoria = categorias.map(cat => {
+      const total = Object.values(ultimo.valores[cat] as Record<string, number>)
+        .reduce((a, b) => a + b, 0);
+
+      return {
+        categoria: cat,
+        total
+      };
+    });
+
+    this.totalUltimoMes = totalesPorCategoria
+      .reduce((s, c) => s + c.total, 0);
+    
+      const resumen = totalesPorCategoria.map(c => ({
+      categoria: c.categoria,
+      total: c.total,
+      porcentaje: this.totalUltimoMes > 0
+        ? (c.total / this.totalUltimoMes) * 100
+        : 0
     }));
 
     this.datosUltimoMes = resumen;
@@ -239,12 +255,10 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     this.chartData = resumen.map(r => r.total);
 
     this.chartColors = [{
-      backgroundColor: resumen.map(r => this.getColorCategoria(r.categoria))
+      backgroundColor: resumen.map(r =>
+        this.getColorCategoria(r.categoria)
+      )
     }];
-
-    // ➜ TOTAL GENERAL DEL MES
-    this.totalUltimoMes = this.datosUltimoMes
-      .reduce((s, c) => s + c.total, 0);
   }
 
   // ======================================================
