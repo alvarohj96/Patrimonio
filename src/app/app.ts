@@ -14,6 +14,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
+import { RouterModule } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
 
 // Tus componentes standalone
 import { PatrimonioGeneralComponent } from './pages/patrimonio-general/patrimonio-general.component';
@@ -26,6 +28,7 @@ import { ConfiguracionVisualComponent } from './pages/configuracion-visual/confi
   standalone: true,
   imports: [
     // Angular Material
+    RouterModule,
     MatTabsModule,
     MatInputModule,
     MatButtonModule,
@@ -35,13 +38,10 @@ import { ConfiguracionVisualComponent } from './pages/configuracion-visual/confi
     MatFormFieldModule,
     MatSelectModule,
     MatToolbarModule,
+    MatMenuModule,
 
     // Formularios
-    ReactiveFormsModule,
-
-    // tus componentes
-    PatrimonioGeneralComponent,
-    PatrimonioMensualComponent
+    ReactiveFormsModule
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

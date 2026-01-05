@@ -1,39 +1,45 @@
 <mat-toolbar class="app-toolbar" color="primary">
 
-  <!-- TÍTULO / LOGO -->
+  <!-- TÍTULO -->
   <div class="toolbar-left">
     <mat-icon class="logo-icon">account_balance</mat-icon>
     <span class="app-title">Mi Patrimonio</span>
   </div>
 
-  <!-- ESPACIADOR -->
   <span class="spacer"></span>
 
+  <!-- Menú hamburguesa -->
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item routerLink="/general">
+      <mat-icon>dashboard</mat-icon>
+      Patrimonio general
+    </button>
+
+    <button mat-menu-item routerLink="/mensual">
+      <mat-icon>edit</mat-icon>
+      Entrada mensual
+    </button>
+  </mat-menu>
+
   <!-- BOTÓN TEMA -->
-  <button mat-icon-button (click)="theme.toggle()" matTooltip="Cambiar tema" aria-label="Cambiar tema">
+  <button mat-icon-button (click)="theme.toggle()" matTooltip="Cambiar tema">
     <mat-icon>
       {{ theme.isDark() ? 'light_mode' : 'dark_mode' }}
     </mat-icon>
   </button>
 
+  <!-- CONFIG -->
   <button mat-icon-button matTooltip="Configuración" (click)="abrirConfiguracion()">
     <mat-icon>settings</mat-icon>
   </button>
 
 </mat-toolbar>
 
-<div class="tabs-wrapper">
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <mat-tab-group class="main-tabs" mat-stretch-tabs>
-
-    <mat-tab label="Patrimonio general">
-      <app-patrimonio-general></app-patrimonio-general>
-    </mat-tab>
-
-    <mat-tab label="Entrada mensual">
-      <app-patrimonio-mensual></app-patrimonio-mensual>
-    </mat-tab>
-
-  </mat-tab-group>
+<!-- CONTENIDO -->
+<div class="app-content">
+  <router-outlet></router-outlet>
 </div>
