@@ -12,8 +12,11 @@
 
         <span class="sep">/</span>
 
-        <input matInput type="number" [(ngModel)]="objetivoTotal" (blur)="guardarTotal()" class="input-objetivo"
-          placeholder="Objetivo">
+        <div class="objetivo-total-input">
+          <input type="number" [(ngModel)]="objetivoTotal" (blur)="guardarTotal()">
+          <span class="suffix">€</span>
+        </div>
+
       </div>
 
       <div class="barra-wrapper">
@@ -39,8 +42,10 @@
           {{ c.actual | number:'1.2-2' }} €
         </div>
 
-        <input matInput type="number" [(ngModel)]="c.objetivo" (blur)="guardarCategoria(c)" placeholder="Objetivo"
-          class="input-cat">
+        <div class="objetivo-input">
+          <input type="number" [(ngModel)]="c.objetivo" (blur)="guardarCategoria(c)">
+          <span class="suffix">€</span>
+        </div>
 
         <div class="barra-wrapper small">
           <mat-progress-bar [value]="progreso(c.actual, c.objetivo)" [color]="estado(progreso(c.actual, c.objetivo))">

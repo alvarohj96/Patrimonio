@@ -1,102 +1,338 @@
+/* =====================================================
+   CONTENEDOR
+===================================================== */
+
 .contenedor-centrado {
   width: 78%;
   margin: 0 auto;
-  padding: 0 16px;
 }
 
 .objetivos-bar {
-  padding: 12px 16px;
-  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 14px;
 }
+
+
+/* =====================================================
+   OBJETIVO TOTAL
+===================================================== */
 
 .objetivo-total {
-  margin-bottom: 12px;
-
-  .titulo {
-    font-size: 13px;
-    opacity: 0.7;
-    margin-bottom: 4px;
-  }
-
-  .valores {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 600;
-  }
-
-  .actual {
-    font-size: 18px;
-  }
-
-  .sep {
-    opacity: 0.6;
-  }
-
-  .input-objetivo {
-    width: 120px;
-    font-size: 14px;
-  }
+  margin-bottom: 14px;
 }
 
-.objetivos-categorias {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+.objetivo-total .titulo {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.65;
+  margin-bottom: 4px;
 }
 
-.categoria {
-  border-left: 3px solid rgba(0,0,0,0.08);
-  padding-left: 8px;
+.objetivo-total .valores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .cat-nombre {
-    font-size: 12px;
-    opacity: 0.7;
+.objetivo-total .actual {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.objetivo-total .sep {
+  opacity: 0.6;
+}
+
+.objetivo-total-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  height: 26px;
+  padding: 0 6px;
+
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: transparent;
+}
+
+/* Input real */
+.objetivo-total-input input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: right;
+
+  background: transparent;
+}
+
+/* Símbolo € */
+.objetivo-total-input .suffix {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+/* Tamaños */
+.categoria .objetivo-total-input {
+  width: 70px;
+}
+
+.objetivo-total .objetivo-total-input {
+  width: 110px;
+  height: 30px;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   EFECTOS PROFESIONALES
+===================================================== */
+
+.objetivo-total-input:hover {
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.objetivo-total-input:focus-within {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.2);
+}
+
+/* =====================================================
+   TEMA OSCURO
+===================================================== */
+
+:host-context(.dark-theme) {
+  .objetivo-total-input {
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
-  .cat-valores {
-    font-size: 14px;
-    font-weight: 500;
+  .objetivo-total-input input {
+    color: #fff;
   }
 
-  .input-cat {
-    width: 100%;
-    font-size: 12px;
-    margin: 2px 0;
+  .objetivo-total-input:hover {
+    border-color: rgba(255, 255, 255, 0.45);
   }
 
-  .barra-cat {
-    height: 6px;
+  .objetivo-total-input:focus-within {
+    border-color: #90caf9;
+    box-shadow: 0 0 0 1px rgba(144, 202, 249, 0.25);
   }
 }
 
 .barra-wrapper {
-  position: relative;
   margin-top: 10px;
+}
 
-  mat-progress-bar {
-    height: 10px; // MÁS GORDA
-    border-radius: 6px;
+
+/* =====================================================
+   OBJETIVOS POR CATEGORÍA – UNA SOLA FILA
+===================================================== */
+
+.objetivos-categorias {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* Cada categoría ocupa una columna pequeña */
+.categoria {
+  display: grid;
+  grid-template-columns: auto auto 80px;
+  grid-template-rows: auto auto;
+  column-gap: 6px;
+  row-gap: 4px;
+
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.025);
+  min-width: 180px;
+}
+
+/* Nombre */
+.categoria .cat-nombre {
+  grid-column: 1 / 2;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+
+/* Valor actual */
+.categoria .cat-valores {
+  grid-column: 2 / 3;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* Input objetivo */
+.categoria mat-form-field {
+  grid-column: 3 / 4;
+  width: 80px;
+  margin: 0;
+  justify-self: end;
+}
+
+/* Barra + % */
+.categoria .barra-wrapper {
+  grid-column: 1 / 4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.categoria mat-progress-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+}
+
+.categoria .porcentaje {
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 30px;
+  text-align: right;
+  opacity: 0.8;
+}
+
+
+/* =====================================================
+   MATERIAL INPUT – ULTRA COMPACTO REAL
+===================================================== */
+
+:host ::ng-deep .mat-mdc-form-field {
+  line-height: 1;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  padding: 0 !important;
+}
+
+:host ::ng-deep .mdc-text-field {
+  min-height: 28px !important;
+}
+
+:host ::ng-deep .mdc-text-field__input {
+  padding: 2px 6px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Label pequeño */
+:host ::ng-deep .mdc-floating-label {
+  font-size: 0.65rem;
+}
+
+
+/* =====================================================
+   TEMA OSCURO / CLARO
+===================================================== */
+
+:host-context(.dark-theme) {
+  .categoria {
+    background: rgba(255, 255, 255, 0.05);
   }
 
-  .porcentaje {
-    position: absolute;
-    right: 0;
-    top: -18px;
-    font-size: 12px;
-    font-weight: 600;
-    opacity: 0.8;
+  ::ng-deep .mdc-text-field__input {
+    color: #fff;
+  }
+}
+
+:host-context(.light-theme) {
+  .categoria {
+    background: rgba(0, 0, 0, 0.025);
+  }
+}
+
+/* =====================================================
+   INPUT OBJETIVOS – DASHBOARD PRO
+===================================================== */
+
+.objetivo-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  height: 26px;
+  padding: 0 6px;
+
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: transparent;
+}
+
+/* Input real */
+.objetivo-input input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: right;
+
+  background: transparent;
+}
+
+/* Símbolo € */
+.objetivo-input .suffix {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+/* Tamaños */
+.categoria .objetivo-input {
+  width: 70px;
+}
+
+.objetivo-total .objetivo-input {
+  width: 110px;
+  height: 30px;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   EFECTOS PROFESIONALES
+===================================================== */
+
+.objetivo-input:hover {
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.objetivo-input:focus-within {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.2);
+}
+
+/* =====================================================
+   TEMA OSCURO
+===================================================== */
+
+:host-context(.dark-theme) {
+  .objetivo-input {
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
-  &.small {
-    mat-progress-bar {
-      height: 8px;
-    }
+  .objetivo-input input {
+    color: #fff;
+  }
 
-    .porcentaje {
-      font-size: 11px;
-      top: -16px;
-    }
+  .objetivo-input:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .objetivo-input:focus-within {
+    border-color: #90caf9;
+    box-shadow: 0 0 0 1px rgba(144, 202, 249, 0.25);
   }
 }
 
