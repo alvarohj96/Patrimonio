@@ -152,17 +152,13 @@
 /* Cada categoría ocupa una columna pequeña */
 .categoria {
   display: grid;
-  grid-template-columns: auto auto 70px;
-  grid-template-rows: auto auto;
-  column-gap: 6px;
   row-gap: 4px;
 
   padding: 6px 10px;
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.025);
 
-  width: 230px;
-  flex: 0 0 auto;
+  width: 250px;
 }
 
 /* Nombre */
@@ -303,7 +299,7 @@
 
 /* Tamaños */
 .categoria .objetivo-input {
-  width: 70px;
+  width: 80px;
 }
 
 .objetivo-total .objetivo-input {
