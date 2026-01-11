@@ -1,50 +1,83 @@
+/* =====================================================
+   CONTENEDOR PRINCIPAL DEL DIÁLOGO
+===================================================== */
+
 .dialog-container {
-  padding: 25px;
+  padding: 24px;
   max-width: 900px;
+  max-height: 85vh;          
+  overflow-y: auto;          
+  box-sizing: border-box;
 }
+
+
+/* =====================================================
+   TÍTULOS
+===================================================== */
 
 .titulo {
   text-align: center;
   font-size: 22px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   font-weight: 600;
-}
-
-.chart-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 25px;
 }
 
 .subtitulo {
   font-size: 18px;
   font-weight: 500;
-  margin-bottom: 20px;
+  margin: 18px 0;
   text-align: center;
 }
 
-.grid-datos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 25px;
+
+/* =====================================================
+   GRÁFICO
+===================================================== */
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
+
+/* =====================================================
+   GRID DE CATEGORÍAS
+===================================================== */
+
+.grid-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); 
+  gap: 18px 20px;
+}
+
+
+/* =====================================================
+   TARJETA DE CATEGORÍA
+===================================================== */
+
 .categoria-item {
-  padding: 15px;
+  padding: 14px 16px;
   border-radius: 10px;
   background: #fafafa;
   border: 1px solid #e0e0e0;
 }
 
+
+/* =====================================================
+   CABECERA DE CATEGORÍA
+===================================================== */
+
 .cat-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
 }
 
 .cat-nombre {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .cat-total {
@@ -55,16 +88,23 @@
 .pct {
   font-weight: 500;
   color: #6a6a6a;
+  font-size: 0.85rem;
 }
 
+
+/* =====================================================
+   SUBCATEGORÍAS
+===================================================== */
+
 .sub-lista {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .sub-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px 0;
+  align-items: baseline;
+  padding: 3px 0;
   font-size: 14px;
 }
 
@@ -76,15 +116,94 @@
   color: #888;
   font-weight: 400;
   margin-left: 4px;
+  font-size: 0.75rem;
 }
+
+
+/* =====================================================
+   TOTALES Y ACCIONES
+===================================================== */
 
 .total-general {
   text-align: center;
-  margin-top: 25px;
+  margin: 22px 0 12px;
   font-size: 18px;
+  font-weight: 600;
 }
 
 .acciones {
+  position: sticky;      
+  bottom: 0;
+  padding-top: 12px;
   text-align: right;
-  margin-top: 20px;
+}
+
+
+/* =====================================================
+   INMUEBLES – DESGLOSE
+===================================================== */
+
+.valor-normal {
+  font-weight: 500;
+}
+
+.valor-bruto {
+  font-weight: 500;
+}
+
+.valor-deuda {
+  color: #c62828;
+  font-size: 0.8rem;
+}
+
+.valor-neto {
+  font-weight: 600;
+}
+
+/* =====================================================
+   SCROLLBAR ESTILIZADA (solo diálogo)
+===================================================== */
+
+.dialog-container {
+  scrollbar-width: thin;                     
+  scrollbar-color: #bdbdbd transparent;
+}
+
+/* Webkit (Chrome, Edge, Safari) */
+.dialog-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dialog-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;                             
+}
+
+.dialog-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  border: 2px solid transparent;            
+  background-clip: content-box;
+}
+
+/* Hover más visible */
+.dialog-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+
+/* =====================================================
+   TEMA OSCURO
+===================================================== */
+
+:host-context(.dark-theme) .dialog-container {
+  scrollbar-color: #757575 transparent;
+}
+
+:host-context(.dark-theme) .dialog-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+:host-context(.dark-theme) .dialog-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.55);
 }

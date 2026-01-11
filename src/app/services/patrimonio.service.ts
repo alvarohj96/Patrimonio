@@ -6,9 +6,14 @@ import { BehaviorSubject } from 'rxjs';
  * Interfaz centralizada: exporta el tipo para que componentes lo importen
  */
 export interface RegistroMensual {
-  mes: string; // "YYYY-MM"
+  mes: string;
   valores: {
-    [categoria: string]: { [subcategoria: string]: number };
+    [categoria: string]: {
+      [subcategoria: string]: {
+        valor: number;
+        deuda?: number; // SOLO para Inmuebles
+      };
+    };
   };
 }
 

@@ -35,17 +35,30 @@ export class ObjetivosComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
     this.categorias = this.patrimonioSrv.getCategorias();
 
     this.objetivoTotal = this.objetivosSrv.getObjetivos().total;
 
     this.patrimonioSrv.registros$.subscribe(regs => {
-      if (!regs.length) return;
+      if (!regs || !regs.length) {
+        this.patrimonioActual = 0;
+        return;
+      }
 
       const ultimo = regs[regs.length - 1];
-      this.patrimonioActual = Object.values(ultimo.valores)
-        .reduce((sum, cat) => sum + Object.values(cat).reduce((a, b) => a + b, 0), 0);
+
+      // 🔹 Patrimonio NETO total (valor - deuda)
+      this.patrimonioActual = Object.values(ultimo.valores).reduce(
+        (sum: number, categoria: any) =>
+          sum +
+          Object.values(categoria || {}).reduce((a: number, b: any) => {
+            if (typeof b === 'number') {
+              return a + b; // datos antiguos
+            }
+            return a + (b.valor - (b.deuda || 0)); // datos nuevos
+          }, 0),
+        0
+      );
 
       this.recalcularCategorias(ultimo);
     });
@@ -54,12 +67,18 @@ export class ObjetivosComponent implements OnInit {
   recalcularCategorias(ultimo: any) {
     const objetivos = this.objetivosSrv.getObjetivos().categorias;
 
-    this.objetivosCat = this.categorias.map(cat => ({
-      categoria: cat,
-      objetivo: objetivos.find(o => o.categoria === cat)?.objetivo || 0,
-      actual: Object.values(ultimo.valores[cat] || {})
-        .reduce<number>((a, b) => a + (b as number), 0)
-    }));
+    this.objetivosCat = this.categorias.map(cat => {
+      const totalActual = Object.values(ultimo.valores[cat] || {})
+        .reduce((sum: number, item: any) =>
+          sum + (item?.valor ?? 0) - (item?.deuda ?? 0)
+          , 0);
+
+      return {
+        categoria: cat,
+        objetivo: objetivos.find(o => o.categoria === cat)?.objetivo || 0,
+        actual: totalActual
+      };
+    });
   }
 
   guardarTotal() {
@@ -79,6 +98,16 @@ export class ObjetivosComponent implements OnInit {
     if (pct >= 90) return 'estado-ok';
     if (pct >= 60) return 'estado-medio';
     return 'estado-bajo';
-  } 
-  
+  }
+
+  private sumarValoresCategoria(categoria: any): number {
+    if (!categoria) return 0;
+
+    return Object.values(categoria).reduce((a: number, b: any) => {
+      if (typeof b === 'number') {
+        return a + b; // datos antiguos
+      }
+      return a + (b.valor - (b.deuda || 0)); // datos nuevos
+    }, 0);
+  }
 }

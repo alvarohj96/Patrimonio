@@ -4,16 +4,10 @@
 
   <!-- ===== Gráfico circular ===== -->
   <div class="chart-container">
-    <canvas
-      baseChart
-      [data]="{
+    <canvas baseChart [data]="{
         labels: donutLabels,
         datasets: [{ data: donutData, backgroundColor: donutColors[0].backgroundColor }]
-      }"
-      type="doughnut"
-      width="260"
-      height="260"
-    ></canvas>
+      }" type="doughnut" width="260" height="260"></canvas>
   </div>
 
   <h3 class="subtitulo">Distribución por categorías</h3>
@@ -25,7 +19,7 @@
       <div class="cat-header">
         <div class="cat-nombre">{{ cat }}: </div>
         <div class="cat-total">
-          {{ totalesPorCategoria[cat] | number:'1.2-2' }} €  
+          {{ totalesPorCategoria[cat] | number:'1.2-2' }} €
           <span class="pct">({{ getPorcentajeCategoria(cat) | number:'1.2-2' }}%)</span>
         </div>
       </div>
@@ -33,16 +27,60 @@
       <!-- Subcategorías -->
       <div class="sub-lista">
         <div *ngFor="let s of getSubcategorias(cat)" class="sub-item">
-          <span>{{ s }}: </span>
 
-          <span class="sub-valor">
-            {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
-            <span class="sub-pct">
-              ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
-            </span>
-          </span>
+          <div class="sub-nombre">{{ s }}: </div>
+
+          <div class="sub-valores">
+
+            <!-- ===== INMUEBLES ===== -->
+            <ng-container *ngIf="esInmuebles(cat); else normal">
+
+              <!-- INMUEBLE CON DEUDA -->
+              <ng-container *ngIf="data.valores[cat][s]?.deuda && data.valores[cat][s].deuda !== 0; else sinDeuda">
+
+                <div class="valor-bruto">
+                  {{ data.valores[cat][s]?.valor | number:'1.0-0' }} €
+                </div>
+
+                <div class="valor-deuda">
+                  − {{ data.valores[cat][s]?.deuda | number:'1.0-0' }} €
+                </div>
+
+                <div class="valor-neto">
+                  {{ getValorSubcategoria(cat, s) | number:'1.0-0' }} €
+                  <span class="sub-pct">
+                    ({{ getPorcentajeSubcategoria(cat, s) | number:'1.1-1' }}%)
+                  </span>
+                </div>
+
+              </ng-container>
+
+              <!-- INMUEBLE SIN DEUDA -->
+              <ng-template #sinDeuda>
+                <div class="sub-valor">
+                  {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
+                  <span class="sub-pct">
+                    ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
+                  </span>
+                </div>
+              </ng-template>
+
+            </ng-container>
+
+            <!-- ===== CATEGORÍAS NORMALES ===== -->
+            <ng-template #normal>
+              <div class="sub-valor">
+                {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
+                <span class="sub-pct">
+                  ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
+                </span>
+              </div>
+            </ng-template>
+          </div>
         </div>
       </div>
+
+
 
     </div>
   </div>

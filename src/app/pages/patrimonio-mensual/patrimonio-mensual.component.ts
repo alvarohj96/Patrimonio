@@ -74,6 +74,8 @@ export class PatrimonioMensualComponent implements OnInit {
 
   modoPorcentajeGlobal: boolean | null = null;
 
+  deuda: number = 0;
+
   constructor(
     private patrimonioService: PatrimonioService,
     private dialog: MatDialog,
@@ -139,7 +141,10 @@ export class PatrimonioMensualComponent implements OnInit {
     }
 
     // Guardar valor por subcategoría
-    registro.valores[this.categoria][subOk] = this.valor;
+    registro.valores[this.categoria][subOk] = {
+      valor: this.valor,
+      deuda: this.categoria === 'Inmuebles' ? this.deuda : 0
+    };
 
     // Registrar subcategoría en el servicio (persistente)
     this.patrimonioService.addSubcategoria(this.categoria, subOk);
@@ -163,8 +168,16 @@ export class PatrimonioMensualComponent implements OnInit {
 
   getTotalCategoria(reg: RegistroMensual, categoria: string): number {
     const valores = reg.valores[categoria] || {};
-    return Object.values(valores).reduce((a, b) => a + b, 0);
+
+    return Object.values(valores).reduce((a: number, b: any) => {
+      if (typeof b === 'number') {
+        // compatibilidad datos antiguos
+        return a + b;
+      }
+      return a + (b.valor - (b.deuda || 0));
+    }, 0);
   }
+
 
   getTotalMes(reg: RegistroMensual): number {
     return Object.keys(reg.valores)
@@ -294,7 +307,7 @@ export class PatrimonioMensualComponent implements OnInit {
     let lineas: string[] = [];
 
     // Cabecera CSV
-    lineas.push("Mes;Categoría;Subcategoría;Valor (€)");
+    lineas.push("Mes;Categoría;Subcategoría;Valor (€);Deuda (€)");
 
     // Cada registro → muchas líneas
     this.registros.forEach(reg => {
@@ -304,8 +317,12 @@ export class PatrimonioMensualComponent implements OnInit {
         const subs = reg.valores[cat];
 
         Object.keys(subs).forEach(sub => {
-          const valor = subs[sub];
-          lineas.push(`${mes};${cat};${sub};${valor}`);
+          const dato = subs[sub];
+          if (typeof dato === 'number') {
+            lineas.push(`${mes};${cat};${sub};${dato};0`);
+          } else {
+            lineas.push(`${mes};${cat};${sub};${dato.valor};${dato.deuda || 0}`);
+          }
         });
       });
     });
@@ -350,7 +367,8 @@ export class PatrimonioMensualComponent implements OnInit {
       const registrosMap: { [mes: string]: any } = {};
 
       lineas.forEach(linea => {
-        const [mes, categoria, subcategoria, valorStr] = linea.split(";");
+        const [mes, categoria, subcategoria, valorStr, deudaStr] = linea.split(";");
+
 
         if (!mes || !categoria || !subcategoria || !valorStr) return;
 
@@ -372,6 +390,13 @@ export class PatrimonioMensualComponent implements OnInit {
 
         // Asignar valor
         registrosMap[mes].valores[categoria][subcategoria] = valor;
+
+        const deuda = deudaStr ? Number(deudaStr) : 0;
+
+        registrosMap[mes].valores[categoria][subcategoria] = {
+          valor,
+          deuda: categoria === 'Inmuebles' ? deuda : 0
+        };
       });
 
       // Pasar de mapa a array

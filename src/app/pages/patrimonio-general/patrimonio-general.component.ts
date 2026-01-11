@@ -229,8 +229,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   procesarUltimoMes(ultimo: RegistroMensual) {
     const categorias = Object.keys(ultimo.valores);
     const totalesPorCategoria = categorias.map(cat => {
-      const total = Object.values(ultimo.valores[cat] as Record<string, number>)
-        .reduce((a, b) => a + b, 0);
+      const total = this.sumarValoresCategoria(ultimo.valores[cat]);
 
       return {
         categoria: cat,
@@ -240,8 +239,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.totalUltimoMes = totalesPorCategoria
       .reduce((s, c) => s + c.total, 0);
-    
-      const resumen = totalesPorCategoria.map(c => ({
+
+    const resumen = totalesPorCategoria.map(c => ({
       categoria: c.categoria,
       total: c.total,
       porcentaje: this.totalUltimoMes > 0
@@ -275,7 +274,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         .map((categoria, idx) => ({
           label: categoria,
           data: registros.map(r =>
-            this.sumarCategoria(r.valores[categoria])
+            this.sumarValoresCategoria(r.valores[categoria])
           ),
           backgroundColor: this.getColorCategoria(categoria),
           animation: { duration: 700, easing: 'easeInOutQuart' }
@@ -297,7 +296,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         .map((categoria, idx) => ({
           label: categoria,
           data: registros.map(r =>
-            this.sumarCategoria(r.valores[categoria])
+            this.sumarValoresCategoria(r.valores[categoria])
           ),
           borderColor: this.getColorCategoria(categoria),
           tension: 0.3,
@@ -329,7 +328,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   sumarTotalMes(r: RegistroMensual): number {
     return Object.keys(r.valores)
       .reduce((sum, cat) =>
-        sum + this.sumarCategoria(r.valores[cat])
+        sum + this.sumarValoresCategoria(r.valores[cat])
         , 0);
   }
 
@@ -380,6 +379,17 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   actualizarGraficos() {
     this.procesarBarras();
     this.procesarLineas();
+  }
+
+  private sumarValoresCategoria(categoria: any): number {
+    if (!categoria) return 0;
+
+    return Object.values(categoria).reduce((a: number, b: any) => {
+      if (typeof b === 'number') {
+        return a + b; // datos antiguos
+      }
+      return a + (b.valor - (b.deuda || 0)); // datos nuevos
+    }, 0);
   }
 
 }
