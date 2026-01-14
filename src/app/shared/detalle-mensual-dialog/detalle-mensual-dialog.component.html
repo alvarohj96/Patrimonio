@@ -17,15 +17,29 @@
     <div *ngFor="let cat of categorias" class="categoria-item">
 
       <div class="cat-header">
-        <div class="cat-nombre">{{ cat }}: </div>
+
+        <div class="cat-nombre">
+          <button class="toggle-btn" (click)="toggleCategoria(cat)" aria-label="Mostrar subcategorías">
+            <mat-icon>
+              {{ categoriasAbiertas[cat] ? 'expand_more' : 'chevron_right' }}
+            </mat-icon>
+          </button>
+
+          {{ cat }}
+        </div>
+
         <div class="cat-total">
           {{ totalesPorCategoria[cat] | number:'1.2-2' }} €
-          <span class="pct">({{ getPorcentajeCategoria(cat) | number:'1.2-2' }}%)</span>
+          <span class="pct">
+            ({{ getPorcentajeCategoria(cat) | number:'1.2-2' }}%)
+          </span>
         </div>
+
       </div>
 
+
       <!-- Subcategorías -->
-      <div class="sub-lista">
+      <div class="sub-lista" *ngIf="categoriasAbiertas[cat]">
         <div *ngFor="let s of getSubcategorias(cat)" class="sub-item">
 
           <div class="sub-nombre">{{ s }}: </div>
@@ -79,9 +93,6 @@
           </div>
         </div>
       </div>
-
-
-
     </div>
   </div>
 

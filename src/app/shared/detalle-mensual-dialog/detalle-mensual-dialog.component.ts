@@ -5,13 +5,14 @@ import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
 @Component({
   selector: 'app-detalle-mensual-dialog',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, MatButtonModule],
+  imports: [CommonModule, BaseChartDirective, MatButtonModule, MatIcon],
   templateUrl: './detalle-mensual-dialog.component.html',
   styleUrls: ['./detalle-mensual-dialog.component.scss']
 })
@@ -34,16 +35,24 @@ export class DetalleMensualDialogComponent implements OnInit {
 
   totalMes = 0;
 
+  categoriasAbiertas: { [cat: string]: boolean } = {};
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<DetalleMensualDialogComponent>
   ) { }
 
   ngOnInit(): void {
-    this.categorias = Object.keys(this.data.valores || {});
+    this.categorias = Object.keys(this.data.valores);
+
+    this.categorias.forEach(cat => {
+      this.categoriasAbiertas[cat] = false;
+    });
+
     this.calcularTotales();
     this.prepararDonut();
   }
+
 
   // ===============================
   // Cálculo de totales (NETO)
@@ -106,5 +115,10 @@ export class DetalleMensualDialogComponent implements OnInit {
   esInmuebles(cat: string): boolean {
     return cat.toLowerCase().includes('inmueble');
   }
+
+  toggleCategoria(cat: string) {
+    this.categoriasAbiertas[cat] = !this.categoriasAbiertas[cat];
+  }
+
 
 }

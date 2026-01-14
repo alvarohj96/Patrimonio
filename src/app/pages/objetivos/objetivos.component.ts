@@ -91,7 +91,7 @@ export class ObjetivosComponent implements OnInit {
 
   progreso(actual: number, objetivo: number): number {
     if (!objetivo || objetivo <= 0) return 0;
-    return Math.min(100, Math.round((actual / objetivo) * 100));
+    return Math.min(100, (actual / objetivo) * 100);
   }
 
   estado(pct: number): string {
