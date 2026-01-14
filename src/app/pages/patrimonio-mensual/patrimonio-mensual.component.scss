@@ -23,6 +23,7 @@
   margin: 0 auto 30px auto;
   padding: 25px;
   border-radius: 16px;
+
   button {
     font-size: 15px;
     background-color: var(--card-bg);
@@ -50,6 +51,7 @@
 .botones-datos {
   justify-self: center;
   padding-bottom: 10px;
+
   button {
     font-size: 15px;
     background-color: var(--card-bg);
@@ -178,14 +180,48 @@ input[type="month"] {
   -webkit-appearance: auto !important;
 }
 
-/* Contenedor con scroll */
+/* =========================================
+   TABLA REGISTROS – ALTURA CONTROLADA
+========================================= */
+
 .tabla-wrapper {
-  height: 40%;
+  max-height: calc(18 * 44px); // ~18 filas reales
   overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  margin-left: 5%;
-  margin-right: 5%;
+  overflow-x: hidden;
+
+  margin: 0 5% 60px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+/* Scrollbar estilizada */
+.tabla-wrapper::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tabla-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.tabla-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.dark-theme .tabla-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-height: 800px) {
+  .tabla-wrapper {
+    max-height: calc(14 * 44px);
+  }
+}
+
+:host {
+  display: block;
+  padding-bottom: 40px;
 }
 
 /* Tabla completa */
@@ -327,4 +363,3 @@ button {
   gap: 6px;
   font-weight: 500;
 }
-
