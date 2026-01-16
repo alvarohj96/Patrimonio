@@ -17,7 +17,6 @@
 
 .mitad {
   width: 38%;
-  min-width: 300px;
   height: 500px;
 }
 
@@ -42,12 +41,31 @@ canvas {
   height: auto !important;
 }
 
-.tabla {
+.tabla-patrimonio {
   border-radius: 12px;
   overflow: hidden;
   background-color: var(--card-bg);
   color: #FFF;
 }
+
+.tabla-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 600px) {
+  .tabla-patrimonio th.porcentaje,
+  .tabla-patrimonio td.porcentaje {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .mitad {
+    width: 100%;
+  }
+}
+
 
 .resumen-variacion {
   margin-top: 20px;
@@ -163,3 +181,54 @@ canvas {
   display: flex;
   justify-content: center;
 }
+
+.deuda-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deuda-linea {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+}
+
+.deuda-linea strong {
+  font-weight: 600;
+}
+
+.deuda-linea.deuda strong {
+  color: #c62828;
+}
+
+.deuda-linea.neto strong {
+  color: #2e7d32;
+}
+
+.deuda-card hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.deuda-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.deuda-bar {
+  height: 22px;
+}
+
+.deuda-bar canvas {
+  width: 100% !important;
+  height: 22px !important;
+}
+
+.deuda-valores {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+

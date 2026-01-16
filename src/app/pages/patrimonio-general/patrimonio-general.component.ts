@@ -135,6 +135,13 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
   rangoMeses: 12 | 24 | 'all' = 12;
 
+  deudaInmuebles = 0;
+  valorBrutoInmuebles = 0;
+  valorNetoInmuebles = 0;
+
+  deudaBarData: any;
+  deudaBarOptions: any;
+
   constructor(private patrimonioService: PatrimonioService, private ui: UiConfigService) {
     this.config$ = this.ui.config$;
   }
@@ -258,6 +265,74 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         this.getColorCategoria(r.categoria)
       )
     }];
+
+    const inmuebles = ultimo.valores['Inmuebles'];
+
+    if (inmuebles) {
+      let bruto = 0;
+      let deuda = 0;
+
+      Object.values(inmuebles).forEach((v: any) => {
+        if (typeof v === 'number') {
+          bruto += v;
+        } else {
+          bruto += v.valor || 0;
+          deuda += v.deuda || 0;
+        }
+      });
+
+      this.valorBrutoInmuebles = bruto;
+      this.deudaInmuebles = deuda;
+      this.valorNetoInmuebles = bruto - deuda;
+    } else {
+      this.valorBrutoInmuebles = 0;
+      this.deudaInmuebles = 0;
+      this.valorNetoInmuebles = 0;
+    }
+
+    this.deudaBarData = {
+      labels: [''],
+      datasets: [
+        {
+          label: 'Valor neto',
+          data: [this.valorNetoInmuebles],
+          backgroundColor: '#2e7d32',
+          borderRadius: 6
+        },
+        {
+          label: 'Deuda',
+          data: [this.deudaInmuebles],
+          backgroundColor: '#c62828',
+          borderRadius: 6
+        }
+      ]
+    };
+
+    this.deudaBarOptions = {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          stacked: true,
+          display: false
+        },
+        y: {
+          stacked: true,
+          display: false
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx: any) =>
+              `${ctx.dataset.label}: ${ctx.raw.toLocaleString()} €`
+          }
+        }
+      }
+    };
+
   }
 
   // ======================================================

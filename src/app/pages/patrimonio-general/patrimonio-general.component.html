@@ -14,26 +14,28 @@
       <mat-card class="card mitad">
         <h2>Patrimonio del último mes</h2>
 
-        <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla">
+        <div class="tabla-scroll">
+          <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla-patrimonio">
 
-          <ng-container matColumnDef="categoria">
-            <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
-            <td class="total-col" mat-cell *matCellDef="let r">{{ r.categoria }}</td>
-          </ng-container>
+            <ng-container matColumnDef="categoria">
+              <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
+              <td class="total-col" mat-cell *matCellDef="let r">{{ r.categoria }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="total">
-            <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
-            <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
-          </ng-container>
+            <ng-container matColumnDef="total">
+              <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
+              <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
+            </ng-container>
 
-          <ng-container matColumnDef="porcentaje">
-            <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
-            <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
-          </ng-container>
+            <ng-container matColumnDef="porcentaje">
+              <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
+              <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
+            </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje']"></tr>
-        </table>
+            <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje']"></tr>
+          </table>
+        </div>
 
         <!--   <h3 style="text-align:center; font-weight:600; margin-bottom:15px;">
       Total mes: {{ totalUltimoMes | number:'1.0-0' }} €
@@ -128,6 +130,38 @@
         <button mat-button class="btn-filtro" (click)="ocultarTodasLineas()">Ocultar todo</button>
       </div>
       <canvas baseChart [data]="lineData" type="line" height="300"></canvas>
+    </mat-card>
+
+    <mat-card class="card amplia deuda-card" *ngIf="deudaInmuebles > 0">
+      <h2>🏦 Deuda actual</h2>
+      <div class="deuda-layout">
+        <!-- Barra horizontal -->
+        <div class="deuda-bar">
+          <canvas baseChart type="bar" [data]="deudaBarData" [options]="deudaBarOptions">
+          </canvas>
+        </div>
+        <!-- Valores -->
+        <div class="deuda-valores">
+          <div class="deuda-linea">
+            <span>Valor bruto</span>
+            <strong>{{ valorBrutoInmuebles | number:'1.2-2' }} €</strong>
+          </div>
+          <div class="deuda-linea deuda">
+            <span>Deuda</span>
+            <strong>
+              -{{ deudaInmuebles | number:'1.2-2' }} €
+              ({{ (deudaInmuebles / valorBrutoInmuebles) * 100 | number:'1.1-1' }}%)
+            </strong>
+          </div>
+          <div class="deuda-linea neto">
+            <span>Valor neto</span>
+            <strong>
+              {{ valorNetoInmuebles | number:'1.2-2' }} €
+              ({{ (valorNetoInmuebles / valorBrutoInmuebles) * 100 | number:'1.1-1' }}%)
+            </strong>
+          </div>
+        </div>
+      </div>
     </mat-card>
   </ng-container>
 </div>
