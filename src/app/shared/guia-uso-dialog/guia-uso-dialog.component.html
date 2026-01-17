@@ -1,0 +1,202 @@
+<h2 class="titulo">📘 Guía de uso</h2>
+
+<div class="contenido-scroll">
+
+    <mat-accordion multi>
+
+        <mat-expansion-panel expanded class="panel-importante">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    ⚠️ Importante – Privacidad y almacenamiento de datos
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p class="importante-texto">
+                Esta aplicación <strong>NO almacena ningún dato personal ni financiero</strong> del usuario
+                en servidores externos ni bases de datos remotas.
+            </p>
+
+            <ul>
+                <li>
+                    Todos los datos se gestionan <strong>únicamente en el navegador</strong>
+                </li>
+                <li>
+                    No se envía información a terceros
+                </li>
+                <li>
+                    No existe registro de usuarios ni cuentas
+                </li>
+            </ul>
+
+            <p class="importante-texto">
+                🔐 La <strong>única forma de persistir los datos</strong> es mediante la
+                <strong>exportación manual en formato CSV</strong>, que se descarga
+                <strong>localmente en tu dispositivo</strong>.
+            </p>
+
+            <ul>
+                <li>
+                    El archivo CSV es totalmente editable
+                </li>
+                <li>
+                    Puedes guardarlo como copia de seguridad
+                </li>
+                <li>
+                    Puedes volver a importarlo cuando quieras
+                </li>
+            </ul>
+
+            <p class="importante-nota">
+                💡 <em>Recomendación:</em> realiza exportaciones periódicas para no perder información.
+            </p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>📊 Patrimonio mensual</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p>
+                En esta sección registras el valor de tu patrimonio mes a mes.
+                Cada mes representa una <strong>foto completa</strong> de tu situación financiera.
+            </p>
+
+            <ul>
+                <li>
+                    Cada registro se asocia a un <strong>mes concreto</strong>
+                </li>
+                <li>
+                    El valor se divide en <strong>categorías</strong> (por ejemplo: Inmuebles, Liquidez, Acciones)
+                </li>
+                <li>
+                    Cada categoría puede tener <strong>subcategorías</strong> (ej. Vivienda habitual, Segunda
+                    residencia)
+                </li>
+                <li>
+                    El total del mes se calcula automáticamente sumando todas las categorías
+                </li>
+
+                <li>
+                    Si la sección se llama <strong>"Inmuebles"</strong>, automáticamente saldrá un cuadro de texto para
+                    añadir la hipoteca pendiente por pagar.
+                </li>
+            </ul>
+
+            <p>
+                💡 <em>Consejo:</em> introduce siempre el valor total del bien en ese mes, no solo la diferencia.
+            </p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>🏠 Inmuebles y deuda</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p>
+                Los inmuebles permiten registrar tanto el <strong>valor bruto</strong> como la
+                <strong>deuda pendiente</strong> asociada (hipoteca).
+            </p>
+
+            <ul>
+                <li>
+                    El valor del inmueble se guarda siempre de forma independiente
+                </li>
+                <li>
+                    La deuda solo aparece si es mayor que 0
+                </li>
+                <li>
+                    El sistema calcula automáticamente el <strong>valor neto</strong>
+                </li>
+            </ul>
+
+            <p>
+                Esto permite analizar no solo lo que tienes, sino lo que realmente te pertenece.
+            </p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>🎯 Objetivos financieros</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p>
+                Define objetivos para controlar hacia dónde quieres llevar tu patrimonio.
+            </p>
+
+            <ul>
+                <li>
+                    Puedes definir un <strong>objetivo total</strong> global
+                </li>
+                <li>
+                    También objetivos individuales por categoría
+                </li>
+                <li>
+                    El progreso se muestra visualmente mediante barras
+                </li>
+            </ul>
+
+            <p>
+                📈 Ideal para visualizar si estás avanzando según lo previsto.
+            </p>
+        </mat-expansion-panel>
+
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>📈 Patrimonio general</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p>
+                Aquí tienes una visión global y analítica de tu evolución financiera.
+            </p>
+
+            <ul>
+                <li>
+                    Distribución del patrimonio por categorías
+                </li>
+                <li>
+                    Evolución mensual con gráficos de barras y líneas
+                </li>
+                <li>
+                    Comparación entre meses
+                </li>
+                <li>
+                    Análisis de deudas actuales
+                </li>
+            </ul>
+
+            <p>
+                Los gráficos se pueden filtrar por categorías y rango de meses.
+            </p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>💾 Importar y exportar datos</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p>
+                Puedes exportar todos tus datos a CSV o importar datos existentes.
+            </p>
+
+            <ul>
+                <li>
+                    Compatible con hojas de cálculo
+                </li>
+                <li>
+                    Ideal para copias de seguridad
+                </li>
+                <li>
+                    Permite migrar datos desde otras herramientas
+                </li>
+            </ul>
+        </mat-expansion-panel>
+
+    </mat-accordion>
+</div>
+
+<div class="acciones">
+    <button mat-raised-button color="primary" (click)="dialogRef.close()">
+        Cerrar
+    </button>
+</div>

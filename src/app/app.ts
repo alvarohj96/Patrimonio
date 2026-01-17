@@ -22,6 +22,7 @@ import { PatrimonioGeneralComponent } from './pages/patrimonio-general/patrimoni
 import { PatrimonioMensualComponent } from './pages/patrimonio-mensual/patrimonio-mensual.component';
 import { ThemeService } from './services/theme/theme.service';
 import { ConfiguracionVisualComponent } from './pages/configuracion-visual/configuracion-visual.component';
+import { GuiaUsoDialogComponent } from './shared/guia-uso-dialog/guia-uso-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -53,6 +54,14 @@ export class App {
   abrirConfiguracion() {
     this.dialog.open(ConfiguracionVisualComponent, {
       width: '380px'
+    });
+  }
+  abrirGuia() {
+    this.dialog.open(GuiaUsoDialogComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'guia-uso-dialog'
     });
   }
 }
