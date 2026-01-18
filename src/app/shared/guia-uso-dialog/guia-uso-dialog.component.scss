@@ -2,7 +2,6 @@
     display: block;
     max-height: 90vh;
     background-color: var(--card-bg);
-    color: var(--text-color);
 }
 
 /* Contenedor principal */
@@ -88,7 +87,7 @@ li {
 
 .panel-importante {
     border: 1px solid rgba(198, 40, 40, 0.4);
-    background: rgba(198, 40, 40, 0.05);
+    background: rgba(198, 40, 40, 0.05) !important;
 }
 
 .panel-importante mat-expansion-panel-header {
@@ -109,4 +108,32 @@ li {
     margin-top: 12px;
     font-size: 0.9rem;
     opacity: 0.85;
+}
+
+p,
+li {
+    color: var(--app-text);
+}
+
+.mat-dialog-container {
+    background-color: var(--card-bg);
+    color: var(--app-text);
+}
+
+mat-panel-title {
+    color: var(--app-text);
+}
+
+mat-expansion-panel.mat-expanded {
+    background-color: var(--card-bg);
+}
+
+mat-expansion-panel:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.acciones {
+    button {
+        background-color: var(--card-bg);
+    }
 }
