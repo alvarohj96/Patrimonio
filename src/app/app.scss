@@ -83,3 +83,11 @@ button:hover mat-icon {
 ::ng-deep .mat-mdc-tab-header {
   background-color: var(--app-toolbar-bg);
 }
+
+::ng-deep .menu-hamburguesa.mat-mdc-menu-panel {
+  background-color: var(--card-bg);
+}
+
+::ng-deep .mat-mdc-menu-item {
+  color: var(--app-text) !important;
+}

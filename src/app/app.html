@@ -8,38 +8,40 @@
 
   <span class="spacer"></span>
 
-  <!-- Menú hamburguesa -->
-  <button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>menu</mat-icon>
-  </button>
-
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item routerLink="/general">
-      <mat-icon>dashboard</mat-icon>
-      Patrimonio general
+  <div class="menu">
+    <!-- Menú hamburguesa -->
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>menu</mat-icon>
     </button>
 
-    <button mat-menu-item routerLink="/mensual">
-      <mat-icon>edit</mat-icon>
-      Entrada mensual
+    <mat-menu #menu="matMenu" class="menu-hamburguesa">
+      <button mat-menu-item routerLink="/general">
+        <mat-icon>dashboard</mat-icon>
+        Patrimonio general
+      </button>
+
+      <button mat-menu-item routerLink="/mensual">
+        <mat-icon>edit</mat-icon>
+        Entrada mensual
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button aria-label="Guía de uso" (click)="abrirGuia()">
+      <mat-icon>info</mat-icon>
     </button>
-  </mat-menu>
 
-  <button mat-icon-button aria-label="Guía de uso" (click)="abrirGuia()">
-    <mat-icon>info</mat-icon>
-  </button>
+    <!-- BOTÓN TEMA -->
+    <button mat-icon-button (click)="theme.toggle()" matTooltip="Cambiar tema">
+      <mat-icon>
+        {{ theme.isDark() ? 'light_mode' : 'dark_mode' }}
+      </mat-icon>
+    </button>
 
-  <!-- BOTÓN TEMA -->
-  <button mat-icon-button (click)="theme.toggle()" matTooltip="Cambiar tema">
-    <mat-icon>
-      {{ theme.isDark() ? 'light_mode' : 'dark_mode' }}
-    </mat-icon>
-  </button>
-
-  <!-- CONFIG -->
-  <button mat-icon-button matTooltip="Configuración" (click)="abrirConfiguracion()">
-    <mat-icon>settings</mat-icon>
-  </button>
+    <!-- CONFIG -->
+    <button mat-icon-button matTooltip="Configuración" (click)="abrirConfiguracion()">
+      <mat-icon>settings</mat-icon>
+    </button>
+  </div>
 
 </mat-toolbar>
 
