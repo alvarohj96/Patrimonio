@@ -1,0 +1,19 @@
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 320px;
+  height: 140px;
+}
+
+.titulo {
+  color: var(--table-header-text);
+}
+
+::ng-deep .mat-mdc-slide-toggle .mdc-label {
+  color: var(--app-text) !important;
+}
+
+.objetivos {
+  background-color: var(--card-bg);
+}

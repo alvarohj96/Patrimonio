@@ -14,7 +14,8 @@ import { UiConfigService } from '../../services/ui-config.service';
     FormsModule
   ],
   template: `
-    <h2 mat-dialog-title>⚙️ Configuración visual</h2>
+  <div class="objetivos">
+    <h2 class="titulo" mat-dialog-title>⚙️ Configuración visual</h2>
 
 <mat-dialog-content class="contenido">
 
@@ -41,15 +42,9 @@ import { UiConfigService } from '../../services/ui-config.service';
 <mat-dialog-actions align="end">
   <button mat-button (click)="cerrar()">Cerrar</button>
 </mat-dialog-actions>
+  </div>
   `,
-  styles: [`
-    .contenido {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 320px;
-    }
-  `]
+  styleUrl: './configuracion-visual.scss'
 })
 export class ConfiguracionVisualComponent {
 

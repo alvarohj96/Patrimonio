@@ -53,7 +53,7 @@ export class App {
 
   abrirConfiguracion() {
     this.dialog.open(ConfiguracionVisualComponent, {
-      width: '380px'
+      width: '350px'
     });
   }
   abrirGuia() {
