@@ -186,7 +186,7 @@ export class PatrimonioMensualComponent implements OnInit {
 
   eliminarRegistro(reg: RegistroMensual) {
     this.dialog.open(ConfirmDialogComponent, {
-      width: '420px',
+      width: '300px',
       data: { mensaje: `¿Eliminar mes ${this.formatMes(reg.mes)}?` }
     }).afterClosed().subscribe(ok => {
       if (!ok) return;

@@ -19,8 +19,8 @@ import { MatIconModule } from '@angular/material/icon';
       </p>
 
       <div class="dialog-actions">
-        <button mat-button (click)="dialogRef.close(false)">Cancelar</button>
-        <button mat-raised-button color="warn" (click)="dialogRef.close(true)">Eliminar</button>
+        <button mat-raised-button (click)="dialogRef.close(false)">Cancelar</button>
+        <button mat-raised-button (click)="dialogRef.close(true)">Eliminar</button>
       </div>
     </div>
   `,
@@ -28,6 +28,7 @@ import { MatIconModule } from '@angular/material/icon';
     .dialog-container {
       padding: 20px;
       text-align: center;
+      background-color: var(--card-bg);
     }
 
     .warning-icon {
@@ -50,6 +51,10 @@ import { MatIconModule } from '@angular/material/icon';
       display: flex;
       justify-content: flex-end;
       gap: 10px;
+      button {
+        background-color: var(--card-bg);
+        border: 1px solid #e0e0e0;
+      }
     }
   `]
 })
@@ -57,5 +62,5 @@ export class ConfirmDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ConfirmDialogComponent>
-  ) {}
+  ) { }
 }

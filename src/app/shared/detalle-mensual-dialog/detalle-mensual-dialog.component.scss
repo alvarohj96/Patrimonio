@@ -5,9 +5,10 @@
 .dialog-container {
   padding: 24px;
   max-width: 900px;
-  max-height: 85vh;          
-  overflow-y: auto;          
+  max-height: 85vh;
+  overflow-y: auto;
   box-sizing: border-box;
+  background-color: var(--card-bg);
 }
 
 
@@ -47,7 +48,7 @@
 
 .grid-datos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 18px 20px;
 }
 
@@ -59,7 +60,6 @@
 .categoria-item {
   padding: 14px 16px;
   border-radius: 10px;
-  background: #fafafa;
   border: 1px solid #e0e0e0;
 }
 
@@ -119,6 +119,10 @@
   font-size: 0.75rem;
 }
 
+.flecha-expansion {
+  color: var(--app-text);
+}
+
 
 /* =====================================================
    TOTALES Y ACCIONES
@@ -132,10 +136,17 @@
 }
 
 .acciones {
-  position: sticky;      
+  position: sticky;
   bottom: 0;
   padding-top: 12px;
   text-align: right;
+}
+
+.acciones {
+  button {
+    background-color: var(--card-bg);
+    border: 1px solid #e0e0e0;
+  }
 }
 
 
@@ -165,7 +176,7 @@
 ===================================================== */
 
 .dialog-container {
-  scrollbar-width: thin;                     
+  scrollbar-width: thin;
   scrollbar-color: #bdbdbd transparent;
 }
 
@@ -176,13 +187,13 @@
 
 .dialog-container::-webkit-scrollbar-track {
   background: transparent;
-  margin: 8px 0;                             
+  margin: 8px 0;
 }
 
 .dialog-container::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.25);
   border-radius: 8px;
-  border: 2px solid transparent;            
+  border: 2px solid transparent;
   background-clip: content-box;
 }
 

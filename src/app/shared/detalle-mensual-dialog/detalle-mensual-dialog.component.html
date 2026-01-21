@@ -20,7 +20,7 @@
 
         <div class="cat-nombre">
           <button class="toggle-btn" (click)="toggleCategoria(cat)" aria-label="Mostrar subcategorías">
-            <mat-icon>
+            <mat-icon class="flecha-expansion">
               {{ categoriasAbiertas[cat] ? 'expand_more' : 'chevron_right' }}
             </mat-icon>
           </button>
@@ -53,17 +53,17 @@
               <ng-container *ngIf="data.valores[cat][s]?.deuda && data.valores[cat][s].deuda !== 0; else sinDeuda">
 
                 <div class="valor-bruto">
-                  {{ data.valores[cat][s]?.valor | number:'1.0-0' }} €
+                  {{ data.valores[cat][s]?.valor | number:'1.2-2' }} €
                 </div>
 
                 <div class="valor-deuda">
-                  − {{ data.valores[cat][s]?.deuda | number:'1.0-0' }} €
+                  − {{ data.valores[cat][s]?.deuda | number:'1.2-2' }} €
                 </div>
 
                 <div class="valor-neto">
-                  {{ getValorSubcategoria(cat, s) | number:'1.0-0' }} €
+                  {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
                   <span class="sub-pct">
-                    ({{ getPorcentajeSubcategoria(cat, s) | number:'1.1-1' }}%)
+                    ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
                   </span>
                 </div>
 
