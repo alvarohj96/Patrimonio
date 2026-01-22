@@ -8,7 +8,7 @@
   <!-- SELECCIONAR CATEGORÍA -->
   <mat-form-field appearance="outline" class="input-full">
     <mat-label>Categoría</mat-label>
-    <mat-select [(ngModel)]="categoria" (selectionChange)="cargar()">
+    <mat-select [(ngModel)]="categoria" (selectionChange)="cargar()" panelClass="mi-panel-personalizado">
       <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
     </mat-select>
   </mat-form-field>
@@ -32,7 +32,7 @@
     <input matInput [(ngModel)]="nuevaSub">
   </mat-form-field>
 
-  <button mat-raised-button color="primary" class="btn-add" (click)="anyadir()">
+  <button mat-raised-button class="btn-add" (click)="anyadir()">
     <mat-icon>add</mat-icon>
     Añadir subcategoría
   </button>

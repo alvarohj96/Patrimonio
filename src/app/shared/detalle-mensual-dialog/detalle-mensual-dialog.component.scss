@@ -60,7 +60,7 @@
 .categoria-item {
   padding: 14px 16px;
   border-radius: 10px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
 }
 
 
@@ -145,7 +145,7 @@
 .acciones {
   button {
     background-color: var(--card-bg);
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
   }
 }
 

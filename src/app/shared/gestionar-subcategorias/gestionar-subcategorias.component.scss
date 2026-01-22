@@ -1,6 +1,7 @@
 .dialog-container {
   padding: 25px;
   width: 480px;
+  background-color: var(--card-bg);
 }
 
 .titulo {
@@ -25,6 +26,8 @@
   max-height: 240px;
   overflow-y: auto;
   margin-bottom: 20px;
+  background-color: var(--card-bg);
+  scrollbar-color: var(--app-text) var(--card-bg); /* Color del scroll | Color del fondo del scroll */
 }
 
 .cat-item {
@@ -32,11 +35,11 @@
   justify-content: space-between;
   padding: 10px 12px;
   border-radius: 8px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .cat-item:hover {
-  background: #f1f1f1;
+  background: var(--hover);
 }
 
 .cat-nombre {
@@ -52,8 +55,39 @@
 .btn-add {
   width: 100%;
   margin-bottom: 20px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .acciones {
   text-align: right;
+
+  button {
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+  }
+}
+
+:host ::ng-deep .mat-mdc-select-value {
+  color: var(--app-text) !important;
+}
+
+:host ::ng-deep .mat-mdc-input-element {
+  color: var(--app-text) !important;
+}
+
+:host ::ng-deep .mat-mdc-floating-label {
+  color: var(--app-text) !important;
+}
+
+::ng-deep .mi-panel-personalizado.mat-mdc-select-panel {
+  background-color: var(--card-bg) !important;
+}
+
+::ng-deep .mi-panel-personalizado .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--app-text) !important;
+}
+
+::ng-deep .mi-panel-personalizado .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background-color: var(--hover) !important;
 }

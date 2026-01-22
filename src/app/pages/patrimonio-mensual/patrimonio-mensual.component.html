@@ -16,14 +16,14 @@
 
     <mat-form-field class="formulario" appearance="outline">
       <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required>
+      <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required panelClass="mi-panel-personalizado">
         <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field class="formulario" appearance="outline" *ngIf="categoria">
       <mat-label>Subcategoría</mat-label>
-      <mat-select [(ngModel)]="subcategoria" name="subcategoria" required>
+      <mat-select [(ngModel)]="subcategoria" name="subcategoria" required panelClass="mi-panel-personalizado">
         <mat-option *ngFor="let s of subcategoriasPorCategoria[categoria]" [value]="s">
           {{ s }}
         </mat-option>
