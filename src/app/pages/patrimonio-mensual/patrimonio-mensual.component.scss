@@ -376,3 +376,68 @@ button {
   gap: 6px;
   font-weight: 500;
 }
+
+:host ::ng-deep input::-webkit-outer-spin-button,
+:host ::ng-deep input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Es necesario usar ::ng-deep si el estilo está dentro del componente 
+   o ponerlo sin ::ng-deep en el styles.scss global */
+::ng-deep .month-picker {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+
+  /* Contenedor del calendario */
+  .mat-calendar {
+    background-color: var(--card-bg);
+    color: var(--app-text);
+  }
+
+  /* Cabecera (flechas y nombre del año/mes) */
+  .mat-calendar-header {
+    background-color: var(--card-bg);
+    color: var(--app-text);
+
+    .mat-calendar-controls {
+      color: var(--app-text);
+    }
+
+    .mat-calendar-arrow {
+      color: var(--app-text);
+    }
+
+    .mat-mdc-button {
+      color: var(--app-text);
+    }
+  }
+
+  /* Nombres de los meses y años en la cuadrícula */
+  .mat-calendar-body-label,
+  .mat-calendar-body-cell-content {
+    color: var(--app-text);
+  }
+
+  /* Estilo para los botones de los meses/años */
+  .mat-calendar-body-cell-content {
+    border-color: transparent;
+  }
+
+  /* Mes/Año seleccionado */
+  .mat-calendar-body-selected {
+    color: var(--app-text);
+  }
+
+  /* Botón de hoy o enfoque (opcional) */
+  .mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+    color: var(--app-text);
+  }
+
+  .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover {
+    .mat-calendar-body-cell-content {
+      background-color: var(--hover) !important;
+      border-radius: 4px;
+    }
+  }
+}
