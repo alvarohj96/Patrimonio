@@ -56,6 +56,17 @@
   background: transparent;
 }
 
+
+@media (max-width: 600px) {
+  .objetivo-total .actual {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .objetivo-total-input {
+    width: 15px;
+  }
+}
+
 /* Input real */
 .objetivo-total-input input {
   width: 100%;
@@ -82,7 +93,7 @@
 }
 
 .objetivo-total .objetivo-total-input {
-  width: 110px;
+  width: 100px;
   height: 30px;
   font-size: 0.9rem;
 }
@@ -299,7 +310,7 @@
 
 /* Tamaños */
 .categoria .objetivo-input {
-  width: 80px;
+  width: 60px;
 }
 
 .objetivo-total .objetivo-input {
