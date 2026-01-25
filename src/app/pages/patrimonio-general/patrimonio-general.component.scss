@@ -9,7 +9,8 @@
   justify-content: center;
   align-items: flex-start;
   gap: 20px;
-  flex-wrap: wrap; /* para móviles */
+  flex-wrap: wrap;
+  /* para móviles */
   margin-bottom: 25px;
   height: auto;
   margin-top: 25px;
@@ -54,6 +55,7 @@ canvas {
 }
 
 @media (max-width: 600px) {
+
   .tabla-patrimonio th.porcentaje,
   .tabla-patrimonio td.porcentaje {
     display: none;
@@ -63,6 +65,12 @@ canvas {
 @media (max-width: 900px) {
   .mitad {
     width: 100%;
+    height: auto;
+  }
+
+  .amplia {
+    width: 100%;
+    height: auto;
   }
 }
 
@@ -231,4 +239,3 @@ canvas {
   flex-direction: column;
   gap: 6px;
 }
-
