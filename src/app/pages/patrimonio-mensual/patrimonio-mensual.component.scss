@@ -232,6 +232,34 @@ input[type="month"] {
   }
 }
 
+@media (max-width: 1024px) {
+
+  /* Ocultar columnas solo desktop */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Ajustes visuales */
+  .tabla-registros {
+    font-size: 13px;
+  }
+
+  .mes-col {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .total-col {
+    font-weight: 700;
+  }
+
+  .acciones button {
+    transform: scale(0.9);
+    width: 30px;
+  }
+}
+
+
 :host {
   display: block;
   padding-bottom: 40px;

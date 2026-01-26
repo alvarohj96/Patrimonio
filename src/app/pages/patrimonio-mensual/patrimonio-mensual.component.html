@@ -16,7 +16,8 @@
 
     <mat-form-field class="formulario" appearance="outline">
       <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required panelClass="mi-panel-personalizado">
+      <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required
+        panelClass="mi-panel-personalizado">
         <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -106,8 +107,8 @@
       <tr>
         <th>Mes</th>
         <th>Total</th>
-        <th *ngFor="let cat of categorias">{{ cat }}</th>
-        <th>Diferencia mes anterior</th>
+        <th class="col-categoria desktop-only" *ngFor="let cat of categorias">{{ cat }}</th>
+        <th class="desktop-only">Diferencia mes anterior</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -127,8 +128,7 @@
 
         <!-- Totales por categoría -->
         <ng-container *ngFor="let cat of categorias">
-          <td class="cat-val">
-
+          <td class="cat-val desktop-only">
             <!-- MODO € -->
             <ng-container *ngIf="!esModoPorcentaje(r); else porcentajeTpl">
               <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
@@ -149,7 +149,7 @@
         </ng-container>
 
         <!-- Diferencia vs mes anterior -->
-        <td class="diff-col">
+        <td class="diff-col desktop-only">
           <ng-container *ngIf="getDiferenciaMes(r) as diff">
 
             <span *ngIf="diff > 0" class="positivo">
