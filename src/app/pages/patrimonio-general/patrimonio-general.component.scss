@@ -60,6 +60,17 @@ canvas {
   .tabla-patrimonio td.porcentaje {
     display: none;
   }
+
+  .tabla-patrimonio .mat-mdc-cell {
+    font-size: 12px;
+  }
+
+  .tabla-patrimonio .mat-column-total {
+    white-space: nowrap !important;
+    width: auto;
+    min-width: fit-content;
+    padding-right: 16px;
+  }
 }
 
 @media (max-width: 900px) {
