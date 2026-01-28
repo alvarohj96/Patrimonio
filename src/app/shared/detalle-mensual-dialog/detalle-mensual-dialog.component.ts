@@ -53,6 +53,19 @@ export class DetalleMensualDialogComponent implements OnInit {
     this.prepararDonut();
   }
 
+  public donutOptions: any = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false 
+    },
+    tooltip: {
+      enabled: true
+    }
+  }
+};
+
 
   // ===============================
   // Cálculo de totales (NETO)

@@ -3,11 +3,11 @@
 ===================================================== */
 
 .dialog-container {
-  padding: 24px;
-  max-width: 900px;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-x: hidden;
   max-height: 85vh;
   overflow-y: auto;
-  box-sizing: border-box;
   background-color: var(--card-bg);
 }
 
@@ -39,8 +39,24 @@
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  max-width: 100%;
+  margin: 0 auto 20px auto;
+  width: 180px; 
+  height: 180px;
 }
 
+@media (max-width: 600px) {
+  .chart-container {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 10px;
+  }
+}
+
+canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
 
 /* =====================================================
    GRID DE CATEGORÍAS
@@ -48,7 +64,8 @@
 
 .grid-datos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  /* Bajamos el mínimo a 280px para que quepa en cualquier móvil */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px 20px;
 }
 

@@ -290,7 +290,11 @@ export class PatrimonioMensualComponent implements OnInit {
 
   abrirDetalle(reg: RegistroMensual) {
     this.dialog.open(DetalleMensualDialogComponent, {
-      width: '900px',
+      // Esto asegura que en móviles no se desborde y en PC no pase de 900px
+      width: '95%',
+      maxWidth: '700px',
+      maxHeight: '90vh', // Evita que toque los bordes superior/inferior
+      panelClass: 'dialogo-responsivo', // Opcional por si quieres estilos globales
       data: {
         mes: this.formatMes(reg.mes),
         valores: reg.valores

@@ -7,7 +7,9 @@
     <canvas baseChart [data]="{
         labels: donutLabels,
         datasets: [{ data: donutData, backgroundColor: donutColors[0].backgroundColor }]
-      }" type="doughnut" width="260" height="260"></canvas>
+      }" 
+      [options]="donutOptions"
+      type="doughnut" width="260" height="260"></canvas>
   </div>
 
   <h3 class="subtitulo">Distribución por categorías</h3>
