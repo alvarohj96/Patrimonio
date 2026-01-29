@@ -11,7 +11,8 @@ export interface RegistroMensual {
     [categoria: string]: {
       [subcategoria: string]: {
         valor: number;
-        deuda?: number; // SOLO para Inmuebles
+        deuda?: number;
+        porcentaje?: number;
       };
     };
   };

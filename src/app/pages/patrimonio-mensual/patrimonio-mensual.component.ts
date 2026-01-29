@@ -75,6 +75,9 @@ export class PatrimonioMensualComponent implements OnInit {
   modoPorcentajeGlobal: boolean | null = null;
 
   deuda: number = 0;
+  porcentajePropiedad: number = 100;
+  valorNetoCalculado: number = 0;
+  deudaNeta: number = 0;
 
   constructor(
     private patrimonioService: PatrimonioService,
@@ -140,12 +143,13 @@ export class PatrimonioMensualComponent implements OnInit {
       registro.valores[this.categoria] = {};
     }
 
+    this.recalcularValorNeto();
     // Guardar valor por subcategoría
     registro.valores[this.categoria][subOk] = {
-      valor: this.valor,
-      deuda: this.categoria === 'Inmuebles' ? this.deuda : 0
+      valor: this.categoria === 'Inmuebles' ? this.valorNetoCalculado : this.valor,
+      deuda: this.categoria === 'Inmuebles' ? this.deudaNeta : this.deuda,
+      porcentaje: this.categoria === 'Inmuebles' ? this.porcentajePropiedad : 100
     };
-
     // Registrar subcategoría en el servicio (persistente)
     this.patrimonioService.addSubcategoria(this.categoria, subOk);
 
@@ -156,6 +160,10 @@ export class PatrimonioMensualComponent implements OnInit {
     this.valor = 0;
     this.subcategoria = '';
     this.nuevaSubcategoria = '';
+    this.deuda = 0;
+    this.porcentajePropiedad = 100;
+    this.valorNetoCalculado = 0;
+    this.deudaNeta = 0;
   }
 
   getCategoriasParaMes(reg: RegistroMensual): string[] {
@@ -471,5 +479,9 @@ export class PatrimonioMensualComponent implements OnInit {
     return (totalCat / totalMes) * 100;
   }
 
-
+  recalcularValorNeto() {
+    const porcentaje = this.porcentajePropiedad / 100;
+    this.valorNetoCalculado = this.valor * porcentaje;
+    this.deudaNeta = this.deuda * porcentaje;
+  }
 }
