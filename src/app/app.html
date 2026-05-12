@@ -8,24 +8,21 @@
 
   <span class="spacer"></span>
 
-  <div class="menu">
-    <!-- Menú hamburguesa -->
-    <button mat-icon-button [matMenuTriggerFor]="menu">
-      <mat-icon>menu</mat-icon>
+  <!-- Navegación principal -->
+  <div class="nav-buttons">
+
+    <button mat-button routerLink="/general" routerLinkActive="nav-activo" [routerLinkActiveOptions]="{ exact: true }">
+      <mat-icon>dashboard</mat-icon>
+      <span>Patrimonio general</span>
     </button>
 
-    <mat-menu #menu="matMenu" class="menu-hamburguesa">
-      <button mat-menu-item routerLink="/general">
-        <mat-icon>dashboard</mat-icon>
-        Patrimonio general
-      </button>
+    <button mat-button routerLink="/mensual" routerLinkActive="nav-activo">
+      <mat-icon>edit</mat-icon>
+      <span>Entrada mensual</span>
+    </button>
+  </div>
 
-      <button mat-menu-item routerLink="/mensual">
-        <mat-icon>edit</mat-icon>
-        Entrada mensual
-      </button>
-    </mat-menu>
-
+  <div class="menu">
     <button mat-icon-button aria-label="Guía de uso" (click)="abrirGuia()">
       <mat-icon>info</mat-icon>
     </button>

@@ -1,3 +1,7 @@
+/* =========================================
+   TOOLBAR PRINCIPAL
+========================================= */
+
 .app-toolbar {
   position: sticky;
   top: 0;
@@ -5,8 +9,9 @@
 
   display: flex;
   align-items: center;
-  padding: 0 24px;
+
   height: 64px;
+  padding: 0 20px;
 
   background: var(--app-toolbar-bg);
   color: var(--app-toolbar-text);
@@ -14,6 +19,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+
+/* =========================================
+   LOGO Y TÍTULO
+========================================= */
 
 .toolbar-left {
   display: flex;
@@ -26,68 +35,87 @@
 }
 
 .app-title {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
 }
 
 .spacer {
   flex: 1;
 }
 
-/* Tabs más elegantes */
-::ng-deep .mat-mdc-tab-label {
-  font-weight: 500;
+
+/* =========================================
+   NAVEGACIÓN
+========================================= */
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-::ng-deep .mat-mdc-tab.mdc-tab--active {
+.nav-buttons button {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--app-toolbar-text);
+  font-weight: 500;
+
+  transition: background-color 0.2s ease;
+}
+
+.nav-buttons button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-activo {
+  background: rgba(255, 255, 255, 0.14);
   font-weight: 600;
 }
 
-/* Transición del icono */
+.nav-buttons mat-icon {
+  font-size: 20px;
+}
+
+
+/* =========================================
+   ICONOS DERECHA
+========================================= */
+
 button mat-icon {
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
 }
 
 button:hover mat-icon {
-  transform: rotate(25deg);
+  transform: rotate(12deg);
 }
 
-.mat-header-row {
-  background-color: var(--table-header-bg);
-}
 
-.mat-header-cell {
-  color: var(--table-header-text);
-  font-weight: 600;
-}
+/* =========================================
+   RESPONSIVE
+========================================= */
 
-/* Texto de las tabs */
-::ng-deep .mdc-tab__text-label {
-  color: var(--app-tab-text) !important;
-  font-weight: 500;
-}
+@media (max-width: 768px) {
 
-/* Tab activa */
-::ng-deep .mdc-tab--active .mdc-tab__text-label {
-  color: var(--app-toolbar-text) !important;
-  font-weight: 600;
-}
+  .app-toolbar {
+    padding: 0 12px;
+  }
 
-/* Indicador (rayita inferior) */
-::ng-deep .mdc-tab-indicator__content--underline {
-  border-color: var(--accent-color, #90caf9);
-}
+  .app-title {
+    display: none;
+  }
 
-::ng-deep .mat-mdc-tab-header-pagination,
-::ng-deep .mat-mdc-tab-header {
-  background-color: var(--app-toolbar-bg);
-}
+  .nav-buttons button span {
+    display: none;
+  }
 
-::ng-deep .menu-hamburguesa.mat-mdc-menu-panel {
-  background-color: var(--card-bg);
-}
-
-::ng-deep .mat-mdc-menu-item {
-  color: var(--app-text) !important;
+  .nav-buttons button {
+    min-width: 42px;
+    padding: 0 10px;
+  }
 }
