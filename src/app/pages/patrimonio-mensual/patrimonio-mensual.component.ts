@@ -30,6 +30,7 @@ import { GestionarCategoriasComponent } from '../../shared/gestionar-categorias/
 import { GestionarSubcategoriasComponent } from '../../shared/gestionar-subcategorias/gestionar-subcategorias.component';
 import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.service';
 import { DetalleMensualDialogComponent } from '../../shared/detalle-mensual-dialog/detalle-mensual-dialog.component';
+import { FormularioMensualDialogComponent } from '../../shared/formulario-mensual-dialog/formulario-mensual-dialog';
 
 @Component({
   selector: 'app-patrimonio-mensual',
@@ -116,6 +117,14 @@ export class PatrimonioMensualComponent implements OnInit {
     });
   }
 
+  abrirFormulario() {
+    this.dialog.open(FormularioMensualDialogComponent, {
+      width: '520px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'dialog-formulario'
+    });
+  }
 
   onCategoriaChange() {
     this.subcategoria = '';

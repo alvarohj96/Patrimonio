@@ -1,296 +1,103 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  padding-bottom: 20px;
+  box-sizing: border-box;
+}
+
+/* ===============================
+   TÍTULOS
+================================ */
+
 .titulo {
   text-align: center;
-  margin: 25px 0 10px;
-  font-weight: 600;
+  margin: 20px 0 12px;
   font-size: 24px;
+  font-weight: 600;
 }
 
-.header-actions {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-
-  button {
-    font-size: 15px;
-    background-color: var(--card-bg);
-    color: var(--app-text);
-    margin-right: 5px;
-  }
-}
-
-.form-card {
-  max-width: 650px;
-  margin: 0 auto 30px auto;
-  padding: 25px;
-  border-radius: 16px;
-
-  button {
-    font-size: 15px;
-    background-color: var(--card-bg);
-    color: var(--app-text);
-    border: var(--border-color);
-    margin-right: 5px;
-  }
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 18px;
-  align-items: end;
-}
-
-
-.btn-guardar {
-  grid-column: 1 / -1;
-  justify-self: center;
-  padding: 10px 22px;
-  width: auto !important;
-  border: 1px solid var(--border-color);
-}
+/* ===============================
+   BOTONES SUPERIORES
+================================ */
 
 .botones-datos {
-  justify-self: center;
-  padding-bottom: 10px;
-
-  button {
-    font-size: 15px;
-    background-color: var(--card-bg);
-    color: var(--app-text);
-    margin-right: 5px;
-  }
-}
-
-.meses-accordion {
-  max-width: 600px;
-  /* controla el ancho */
-  margin: 0 auto;
-  /* centra la tabla */
-}
-
-::ng-deep .mi-panel-personalizado.mat-mdc-select-panel {
-  background-color: var(--card-bg) !important;
-}
-
-::ng-deep .mi-panel-personalizado .mat-mdc-option .mdc-list-item__primary-text {
-  color: var(--app-text) !important;
-}
-
-::ng-deep .mi-panel-personalizado .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
-  background-color: var(--hover) !important;
-}
-
-/* Panel de cada mes */
-mat-expansion-panel {
-  border-radius: 12px !important;
-  overflow: hidden;
-}
-
-.panel-content {
-  padding: 20px 30px;
-}
-
-mat-expansion-panel-header {
-  padding: 12px 18px !important;
-}
-
-.resumen-categorias {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
-  font-size: 13px;
-  opacity: 0.85;
-  color: var(--secondary-text);
-}
+  margin-bottom: 14px;
 
-.panel-content {
-  padding: 20px;
-}
-
-/* Bloques de categoría */
-.categoria-bloque {
-  margin-bottom: 25px;
-}
-
-/* Títulos de categoría */
-.categoria-bloque h3 {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.cat-titulo {
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.tabla-subcategorias {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  border-collapse: collapse;
-
-  td {
-    padding: 8px 0;
-  }
-
-  .nombre mat-select {
-    width: 150px;
-  }
-
-  .valor {
-    font-weight: 600;
-    width: 100px;
-  }
-
-  .acciones {
-    width: 35px;
-    text-align: right;
+  button {
+    background: var(--card-bg);
+    color: var(--app-text);
+    border: 1px solid var(--border-color);
   }
 }
 
-.tabla-subcategorias td select {
-  width: 150px;
-}
-
-.contenedor-centrado {
-  max-width: auto;
-  /* Ajusta aquí el ancho deseado */
-  margin: 0 auto;
-  /* Centra el bloque */
-  padding: 0 10%;
-  /* Pequeño margen lateral */
-}
-
-.diff {
-  width: 80px;
-  text-align: right;
-  font-weight: 600;
-}
-
-.positivo {
-  color: #2e7d32 !important;
-  /* verde */
-}
-
-.negativo {
-  color: #c62828 !important;
-  /* rojo */
-}
-
-.diff span {
-  display: inline-block;
-  min-width: 60px;
-}
-
-/* Reactivar selector type="month" que Material desactiva */
-input[type="month"] {
-  appearance: auto !important;
-  -webkit-appearance: auto !important;
-}
-
-/* =========================================
-   TABLA REGISTROS – ALTURA CONTROLADA
-========================================= */
+/* ===============================
+   TABLA PRINCIPAL
+================================ */
 
 .tabla-wrapper {
-  max-height: calc(18 * 44px); // ~18 filas reales
-  overflow-y: auto;
-  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
 
-  margin: 0 5% 60px;
+  overflow-y: auto;
+  overflow-x: auto;
+
+  margin: 0 5%;
   border-radius: 12px;
   border: 1px solid var(--border-color);
+
+  background: var(--card-bg);
 }
 
-/* Scrollbar estilizada */
+/* Scrollbar */
 .tabla-wrapper::-webkit-scrollbar {
   width: 10px;
-}
-
-.tabla-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-  margin: 6px 0;
+  height: 10px;
 }
 
 .tabla-wrapper::-webkit-scrollbar-thumb {
   border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .dark-theme .tabla-wrapper::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.3);
 }
 
-@media (max-height: 800px) {
-  .tabla-wrapper {
-    max-height: calc(14 * 44px);
-  }
-}
+/* ===============================
+   TABLA
+================================ */
 
-@media (max-width: 1024px) {
-
-  /* Ocultar columnas solo desktop */
-  .desktop-only {
-    display: none !important;
-  }
-
-  /* Ajustes visuales */
-  .tabla-registros {
-    font-size: 13px;
-  }
-
-  .mes-col {
-    font-size: 13px;
-    white-space: nowrap;
-  }
-
-  .total-col {
-    font-weight: 700;
-  }
-
-  .acciones button {
-    transform: scale(0.9);
-    width: 30px;
-  }
-}
-
-
-:host {
-  display: block;
-  padding-bottom: 40px;
-}
-
-/* Tabla completa */
 .tabla-registros {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-
 }
 
 .tabla-registros thead th {
-  background: var(--table-header-bg);
-  font-weight: 600;
-  padding: 10px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 5;
+
+  padding: 12px;
+  font-weight: 600;
+
+  background: var(--table-header-bg);
 }
 
 .tabla-registros td {
-  padding: 8px 10px;
+  padding: 10px;
   text-align: center;
 }
 
-/* Columnas */
 .mes-col {
-  font-weight: 600;
   text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .total-col {
@@ -298,7 +105,15 @@ input[type="month"] {
   color: #1e88e5;
 }
 
-/* Variación */
+.cat-val {
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ===============================
+   DIFERENCIAS
+================================ */
+
 .positivo {
   color: #2e7d32;
   font-weight: 600;
@@ -314,152 +129,74 @@ input[type="month"] {
 }
 
 .pct {
-  font-size: 12px;
   margin-left: 4px;
-}
-
-/* Acciones */
-.acciones button {
-  margin: 0 3px;
-}
-
-button {
-  font-size: 15px;
-  color: var(--app-text);
-}
-
-.mat-mdc-input-element {
-  color: var(--app-text) !important;
-}
-
-.mat-mdc-form-field-label {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.dark-theme .mat-mdc-form-field-outline {
-  color: var(--border-color);
+  font-size: 12px;
 }
 
 /* ===============================
-   MAT FORM FIELD (MODO OSCURO)
+   ACCIONES
 ================================ */
 
-::ng-deep .mat-mdc-form-field {
-  --mdc-filled-text-field-container-color: var(--form-bg);
-  --mdc-filled-text-field-input-text-color: var(--form-text);
-  --mdc-filled-text-field-label-text-color: var(--form-label);
-
-  --mdc-outlined-text-field-outline-color: var(--form-border);
-  --mdc-outlined-text-field-label-text-color: var(--form-label);
-  --mdc-outlined-text-field-input-text-color: var(--form-text);
+.acciones button {
+  margin: 0 2px;
 }
 
-/* Texto del input */
+/* ===============================
+   FORMULARIO POPUP
+================================ */
+
+.fab-add {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* ===============================
+   MATERIAL OVERRIDES
+================================ */
+
+::ng-deep .mi-panel-personalizado.mat-mdc-select-panel {
+  background-color: var(--card-bg) !important;
+}
+
+::ng-deep .mi-panel-personalizado .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--app-text) !important;
+}
+
+::ng-deep .mi-panel-personalizado .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background-color: var(--hover) !important;
+}
+
 ::ng-deep .mat-mdc-input-element {
   color: var(--form-text) !important;
-}
-
-/* Placeholder */
-::ng-deep .mat-mdc-input-element::placeholder {
-  color: var(--form-label);
-}
-
-:host ::ng-deep .formulario .mat-mdc-select-value {
-  color: var(--app-text) !important;
 }
 
 ::ng-deep .mat-mdc-select-arrow {
   color: var(--form-label);
 }
 
-::ng-deep .mat-datepicker-content {
-  background-color: var(--form-bg);
-  color: var(--form-text);
-}
+/* ===============================
+   DATEPICKER
+================================ */
 
-::ng-deep .mat-calendar-body-cell-content {
-  color: var(--form-text);
-}
-
-::ng-deep .mat-calendar-body-selected {
-  background-color: #1976d2 !important;
-  color: #fff !important;
-}
-
-.cat-val {
-  text-align: right;
-  font-weight: 500;
-}
-
-.cat-val.porcentaje {
-  color: #1565c0;
-  font-weight: 600;
-}
-
-.acciones-globales {
-  margin: 8px 0 16px;
-}
-
-.acciones-globales button {
-  gap: 6px;
-  font-weight: 500;
-}
-
-:host ::ng-deep input::-webkit-outer-spin-button,
-:host ::ng-deep input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Es necesario usar ::ng-deep si el estilo está dentro del componente 
-   o ponerlo sin ::ng-deep en el styles.scss global */
 ::ng-deep .month-picker {
   background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
 
-  /* Contenedor del calendario */
-  .mat-calendar {
-    background-color: var(--card-bg);
-    color: var(--app-text);
-  }
-
-  /* Cabecera (flechas y nombre del año/mes) */
-  .mat-calendar-header {
-    background-color: var(--card-bg);
-    color: var(--app-text);
-
-    .mat-calendar-controls {
-      color: var(--app-text);
-    }
-
-    .mat-calendar-arrow {
-      color: var(--app-text);
-    }
-
-    .mat-mdc-button {
-      color: var(--app-text);
-    }
-  }
-
-  /* Nombres de los meses y años en la cuadrícula */
+  .mat-calendar,
+  .mat-calendar-header,
+  .mat-calendar-controls,
   .mat-calendar-body-label,
-  .mat-calendar-body-cell-content {
+  .mat-calendar-body-cell-content,
+  .mat-mdc-button {
     color: var(--app-text);
+    background-color: var(--card-bg);
   }
 
-  /* Estilo para los botones de los meses/años */
-  .mat-calendar-body-cell-content {
-    border-color: transparent;
-  }
-
-  /* Mes/Año seleccionado */
   .mat-calendar-body-selected {
-    color: var(--app-text);
-  }
-
-  /* Botón de hoy o enfoque (opcional) */
-  .mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
-    color: var(--app-text);
+    color: white;
   }
 
   .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover {
@@ -467,5 +204,41 @@ button {
       background-color: var(--hover) !important;
       border-radius: 4px;
     }
+  }
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 1024px) {
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .tabla-registros {
+    font-size: 13px;
+  }
+
+  .acciones button {
+    width: 30px;
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 768px) {
+
+  .tabla-wrapper {
+    margin: 0 2%;
+  }
+
+  .fab-add {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .titulo {
+    font-size: 21px;
   }
 }

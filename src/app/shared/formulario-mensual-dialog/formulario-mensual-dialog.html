@@ -1,0 +1,144 @@
+<h2 mat-dialog-title>📊 Registrar patrimonio mensual</h2>
+
+<div class="header-actions">
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="btn-gestionar"
+    (click)="abrirGestionCategorias()">
+
+    Gestionar categorías
+
+  </button>
+
+  <button
+    mat-raised-button
+    color="accent"
+    (click)="abrirGestionSubcategorias()">
+
+    Gestionar subcategorías
+
+  </button>
+
+</div>
+
+<mat-dialog-content>
+
+  <form (ngSubmit)="guardar()" class="form-grid">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+
+      <mat-select
+        [(ngModel)]="categoria"
+        name="categoria"
+        (selectionChange)="onCategoriaChange()"
+        required>
+
+        <mat-option *ngFor="let c of categorias" [value]="c">
+          {{ c }}
+        </mat-option>
+
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="categoria">
+      <mat-label>Subcategoría</mat-label>
+
+      <mat-select
+        [(ngModel)]="subcategoria"
+        name="subcategoria"
+        required>
+
+        <mat-option
+          *ngFor="let s of subcategoriasPorCategoria[categoria]"
+          [value]="s">
+
+          {{ s }}
+
+        </mat-option>
+
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Mes</mat-label>
+
+      <input
+        matInput
+        [matDatepicker]="pickerMes"
+        [(ngModel)]="mesSeleccionado"
+        name="mesSeleccionado"
+        required />
+
+      <mat-datepicker-toggle
+        matSuffix
+        [for]="pickerMes">
+      </mat-datepicker-toggle>
+
+      <mat-datepicker
+        #pickerMes
+        startView="multi-year"
+        (monthSelected)="seleccionarMes($event, pickerMes)">
+      </mat-datepicker>
+
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Valor (€)</mat-label>
+
+      <input
+        matInput
+        type="number"
+        [(ngModel)]="valor"
+        name="valor"
+        required>
+    </mat-form-field>
+
+    <!-- INMUEBLES -->
+    <ng-container *ngIf="categoria === 'Inmuebles'">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Deuda pendiente</mat-label>
+
+        <input
+          matInput
+          type="number"
+          [(ngModel)]="deuda"
+          name="deuda">
+
+        <span matSuffix>€</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>% propiedad</mat-label>
+
+        <input
+          matInput
+          type="number"
+          min="1"
+          max="100"
+          [(ngModel)]="porcentajePropiedad"
+          name="porcentajePropiedad">
+
+        <span matSuffix>%</span>
+      </mat-form-field>
+
+    </ng-container>
+
+    <div class="acciones">
+
+      <button mat-button mat-dialog-close>
+        Cancelar
+      </button>
+
+      <button mat-raised-button color="primary">
+        Guardar
+      </button>
+
+    </div>
+
+  </form>
+
+</mat-dialog-content>

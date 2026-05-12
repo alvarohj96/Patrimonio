@@ -1,200 +1,142 @@
-<h2 class="titulo">📊 Registrar patrimonio mensual</h2>
+<div class="patrimonio-mensual-container">
 
-<div class="header-actions">
-  <button mat-raised-button color="primary" class="btn-gestionar" (click)="abrirGestionCategorias()">
-    Gestionar categorías
+  <!-- BOTÓN FLOTANTE -->
+  <button class="fab-add" mat-fab color="primary" (click)="abrirFormulario()" matTooltip="Añadir registro mensual">
+
+    <mat-icon>add</mat-icon>
+
   </button>
-  <button mat-raised-button color="accent" (click)="abrirGestionSubcategorias()">
-    Gestionar subcategorías
-  </button>
-</div>
 
-<!-- Tarjeta del formulario -->
-<mat-card class="form-card">
+  <h2 class="titulo">📁 Datos registrados</h2>
 
-  <form (ngSubmit)="guardar()" class="form-grid">
-
-    <mat-form-field class="formulario" appearance="outline">
-      <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="categoria" name="categoria" (selectionChange)="onCategoriaChange()" required
-        panelClass="mi-panel-personalizado">
-        <mat-option *ngFor="let c of categorias" [value]="c">{{ c }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field class="formulario" appearance="outline" *ngIf="categoria">
-      <mat-label>Subcategoría</mat-label>
-      <mat-select [(ngModel)]="subcategoria" name="subcategoria" required panelClass="mi-panel-personalizado">
-        <mat-option *ngFor="let s of subcategoriasPorCategoria[categoria]" [value]="s">
-          {{ s }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field class="formulario" appearance="outline">
-      <mat-label>Mes</mat-label>
-      <input matInput [matDatepicker]="pickerMes" [(ngModel)]="mesSeleccionado" name="mesSeleccionado"
-        (dateChange)="onMesSeleccionado($event)" required />
-      <mat-datepicker-toggle matSuffix [for]="pickerMes"></mat-datepicker-toggle>
-      <mat-datepicker #pickerMes startView="multi-year" (monthSelected)="seleccionarMes($event, pickerMes)"
-        panelClass="month-picker"></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field class="formulario" appearance="outline">
-      <mat-label>Valor (€)</mat-label>
-      <input matInput type="number" [(ngModel)]="valor" name="valor" required>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="categoria === 'Inmuebles'">
-      <mat-label>Deuda pendiente</mat-label>
-      <input matInput type="number" [(ngModel)]="deuda" name="deuda">
-      <span matSuffix>€</span>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="categoria === 'Inmuebles'">
-      <mat-label>Porcentaje de propiedad</mat-label>
-      <input matInput type="number" min="0" max="100" [(ngModel)]="porcentajePropiedad" name="porcentajePropiedad"
-        (ngModelChange)="recalcularValorNeto()">
-      <span matSuffix>%</span>
-    </mat-form-field>
-
-    <button mat-raised-button color="primary" class="btn-guardar">
-      Guardar
+  <div class="botones-datos">
+    <button mat-raised-button color="warn" class="btn-exportar" (click)="exportarCSV()">
+      Exportar datos
     </button>
 
-  </form>
+    <button mat-raised-button color="primary" class="btn-importar" (click)="inputImport.click()">
+      Importar datos
+    </button>
 
-</mat-card>
+    <button mat-raised-button color="warn" class="btn-borrar-todo" (click)="confirmarBorradoTotal()">
+      Borrar todos los datos
+    </button>
 
-<h2 class="titulo">📁 Datos registrados</h2>
+    <button class="porcentaje-button" mat-raised-button color="primary" (click)="togglePorcentajeGlobal()">
+      <mat-icon>
+        {{
+        modoPorcentajeGlobal === true
+        ? 'percent'
+        : modoPorcentajeGlobal === false
+        ? 'euro'
+        : 'swap_horiz'
+        }}
+      </mat-icon>
 
-<div class="botones-datos">
-  <button mat-raised-button color="warn" class="btn-exportar" (click)="exportarCSV()">
-    Exportar datos
-  </button>
+      <span>
+        {{
+        modoPorcentajeGlobal === true
+        ? 'Mostrar todo en %'
+        : modoPorcentajeGlobal === false
+        ? 'Mostrar todo en €'
+        : 'Modo por fila'
+        }}
+      </span>
+    </button>
+  </div>
 
-  <button mat-raised-button color="primary" class="btn-importar" (click)="inputImport.click()">
-    Importar datos
-  </button>
+  <input #inputImport type="file" accept=".csv" style="display:none" (change)="importarCSV($event)">
 
-  <button mat-raised-button color="warn" class="btn-borrar-todo" (click)="confirmarBorradoTotal()">
-    Borrar todos los datos
-  </button>
+  <div class="tabla-wrapper">
 
-  <button class="porcentaje-button" mat-raised-button color="primary" (click)="togglePorcentajeGlobal()">
-    <mat-icon>
-      {{
-      modoPorcentajeGlobal === true
-      ? 'percent'
-      : modoPorcentajeGlobal === false
-      ? 'euro'
-      : 'swap_horiz'
-      }}
-    </mat-icon>
+    <table class="tabla-registros mat-elevation-z2">
 
-    <span>
-      {{
-      modoPorcentajeGlobal === true
-      ? 'Mostrar todo en %'
-      : modoPorcentajeGlobal === false
-      ? 'Mostrar todo en €'
-      : 'Modo por fila'
-      }}
-    </span>
-  </button>
-</div>
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th>Total</th>
+          <th class="col-categoria desktop-only" *ngFor="let cat of categorias">{{ cat }}</th>
+          <th class="desktop-only">Diferencia mes anterior</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
 
-<input #inputImport type="file" accept=".csv" style="display:none" (change)="importarCSV($event)">
+      <tbody>
+        <tr *ngFor="let r of registros">
 
-<div class="tabla-wrapper">
-
-  <table class="tabla-registros mat-elevation-z2">
-
-    <thead>
-      <tr>
-        <th>Mes</th>
-        <th>Total</th>
-        <th class="col-categoria desktop-only" *ngFor="let cat of categorias">{{ cat }}</th>
-        <th class="desktop-only">Diferencia mes anterior</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr *ngFor="let r of registros">
-
-        <!-- Mes -->
-        <td class="mes-col">
-          {{ formatMes(r.mes) }}
-        </td>
-
-        <!-- Total del mes -->
-        <td class="total-col">
-          {{ getTotalMes(r) | number:'1.2-2' }} €
-        </td>
-
-        <!-- Totales por categoría -->
-        <ng-container *ngFor="let cat of categorias">
-          <td class="cat-val desktop-only">
-            <!-- MODO € -->
-            <ng-container *ngIf="!esModoPorcentaje(r); else porcentajeTpl">
-              <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
-                {{ getTotalCategoria(r, cat) | number:'1.2-2' }} €
-              </ng-container>
-            </ng-container>
-
-            <!-- MODO % -->
-            <ng-template #porcentajeTpl>
-              <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
-                {{ getPorcentajeCategoria(r, cat) | number:'1.1-1' }} %
-              </ng-container>
-            </ng-template>
-
-            <ng-template #cero>—</ng-template>
-
+          <!-- Mes -->
+          <td class="mes-col">
+            {{ formatMes(r.mes) }}
           </td>
-        </ng-container>
 
-        <!-- Diferencia vs mes anterior -->
-        <td class="diff-col desktop-only">
-          <ng-container *ngIf="getDiferenciaMes(r) as diff">
+          <!-- Total del mes -->
+          <td class="total-col">
+            {{ getTotalMes(r) | number:'1.2-2' }} €
+          </td>
 
-            <span *ngIf="diff > 0" class="positivo">
-              ▲ +{{ diff | number:'1.2-2' }} €
-              <span class="pct">(+{{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
-            </span>
+          <!-- Totales por categoría -->
+          <ng-container *ngFor="let cat of categorias">
+            <td class="cat-val desktop-only">
+              <!-- MODO € -->
+              <ng-container *ngIf="!esModoPorcentaje(r); else porcentajeTpl">
+                <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
+                  {{ getTotalCategoria(r, cat) | number:'1.2-2' }} €
+                </ng-container>
+              </ng-container>
 
-            <span *ngIf="diff < 0" class="negativo">
-              ▼ {{ diff | number:'1.2-2' }} €
-              <span class="pct">({{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
-            </span>
+              <!-- MODO % -->
+              <ng-template #porcentajeTpl>
+                <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
+                  {{ getPorcentajeCategoria(r, cat) | number:'1.1-1' }} %
+                </ng-container>
+              </ng-template>
 
-            <span *ngIf="diff === 0" class="neutro">—</span>
+              <ng-template #cero>—</ng-template>
 
+            </td>
           </ng-container>
-        </td>
 
-        <!-- Botones -->
-        <td class="acciones">
-          <button mat-icon-button color="accent" [disabled]="modoPorcentajeGlobal !== null"
-            (click)="togglePorcentaje(r); $event.stopPropagation()">
-            <mat-icon>
-              {{ esModoPorcentaje(r) ? 'euro' : 'percent' }}
-            </mat-icon>
-          </button>
+          <!-- Diferencia vs mes anterior -->
+          <td class="diff-col desktop-only">
+            <ng-container *ngIf="getDiferenciaMes(r) as diff">
 
-          <button mat-icon-button color="primary" (click)="abrirDetalle(r)">
-            <mat-icon>info</mat-icon>
-          </button>
+              <span *ngIf="diff > 0" class="positivo">
+                ▲ +{{ diff | number:'1.2-2' }} €
+                <span class="pct">(+{{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
+              </span>
 
-          <button mat-icon-button color="warn" (click)="eliminarRegistro(r)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
+              <span *ngIf="diff < 0" class="negativo">
+                ▼ {{ diff | number:'1.2-2' }} €
+                <span class="pct">({{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
+              </span>
 
-      </tr>
-    </tbody>
+              <span *ngIf="diff === 0" class="neutro">—</span>
 
-  </table>
+            </ng-container>
+          </td>
 
+          <!-- Botones -->
+          <td class="acciones">
+            <button mat-icon-button color="accent" [disabled]="modoPorcentajeGlobal !== null"
+              (click)="togglePorcentaje(r); $event.stopPropagation()">
+              <mat-icon>
+                {{ esModoPorcentaje(r) ? 'euro' : 'percent' }}
+              </mat-icon>
+            </button>
+
+            <button mat-icon-button color="primary" (click)="abrirDetalle(r)">
+              <mat-icon>info</mat-icon>
+            </button>
+
+            <button mat-icon-button color="warn" (click)="eliminarRegistro(r)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
 </div>
