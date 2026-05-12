@@ -11,7 +11,7 @@
       <!-- ================================
        TARJETA "PATRIMONIO GENERAL" DEL ÚLTIMO MES
   ================================= -->
-      <mat-card class="card mitad">
+      <mat-card class="card mitad-grande">
         <h2>Patrimonio del último mes</h2>
 
         <div class="tabla-scroll">
@@ -32,14 +32,16 @@
               <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje']"></tr>
+            <ng-container matColumnDef="variacion">
+              <th class="total-col" mat-header-cell *matHeaderCellDef>Variacion</th>
+              <td class="total-col" mat-cell *matCellDef="let r">{{ r.variacion | number:'1.2-2' }} €</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje','variacion']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje','variacion']"></tr>
           </table>
         </div>
 
-        <!--   <h3 style="text-align:center; font-weight:600; margin-bottom:15px;">
-      Total mes: {{ totalUltimoMes | number:'1.0-0' }} €
-    </h3> -->
         <!-- 🔥 TARJETA DE VARIACIÓN -->
         <div class="resumen-variacion">
 
@@ -67,10 +69,8 @@
         </div>
       </mat-card>
 
-      <!-- ================================
-       GRÁFICO DONUT
-  ================================= -->
-      <mat-card class="card mitad">
+      <!-- ============== GRÁFICO DONUT =============== -->
+      <mat-card class="card mitad-pequeña">
         <h2>Distribución por categorías</h2>
         <canvas baseChart [data]="{
     labels: chartLabels,

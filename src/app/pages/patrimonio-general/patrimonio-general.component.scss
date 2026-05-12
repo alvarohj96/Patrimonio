@@ -16,14 +16,19 @@
   margin-top: 25px;
 }
 
-.mitad {
-  width: 38%;
+.mitad-grande {
+  width: 50%;
+  height: 500px;
+}
+
+.mitad-pequeña {
+  width: 36%;
   height: 500px;
 }
 
 .amplia {
   margin: 20px auto;
-  width: 78%;
+  width: 88%;
 }
 
 .card {
@@ -74,7 +79,12 @@ canvas {
 }
 
 @media (max-width: 900px) {
-  .mitad {
+  .mitad-grande {
+    width: 100%;
+    height: auto;
+  }
+
+  .mitad-pequeña {
     width: 100%;
     height: auto;
   }

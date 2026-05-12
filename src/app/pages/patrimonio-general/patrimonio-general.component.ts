@@ -62,7 +62,7 @@ Chart.register(
 export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
   registros: RegistroMensual[] = [];
-  datosUltimoMes: { categoria: string; total: number, porcentaje: number }[] = [];
+  datosUltimoMes: { categoria: string; total: number, porcentaje: number, variacion: number }[] = [];
   totalUltimoMes = 0;
   totalMesAnterior = 0;
   variacionAbsoluta = 0;
@@ -200,8 +200,9 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.registros.sort((a, b) => a.mes.localeCompare(b.mes));
     const ultimo = this.registros[this.registros.length - 1];
+    const penultimo = this.registros[this.registros.length - 2];
 
-    this.procesarUltimoMes(ultimo);
+    this.procesarUltimoMes(ultimo, penultimo);
     const anterior = this.registros.length > 1
       ? this.registros[this.registros.length - 2]
       : null;
@@ -233,14 +234,16 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // ======================================================
   // GRÁFICO DONUT (último mes)
   // ======================================================
-  procesarUltimoMes(ultimo: RegistroMensual) {
+  procesarUltimoMes(ultimo: RegistroMensual, penultimo: RegistroMensual) {
     const categorias = Object.keys(ultimo.valores);
     const totalesPorCategoria = categorias.map(cat => {
       const total = this.sumarValoresCategoria(ultimo.valores[cat]);
+      const totalPenultimo = this.sumarValoresCategoria(penultimo.valores[cat]);
 
       return {
         categoria: cat,
-        total
+        total,
+        totalPenultimo
       };
     });
 
@@ -250,9 +253,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     const resumen = totalesPorCategoria.map(c => ({
       categoria: c.categoria,
       total: c.total,
-      porcentaje: this.totalUltimoMes > 0
-        ? (c.total / this.totalUltimoMes) * 100
-        : 0
+      porcentaje: this.totalUltimoMes > 0 ? (c.total / this.totalUltimoMes) * 100 : 0,
+      variacion: c.total - c.totalPenultimo
     }));
 
     this.datosUltimoMes = resumen;
