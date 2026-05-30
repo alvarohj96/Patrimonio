@@ -70,14 +70,16 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   tendencia: 'sube' | 'baja' | 'igual' = 'igual';
 
   colorPalette: string[] = [
-    '#1e88e5', // azul
-    '#43a047', // verde
-    '#e53935', // rojo
-    '#fb8c00', // naranja
-    '#FFD700',
-    '#00897b', // teal
-    '#6d4c41', // marrón
-    '#3949ab'  // índigo
+    '#2563EB',
+    '#10B981',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+    '#06B6D4',
+    '#EC4899',
+    '#84CC16',
+    '#F97316',
+    '#14B8A6'
   ];
 
   // Gráfico donut (último mes)
@@ -90,9 +92,22 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   barData: any = { labels: [], datasets: [] };
   barOptions = {
     responsive: true,
+    maintainAspectRatio: false,
+
     scales: {
-      x: { stacked: true },
-      y: { stacked: true }
+      x: {
+        stacked: false,
+        grid: {
+          display: false
+        }
+      },
+
+      y: {
+        stacked: false,
+        grid: {
+          color: 'rgba(0,0,0,0.08)'
+        }
+      }
     }
   };
 
@@ -121,6 +136,45 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // Gráfico de líneas (evolución por categoría)
   lineLabels: string[] = [];
   lineData: any = { labels: [], datasets: [] };
+
+  lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          boxWidth: 10,
+          font: {
+            size: 13
+          }
+        }
+      },
+
+      tooltip: {
+        backgroundColor: '#1e293b',
+        padding: 12,
+        cornerRadius: 10
+      }
+    },
+
+    scales: {
+      x: {
+        grid: {
+          display: false
+        }
+      },
+
+      y: {
+        grid: {
+          color: 'rgba(0,0,0,0.08)'
+        }
+      }
+    }
+  };
 
   sub: any;
 
@@ -312,6 +366,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.deudaBarOptions = {
       indexAxis: 'y',
+
       responsive: true,
       maintainAspectRatio: false,
       scales: {
@@ -342,20 +397,33 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // ======================================================
   procesarBarras() {
     const registros = this.getRegistrosFiltrados();
+
     this.barLabels = registros.map(r => r.mes);
 
     this.barData = {
       labels: this.barLabels,
-      datasets: this.categoriasDisponibles
-        .filter(cat => this.categoriasBarras.has(cat))
-        .map((categoria, idx) => ({
-          label: categoria,
+
+      datasets: [
+        {
+          label: 'Patrimonio total',
+
           data: registros.map(r =>
-            this.sumarValoresCategoria(r.valores[categoria])
+            this.categoriasDisponibles
+              .filter(cat => this.categoriasBarras.has(cat))
+              .reduce(
+                (sum, cat) =>
+                  sum + this.sumarValoresCategoria(r.valores[cat]),
+                0
+              )
           ),
-          backgroundColor: this.getColorCategoria(categoria),
-          animation: { duration: 700, easing: 'easeInOutQuart' }
-        }))
+
+          backgroundColor: '#2563EB',
+
+          borderRadius: 8,
+          borderSkipped: false,
+          maxBarThickness: 50
+        }
+      ]
     };
   }
 

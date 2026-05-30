@@ -103,7 +103,10 @@
         <button mat-button class="btn-filtro" (click)="seleccionarTodasBarras()">Seleccionar todo</button>
         <button mat-button class="btn-filtro" (click)="ocultarTodasBarras()">Ocultar todo</button>
       </div>
-      <canvas baseChart [data]="barData" [options]="barOptions" type="bar" height="300"></canvas>
+      <div class="chart-container">
+        <canvas baseChart [data]="barData" [options]="barOptions" type="bar">
+        </canvas>
+      </div>
     </mat-card>
 
     <!-- ================================
@@ -129,7 +132,10 @@
         <button mat-button class="btn-filtro" (click)="seleccionarTodasLineas()">Seleccionar todo</button>
         <button mat-button class="btn-filtro" (click)="ocultarTodasLineas()">Ocultar todo</button>
       </div>
-      <canvas baseChart [data]="lineData" type="line" height="300"></canvas>
+      <div class="chart-container">
+        <canvas baseChart [data]="lineData" [options]="lineOptions" type="line">
+        </canvas>
+      </div>
     </mat-card>
 
     <mat-card class="card amplia deuda-card" *ngIf="deudaInmuebles > 0">
