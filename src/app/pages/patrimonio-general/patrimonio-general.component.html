@@ -156,14 +156,14 @@
             <span>Deuda</span>
             <strong>
               -{{ deudaInmuebles | number:'1.2-2' }} €
-              ({{ (deudaInmuebles / valorBrutoInmuebles) * 100 | number:'1.1-1' }}%)
+              ({{ porcentajeDeuda | number:'1.1-1' }}%)
             </strong>
           </div>
           <div class="deuda-linea neto">
             <span>Valor neto</span>
             <strong>
               {{ valorNetoInmuebles | number:'1.2-2' }} €
-              ({{ (valorNetoInmuebles / valorBrutoInmuebles) * 100 | number:'1.1-1' }}%)
+              ({{ porcentajeValorNeto | number:'1.1-1' }}%)
             </strong>
           </div>
         </div>

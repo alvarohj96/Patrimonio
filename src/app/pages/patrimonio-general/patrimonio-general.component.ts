@@ -184,6 +184,9 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   categoriasBarras = new Set<string>();
   categoriasLineas = new Set<string>();
   categoriasSeleccionadas = new Set<string>();
+  // Categorías que ya se han visto al menos una vez (para no reactivar
+  // en los filtros una categoría que el usuario haya desmarcado a mano)
+  categoriasConocidas = new Set<string>();
 
   config$!: Observable<UiConfig>;
 
@@ -243,23 +246,30 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.categoriasDisponibles = this.obtenerCategoriasGlobales();
 
-    // Inicializar si están vacíos
-    if (this.categoriasBarras.size === 0) {
-      this.categoriasDisponibles.forEach(c => this.categoriasBarras.add(c));
-    }
+    // Seleccionar por defecto SOLO las categorías que no se hayan visto nunca antes,
+    // para no reactivar una categoría que el usuario haya desmarcado manualmente.
+    this.categoriasDisponibles.forEach(c => {
+      if (!this.categoriasConocidas.has(c)) {
+        this.categoriasConocidas.add(c);
+        this.categoriasBarras.add(c);
+        this.categoriasLineas.add(c);
+      }
+    });
 
-    if (this.categoriasLineas.size === 0) {
-      this.categoriasDisponibles.forEach(c => this.categoriasLineas.add(c));
-    }
+    // Limpiar los sets de categorías que ya no existan (p.ej. tras eliminarlas)
+    [this.categoriasConocidas, this.categoriasBarras, this.categoriasLineas].forEach(set => {
+      Array.from(set).forEach(c => {
+        if (!this.categoriasDisponibles.includes(c)) set.delete(c);
+      });
+    });
 
     this.registros.sort((a, b) => a.mes.localeCompare(b.mes));
     const ultimo = this.registros[this.registros.length - 1];
-    const penultimo = this.registros[this.registros.length - 2];
-
-    this.procesarUltimoMes(ultimo, penultimo);
     const anterior = this.registros.length > 1
       ? this.registros[this.registros.length - 2]
       : null;
+
+    this.procesarUltimoMes(ultimo, anterior);
 
     if (anterior) {
       this.totalMesAnterior = this.sumarTotalMes(anterior);
@@ -288,11 +298,13 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   // ======================================================
   // GRÁFICO DONUT (último mes)
   // ======================================================
-  procesarUltimoMes(ultimo: RegistroMensual, penultimo: RegistroMensual) {
+  procesarUltimoMes(ultimo: RegistroMensual, penultimo: RegistroMensual | null) {
     const categorias = Object.keys(ultimo.valores);
     const totalesPorCategoria = categorias.map(cat => {
       const total = this.sumarValoresCategoria(ultimo.valores[cat]);
-      const totalPenultimo = this.sumarValoresCategoria(penultimo.valores[cat]);
+      const totalPenultimo = penultimo
+        ? this.sumarValoresCategoria(penultimo.valores[cat])
+        : 0;
 
       return {
         categoria: cat,
@@ -524,6 +536,18 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   actualizarGraficos() {
     this.procesarBarras();
     this.procesarLineas();
+  }
+
+  get porcentajeDeuda(): number {
+    return this.valorBrutoInmuebles > 0
+      ? (this.deudaInmuebles / this.valorBrutoInmuebles) * 100
+      : 0;
+  }
+
+  get porcentajeValorNeto(): number {
+    return this.valorBrutoInmuebles > 0
+      ? (this.valorNetoInmuebles / this.valorBrutoInmuebles) * 100
+      : 0;
   }
 
   private sumarValoresCategoria(categoria: any): number {
