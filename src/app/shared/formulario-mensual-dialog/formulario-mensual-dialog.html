@@ -23,9 +23,30 @@
 
 </div>
 
+<div class="entradas-sesion" *ngIf="entradasSesion.length">
+  <div class="entradas-titulo">
+    ✓ Añadido en esta sesión ({{ mes }})
+  </div>
+
+  <div class="entrada-item" *ngFor="let e of entradasSesion; let i = index">
+    <span class="entrada-texto">
+      <strong>{{ e.categoria }}</strong> · {{ e.subcategoria }}:
+      {{ e.valor | number:'1.2-2' }} €
+    </span>
+
+    <button
+      mat-icon-button
+      type="button"
+      title="Deshacer esta entrada"
+      (click)="quitarEntrada(i)">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+
 <mat-dialog-content>
 
-  <form (ngSubmit)="guardar()" class="form-grid">
+  <form (ngSubmit)="guardarYAnadirOtro()" class="form-grid">
 
     <mat-form-field appearance="outline">
       <mat-label>Categoría</mat-label>
@@ -47,12 +68,14 @@
       <mat-label>Subcategoría</mat-label>
 
       <mat-select
+        #subcategoriaSelect
         [(ngModel)]="subcategoria"
         name="subcategoria"
+        [disabled]="!subcategoriasDisponibles().length"
         required>
 
         <mat-option
-          *ngFor="let s of subcategoriasPorCategoria[categoria]"
+          *ngFor="let s of subcategoriasDisponibles()"
           [value]="s">
 
           {{ s }}
@@ -61,6 +84,11 @@
 
       </mat-select>
     </mat-form-field>
+
+    <p class="aviso-completo" *ngIf="categoria && !subcategoriasDisponibles().length">
+      ✅ Ya has añadido un valor para todas las subcategorías de "{{ categoria }}" este mes.
+      Elige otra categoría o pulsa "Guardar y cerrar".
+    </p>
 
     <mat-form-field appearance="outline">
       <mat-label>Mes</mat-label>
@@ -129,12 +157,29 @@
 
     <div class="acciones">
 
-      <button mat-button mat-dialog-close>
+      <button mat-button mat-dialog-close *ngIf="!entradasSesion.length">
         Cancelar
       </button>
 
-      <button mat-raised-button color="primary">
-        Guardar
+      <button mat-button mat-dialog-close [mat-dialog-close]="true" *ngIf="entradasSesion.length">
+        Cerrar
+      </button>
+
+      <button
+        mat-raised-button
+        color="accent"
+        type="button"
+        (click)="guardarYCerrar()"
+        [disabled]="!categoria || !subcategoria || !valor || !mes">
+        Guardar y cerrar
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!categoria || !subcategoria || !valor || !mes">
+        Guardar y añadir otro
       </button>
 
     </div>

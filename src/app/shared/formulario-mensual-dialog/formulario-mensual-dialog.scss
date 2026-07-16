@@ -35,3 +35,50 @@ mat-dialog-content {
   flex: 1;
   min-width: 180px;
 }
+
+.entradas-sesion {
+  margin: 4px 0 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--card-bg, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.entradas-titulo {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.entrada-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.entrada-item .entrada-texto {
+  font-size: 0.9rem;
+}
+
+.entrada-item button {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+}
+
+.entrada-item mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.aviso-completo {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin: -8px 0 4px;
+}

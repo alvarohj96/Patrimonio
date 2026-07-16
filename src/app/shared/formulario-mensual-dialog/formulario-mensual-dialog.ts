@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -6,8 +6,9 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectModule, MatSelect } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,6 +27,7 @@ import { PatrimonioService } from '../../services/patrimonio.service';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule
   ],
@@ -33,6 +35,8 @@ import { PatrimonioService } from '../../services/patrimonio.service';
   styleUrls: ['./formulario-mensual-dialog.scss']
 })
 export class FormularioMensualDialogComponent {
+
+  @ViewChild('subcategoriaSelect') subcategoriaSelect?: MatSelect;
 
   categorias: string[] = [];
 
@@ -48,6 +52,10 @@ export class FormularioMensualDialogComponent {
 
   mes = '';
   mesSeleccionado: Date | null = null;
+
+  // ===== Añadido para permitir cargar varios valores seguidos =====
+  // Entradas ya guardadas en esta sesión del diálogo (para feedback visual y poder deshacer)
+  entradasSesion: { categoria: string; subcategoria: string; valor: number; deuda: number }[] = [];
 
   constructor(
     private patrimonioService: PatrimonioService,
@@ -68,6 +76,19 @@ export class FormularioMensualDialogComponent {
     // Reset valores inmuebles
     this.deuda = 0;
     this.porcentajePropiedad = 100;
+  }
+
+  // Subcategorías de la categoría actual que todavía no se han guardado en esta sesión.
+  // Así, tras guardar una subcategoría, desaparece de la lista y el usuario pasa
+  // directamente a la siguiente sin arriesgarse a machacar por error el valor recién metido.
+  subcategoriasDisponibles(): string[] {
+    const todas = this.subcategoriasPorCategoria[this.categoria] || [];
+    const yaGuardadas = new Set(
+      this.entradasSesion
+        .filter(e => e.categoria === this.categoria)
+        .map(e => e.subcategoria)
+    );
+    return todas.filter(s => !yaGuardadas.has(s));
   }
 
   abrirGestionCategorias() {
@@ -105,7 +126,12 @@ export class FormularioMensualDialogComponent {
     datepicker.close();
   }
 
-  guardar() {
+  /**
+   * Guarda la entrada actual (categoría + subcategoría + valor) sin tocar el
+   * estado del diálogo (no resetea campos ni cierra). Devuelve false si faltan
+   * datos obligatorios.
+   */
+  private guardarEntradaActual(): boolean {
 
     if (
       !this.categoria ||
@@ -113,7 +139,7 @@ export class FormularioMensualDialogComponent {
       !this.valor ||
       !this.mes
     ) {
-      return;
+      return false;
     }
 
     const registros = this.patrimonioService.getRegistros();
@@ -136,6 +162,9 @@ export class FormularioMensualDialogComponent {
       registro.valores[this.categoria] = {};
     }
 
+    let valorGuardado = this.valor;
+    let deudaGuardada = 0;
+
     // ===== INMUEBLES =====
     if (this.categoria === 'Inmuebles') {
 
@@ -150,6 +179,9 @@ export class FormularioMensualDialogComponent {
         deuda: deudaNeta,
         porcentaje: this.porcentajePropiedad
       };
+
+      valorGuardado = valorNeto;
+      deudaGuardada = deudaNeta;
 
     }
 
@@ -167,7 +199,68 @@ export class FormularioMensualDialogComponent {
     // Persistir
     this.patrimonioService.actualizarRegistros(registros);
 
-    this.dialogRef.close(true);
+    this.entradasSesion.push({
+      categoria: this.categoria,
+      subcategoria: this.subcategoria,
+      valor: valorGuardado,
+      deuda: deudaGuardada
+    });
+
+    return true;
+  }
+
+  /**
+   * Acción principal (botón por defecto / tecla Enter): guarda el valor actual
+   * y deja el diálogo ABIERTO con la misma categoría y mes seleccionados, listo
+   * para introducir la siguiente subcategoría sin tener que volver a elegirlos.
+   */
+  guardarYAnadirOtro() {
+
+    if (!this.guardarEntradaActual()) return;
+
+    // Solo reseteamos lo que cambia entrada a entrada.
+    // Categoría y mes se mantienen a propósito.
+    this.subcategoria = '';
+    this.valor = 0;
+    this.deuda = 0;
+    this.porcentajePropiedad = 100;
+
+    // Devolver el foco al selector de subcategoría para poder encadenar
+    // "seleccionar subcategoría -> escribir valor -> Enter" sin usar el ratón.
+    setTimeout(() => this.subcategoriaSelect?.focus());
+  }
+
+  /**
+   * Guarda (si hay algo pendiente y válido) y cierra el diálogo.
+   */
+  guardarYCerrar() {
+
+    if (this.categoria && this.subcategoria && this.valor && this.mes) {
+      this.guardarEntradaActual();
+    }
+
+    this.dialogRef.close(this.entradasSesion.length > 0);
+  }
+
+  /**
+   * Deshace una entrada ya guardada en esta sesión (por si el usuario se
+   * equivoca de valor o subcategoría), eliminándola también del registro persistido.
+   */
+  quitarEntrada(index: number) {
+
+    const entrada = this.entradasSesion[index];
+    if (!entrada) return;
+
+    const registros = this.patrimonioService.getRegistros();
+    const registro = registros.find(r => r.mes === this.mes);
+
+    if (registro?.valores[entrada.categoria]) {
+      delete registro.valores[entrada.categoria][entrada.subcategoria];
+    }
+
+    this.patrimonioService.actualizarRegistros(registros);
+
+    this.entradasSesion.splice(index, 1);
   }
 
 }
