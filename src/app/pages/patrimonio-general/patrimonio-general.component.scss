@@ -1,34 +1,66 @@
 .contenedor-general {
-  max-width: 1200px;
+  max-width: 1680px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.fila-superior {
+/* ================================
+   GRID PRINCIPAL: columna izquierda (tabla + donut) y
+   columna derecha (barras + líneas), a la misma altura
+   ================================= */
+.grid-principal {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
+  /* ambas columnas igualan su altura a la más alta (normalmente barras+líneas) */
   gap: 20px;
   flex-wrap: wrap;
-  /* para móviles */
-  margin-bottom: 25px;
-  height: auto;
   margin-top: 25px;
+  margin-bottom: 25px;
 }
 
-.mitad-grande {
-  width: 50%;
-  height: 500px;
+.columna-izquierda,
+.columna-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1 1 480px;
+  min-width: 340px;
 }
 
-.mitad-pequeña {
-  width: 36%;
-  height: 500px;
+.columna-derecha {
+  width: 600px;
 }
 
-.amplia {
-  margin: 20px auto;
-  width: 88%;
+.card-tabla,
+.card-evolucion {
+  width: 100%;
+}
+
+/* La tabla crece para ocupar el espacio libre que deja un donut más compacto */
+.card-tabla {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* El resumen del total se ancla abajo del todo, aprovechando el alto extra de la tarjeta
+   (el margin-top:auto real se fija más abajo, junto a la regla original de .resumen-variacion) */
+
+/* El donut mantiene un tamaño fijo y compacto: ya no dicta la altura de la columna */
+.card-donut {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.donut-chart-container {
+  position: relative;
+  height: 550px;
+}
+
+/* Tarjeta de deuda: siempre a ancho completo, al final */
+.card-deuda {
+  width: 100%;
+  margin-bottom: 25px;
 }
 
 .card {
@@ -57,6 +89,7 @@ canvas {
 .tabla-scroll {
   width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
 }
 
 @media (max-width: 600px) {
@@ -79,19 +112,10 @@ canvas {
 }
 
 @media (max-width: 900px) {
-  .mitad-grande {
+  .columna-izquierda,
+  .columna-derecha {
+    flex: 1 1 100%;
     width: 100%;
-    height: auto;
-  }
-
-  .mitad-pequeña {
-    width: 100%;
-    height: auto;
-  }
-
-  .amplia {
-    width: 100%;
-    height: auto;
   }
 
   .objetivos {
@@ -108,7 +132,8 @@ canvas {
 
 
 .resumen-variacion {
-  margin-top: 20px;
+  margin-top: auto;
+  padding-top: 20px;
   text-align: center;
 }
 
@@ -273,6 +298,12 @@ canvas {
 }
 
 .chart-container {
-  height: 420px;
+  height: 380px;
   position: relative;
+}
+
+@media (max-width: 480px) {
+  .chart-container {
+    height: 300px;
+  }
 }

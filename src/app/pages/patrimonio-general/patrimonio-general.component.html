@@ -6,16 +6,21 @@
 ================================= -->
     <app-objetivos class="objetivos" *ngIf="config?.mostrarObjetivos"></app-objetivos>
 
-    <!-- Fila superior con dos tarjetas -->
-    <div class="fila-superior">
-      <!-- ================================
+    <!-- ================================
+       GRID PRINCIPAL: columna izquierda (tabla + donut) y columna derecha (barras + líneas)
+  ================================= -->
+    <div class="grid-principal">
+
+      <!-- ============== COLUMNA IZQUIERDA: tabla del último mes + donut ============== -->
+      <div class="columna-izquierda">
+        <!-- ================================
        TARJETA "PATRIMONIO GENERAL" DEL ÚLTIMO MES
   ================================= -->
-      <mat-card class="card mitad-grande">
-        <h2>Patrimonio del último mes</h2>
+        <mat-card class="card card-tabla">
+          <h2>Patrimonio del último mes</h2>
 
-        <div class="tabla-scroll">
-          <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla-patrimonio">
+          <div class="tabla-scroll">
+            <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla-patrimonio">
 
             <ng-container matColumnDef="categoria">
               <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
@@ -67,78 +72,87 @@
             ({{ variacionPorcentaje | number:'1.0-2' }} %)
           </div>
         </div>
-      </mat-card>
+        </mat-card>
 
-      <!-- ============== GRÁFICO DONUT =============== -->
-      <mat-card class="card mitad-pequeña">
-        <h2>Distribución por categorías</h2>
-        <canvas baseChart [data]="{
+        <!-- ============== GRÁFICO DONUT (debajo de "Patrimonio del último mes") ============== -->
+        <mat-card class="card card-donut">
+          <h2>Distribución por categorías</h2>
+          <div class="donut-chart-container">
+            <canvas baseChart [data]="{
     labels: chartLabels,
     datasets: [
       { data: chartData, backgroundColor: chartColors[0].backgroundColor }
     ]
   }" [options]="doughnutOptions" type="doughnut"></canvas>
-      </mat-card>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- ============== COLUMNA DERECHA: barras (arriba) + líneas (abajo), mismo ancho ============== -->
+      <div class="columna-derecha">
+        <!-- ================================
+       GRÁFICO DE BARRAS
+  ================================= -->
+        <mat-card class="card card-evolucion" *ngIf="config?.mostrarBarras">
+          <h2>Evolución total por categoría (Barras)</h2>
+          <div class="filtro-meses">
+            <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
+              <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
+              <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
+              <mat-button-toggle value="all">Todos</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          <div class="filtros-categorias barras">
+            <span class="filtro-titulo">📊 Categorías:</span>
+            <label *ngFor="let cat of categoriasDisponibles" class="filtro-item">
+              <input type="checkbox" [checked]="categoriasBarras.has(cat)"
+                (change)="toggleCategoriaBarra(cat, $event.target.checked)" />
+              {{ cat }}
+            </label>
+            <button mat-button class="btn-filtro" (click)="seleccionarTodasBarras()">Seleccionar todo</button>
+            <button mat-button class="btn-filtro" (click)="ocultarTodasBarras()">Ocultar todo</button>
+          </div>
+          <div class="chart-container">
+            <canvas baseChart [data]="barData" [options]="barOptions" type="bar">
+            </canvas>
+          </div>
+        </mat-card>
+
+        <!-- ================================
+       GRÁFICO DE LÍNEAS
+  ================================= -->
+        <mat-card class="card card-evolucion" *ngIf="config?.mostrarLineas">
+          <h2>Evolución por categorías (Líneas)</h2>
+          <div class="filtro-meses">
+            <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
+              <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
+              <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
+              <mat-button-toggle value="all">Todos</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          <div class="filtros-categorias lineas">
+            <span class="filtro-titulo">📈 Categorías:</span>
+
+            <label *ngFor="let cat of categoriasDisponibles" class="filtro-item">
+              <input type="checkbox" [checked]="categoriasLineas.has(cat)"
+                (change)="toggleCategoriaLinea(cat, $event.target.checked)" />
+              {{ cat }}
+            </label>
+            <button mat-button class="btn-filtro" (click)="seleccionarTodasLineas()">Seleccionar todo</button>
+            <button mat-button class="btn-filtro" (click)="ocultarTodasLineas()">Ocultar todo</button>
+          </div>
+          <div class="chart-container">
+            <canvas baseChart [data]="lineData" [options]="lineOptions" type="line">
+            </canvas>
+          </div>
+        </mat-card>
+      </div>
     </div>
 
     <!-- ================================
-       GRÁFICO DE BARRAS
+       DEUDA (si hay inmuebles con deuda) — siempre al final, a ancho completo
   ================================= -->
-    <mat-card class="card amplia" *ngIf="config?.mostrarBarras">
-      <h2>Evolución total por categoría (Barras)</h2>
-      <div class="filtro-meses">
-        <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
-          <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
-          <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
-          <mat-button-toggle value="all">Todos</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-      <div class="filtros-categorias barras">
-        <span class="filtro-titulo">📊 Categorías:</span>
-        <label *ngFor="let cat of categoriasDisponibles" class="filtro-item">
-          <input type="checkbox" [checked]="categoriasBarras.has(cat)"
-            (change)="toggleCategoriaBarra(cat, $event.target.checked)" />
-          {{ cat }}
-        </label>
-        <button mat-button class="btn-filtro" (click)="seleccionarTodasBarras()">Seleccionar todo</button>
-        <button mat-button class="btn-filtro" (click)="ocultarTodasBarras()">Ocultar todo</button>
-      </div>
-      <div class="chart-container">
-        <canvas baseChart [data]="barData" [options]="barOptions" type="bar">
-        </canvas>
-      </div>
-    </mat-card>
-
-    <!-- ================================
-       GRÁFICO DE LÍNEAS
-  ================================= -->
-    <mat-card class="card amplia" *ngIf="config?.mostrarLineas">
-      <h2>Evolución por categorías (Líneas)</h2>
-      <div class="filtro-meses">
-        <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
-          <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
-          <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
-          <mat-button-toggle value="all">Todos</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-      <div class="filtros-categorias lineas">
-        <span class="filtro-titulo">📈 Categorías:</span>
-
-        <label *ngFor="let cat of categoriasDisponibles" class="filtro-item">
-          <input type="checkbox" [checked]="categoriasLineas.has(cat)"
-            (change)="toggleCategoriaLinea(cat, $event.target.checked)" />
-          {{ cat }}
-        </label>
-        <button mat-button class="btn-filtro" (click)="seleccionarTodasLineas()">Seleccionar todo</button>
-        <button mat-button class="btn-filtro" (click)="ocultarTodasLineas()">Ocultar todo</button>
-      </div>
-      <div class="chart-container">
-        <canvas baseChart [data]="lineData" [options]="lineOptions" type="line">
-        </canvas>
-      </div>
-    </mat-card>
-
-    <mat-card class="card amplia deuda-card" *ngIf="deudaInmuebles > 0">
+    <mat-card class="card card-deuda deuda-card" *ngIf="deudaInmuebles > 0">
       <h2>🏦 Deuda actual</h2>
       <div class="deuda-layout">
         <!-- Barra horizontal -->

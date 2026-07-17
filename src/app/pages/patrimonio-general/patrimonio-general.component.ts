@@ -112,6 +112,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   };
 
   doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       tooltip: {
         callbacks: {
