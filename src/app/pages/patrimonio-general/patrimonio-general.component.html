@@ -71,6 +71,26 @@
             {{ variacionAbsoluta | number:'1.2-2' }} €
             ({{ variacionPorcentaje | number:'1.0-2' }} %)
           </div>
+
+          <ng-container *ngIf="comparativaInteranual.disponible">
+            <div class="detalle-anterior interanual">
+              Hace 1 año: {{ comparativaInteranual.totalAnterior | number:'1.2-2' }} €
+            </div>
+
+            <div class="variacion interanual" [ngClass]="{
+           'sube': comparativaInteranual.tendencia === 'sube',
+           'baja': comparativaInteranual.tendencia === 'baja',
+           'igual': comparativaInteranual.tendencia === 'igual'
+         }">
+
+              <mat-icon *ngIf="comparativaInteranual.tendencia === 'sube'">trending_up</mat-icon>
+              <mat-icon *ngIf="comparativaInteranual.tendencia === 'baja'">trending_down</mat-icon>
+              <mat-icon *ngIf="comparativaInteranual.tendencia === 'igual'">horizontal_rule</mat-icon>
+
+              {{ comparativaInteranual.absoluta | number:'1.2-2' }} €
+              ({{ comparativaInteranual.porcentaje | number:'1.0-2' }} %) interanual
+            </div>
+          </ng-container>
         </div>
         </mat-card>
 
@@ -148,6 +168,116 @@
         </mat-card>
       </div>
     </div>
+
+    <!-- ================================
+       RANKING: qué ha movido el mes
+  ================================= -->
+    <mat-card class="card card-ranking" *ngIf="rankingMes.disponible">
+      <h2>🏆 Qué ha movido este mes</h2>
+
+      <div class="ranking-lista">
+
+        <div class="ranking-item ranking-sube" *ngIf="rankingMes.mayorSubida as r">
+          <mat-icon>trending_up</mat-icon>
+          <span>
+            <strong>{{ r.categoria }}</strong> fue la categoría que más creció este mes
+            (+{{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, +{{ r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
+          </span>
+        </div>
+
+        <div class="ranking-item ranking-baja" *ngIf="rankingMes.mayorBajada as r">
+          <mat-icon>trending_down</mat-icon>
+          <span>
+            <strong>{{ r.categoria }}</strong> fue la que más cayó este mes
+            ({{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, {{ r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
+          </span>
+        </div>
+
+      </div>
+    </mat-card>
+
+    <!-- ================================
+       CALENDARIO DE VARIACIÓN (heatmap)
+  ================================= -->
+    <mat-card class="card card-heatmap" *ngIf="heatmapAnios.length">
+      <h2>📅 Consistencia de ahorro</h2>
+
+      <div class="heatmap">
+        <div class="heatmap-fila" *ngFor="let fila of heatmapAnios">
+          <span class="heatmap-anio">{{ fila.anio }}</span>
+
+          <div class="heatmap-celdas">
+            <div
+              *ngFor="let m of fila.meses"
+              class="heatmap-celda"
+              [ngClass]="'estado-' + m.estado"
+              [title]="m.tooltip">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="heatmap-leyenda">
+        <span><i class="punto estado-sube"></i> Sube</span>
+        <span><i class="punto estado-baja"></i> Baja</span>
+        <span><i class="punto estado-igual"></i> Igual</span>
+        <span><i class="punto estado-sin-dato"></i> Sin datos</span>
+      </div>
+    </mat-card>
+
+    <!-- ================================
+       PROYECCIÓN HACIA EL OBJETIVO
+  ================================= -->
+    <mat-card class="card card-proyeccion">
+      <h2>🎯 Proyección hacia tu objetivo</h2>
+
+      <div [ngSwitch]="proyeccion.estado">
+
+        <p *ngSwitchCase="'sin-objetivo'" class="proyeccion-mensaje aviso">
+          Define un objetivo de patrimonio total en la sección "Objetivos" (más abajo en esta
+          misma página) para ver aquí una estimación de cuándo lo alcanzarás según tu ritmo de
+          ahorro actual.
+        </p>
+
+        <p *ngSwitchCase="'datos-insuficientes'" class="proyeccion-mensaje aviso">
+          Todavía hay muy pocos meses registrados para calcular un ritmo de ahorro fiable.
+          Añade al menos un par de meses más y la proyección aparecerá aquí automáticamente.
+        </p>
+
+        <p *ngSwitchCase="'alcanzado'" class="proyeccion-mensaje exito">
+          🎉 ¡Ya has alcanzado tu objetivo de {{ objetivoTotal | number:'1.2-2' }} €!
+        </p>
+
+        <p *ngSwitchCase="'sin-ritmo'" class="proyeccion-mensaje aviso">
+          ⚠️ En los últimos meses tu patrimonio se ha mantenido estable o ha bajado, así que no
+          se puede estimar cuándo alcanzarás tu objetivo de {{ objetivoTotal | number:'1.2-2' }} €.
+          En cuanto recuperes un ritmo de ahorro positivo, aquí aparecerá una fecha estimada.
+        </p>
+
+        <div *ngSwitchCase="'en-progreso'" class="proyeccion-datos">
+
+          <div class="proyeccion-dato">
+            <span>Ritmo medio mensual</span>
+            <strong class="positivo">+{{ proyeccion.ritmoMensual | number:'1.2-2' }} €/mes</strong>
+          </div>
+
+          <div class="proyeccion-dato">
+            <span>Falta para el objetivo</span>
+            <strong>{{ objetivoTotal - totalUltimoMes | number:'1.2-2' }} €</strong>
+          </div>
+
+          <div class="proyeccion-dato destacado">
+            <span>Fecha estimada</span>
+            <strong>
+              {{ proyeccion.fechaEstimadaTexto }}
+              ({{ proyeccion.mesesRestantes }} {{ proyeccion.mesesRestantes === 1 ? 'mes' : 'meses' }})
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+    </mat-card>
 
     <!-- ================================
        DEUDA (si hay inmuebles con deuda) — siempre al final, a ancho completo

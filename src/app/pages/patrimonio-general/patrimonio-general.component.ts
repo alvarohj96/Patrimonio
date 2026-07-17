@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { BaseChartDirective } from 'ng2-charts';
 import { PatrimonioService, RegistroMensual } from '../../services/patrimonio.service';
 import { ObjetivosComponent } from '../objetivos/objetivos.component';
+import { ObjetivosService } from '../../services/objetivos.service';
 import { UiConfigService, UiConfig } from '../../services/ui-config.service';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Observable } from 'rxjs';
@@ -68,6 +69,40 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   variacionAbsoluta = 0;
   variacionPorcentaje = 0;
   tendencia: 'sube' | 'baja' | 'igual' = 'igual';
+
+  // ===== Comparativa interanual (YoY) =====
+  comparativaInteranual: {
+    disponible: boolean;
+    totalAnterior: number;
+    absoluta: number;
+    porcentaje: number;
+    tendencia: 'sube' | 'baja' | 'igual';
+  } = {
+    disponible: false,
+    totalAnterior: 0,
+    absoluta: 0,
+    porcentaje: 0,
+    tendencia: 'igual'
+  };
+
+  // ===== Ranking "qué ha movido el mes" =====
+  rankingMes: {
+    disponible: boolean;
+    mayorSubida: { categoria: string; variacion: number; variacionPorcentaje: number | null } | null;
+    mayorBajada: { categoria: string; variacion: number; variacionPorcentaje: number | null } | null;
+  } = {
+    disponible: false,
+    mayorSubida: null,
+    mayorBajada: null
+  };
+
+  // ===== Calendario de variación (heatmap) =====
+  private readonly MESES_CORTO = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+  heatmapAnios: {
+    anio: number;
+    meses: { mes: number; label: string; estado: 'sube' | 'baja' | 'igual' | 'sin-dato'; tooltip: string }[];
+  }[] = [];
 
   colorPalette: string[] = [
     '#2563EB',
@@ -201,8 +236,33 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   deudaBarData: any;
   deudaBarOptions: any;
 
-  constructor(private patrimonioService: PatrimonioService, private ui: UiConfigService) {
-    this.config$ = this.ui.config$;
+// ===== Proyección hacia el objetivo =====
+  objetivoTotal = 0;
+
+  proyeccion: {
+    estado: 'sin-objetivo' | 'datos-insuficientes' | 'alcanzado' | 'sin-ritmo' | 'en-progreso';
+    ritmoMensual: number;
+    mesesRestantes: number | null;
+    fechaEstimadaTexto: string | null;
+  } = {
+    estado: 'sin-objetivo',
+    ritmoMensual: 0,
+    mesesRestantes: null,
+    fechaEstimadaTexto: null
+  };
+
+  private readonly MESES_ES = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+
+  private subObjetivos: any;
+
+  constructor(
+    private patrimonioService: PatrimonioService,
+    private ui: UiConfigService,
+    private objetivosService: ObjetivosService
+  ) {    this.config$ = this.ui.config$;
   }
 
   ngOnInit(): void {
@@ -210,10 +270,18 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       this.registros = regs || [];
       this.procesarDatos();
     });
+
+    // El objetivo se puede editar desde la tarjeta de Objetivos en esta misma
+    // página, así que recalculamos la proyección en cuanto cambie.
+    this.subObjetivos = this.objetivosService.objetivos$.subscribe(obj => {
+      this.objetivoTotal = obj?.total || 0;
+      this.calcularProyeccion();
+    });
   }
 
   ngOnDestroy(): void {
     if (this.sub) this.sub.unsubscribe();
+    if (this.subObjetivos) this.subObjetivos.unsubscribe();
   }
 
   // ======================================================
@@ -242,6 +310,12 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       this.variacionAbsoluta = 0;
       this.variacionPorcentaje = 0;
       this.tendencia = 'igual';
+
+      this.calcularProyeccion();
+
+      this.calcularComparativaInteranual();
+      this.calcularRankingMes();
+      this.calcularHeatmap();
 
       return;
     }
@@ -295,6 +369,11 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     }
     this.procesarBarras();
     this.procesarLineas();
+    this.calcularProyeccion();
+
+    this.calcularComparativaInteranual();
+    this.calcularRankingMes();
+    this.calcularHeatmap();
   }
 
   // ======================================================
@@ -489,6 +568,177 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       .reduce((sum, cat) =>
         sum + this.sumarValoresCategoria(r.valores[cat])
         , 0);
+  }
+
+  // ======================================================
+  // COMPARATIVA INTERANUAL (YoY)
+  // ======================================================
+  calcularComparativaInteranual() {
+
+    if (!this.registros.length) {
+      this.comparativaInteranual = { disponible: false, totalAnterior: 0, absoluta: 0, porcentaje: 0, tendencia: 'igual' };
+      return;
+    }
+
+    const ultimo = this.registros[this.registros.length - 1];
+    const [anioStr, mesStr] = ultimo.mes.split('-');
+    const mesAnioAnterior = `${Number(anioStr) - 1}-${mesStr}`;
+
+    const registroAnioAnterior = this.registros.find(r => r.mes === mesAnioAnterior);
+
+    if (!registroAnioAnterior) {
+      this.comparativaInteranual = { disponible: false, totalAnterior: 0, absoluta: 0, porcentaje: 0, tendencia: 'igual' };
+      return;
+    }
+
+    const totalAnterior = this.sumarTotalMes(registroAnioAnterior);
+    const absoluta = this.totalUltimoMes - totalAnterior;
+    const porcentaje = totalAnterior > 0 ? (absoluta / totalAnterior) * 100 : 0;
+    const tendencia = absoluta > 0 ? 'sube' : absoluta < 0 ? 'baja' : 'igual';
+
+    this.comparativaInteranual = { disponible: true, totalAnterior, absoluta, porcentaje, tendencia };
+  }
+
+  // ======================================================
+  // RANKING "QUÉ HA MOVIDO EL MES"
+  // ======================================================
+  calcularRankingMes() {
+
+    // Sin mes anterior no hay nada que comparar
+    if (!this.datosUltimoMes.length || !this.totalMesAnterior) {
+      this.rankingMes = { disponible: false, mayorSubida: null, mayorBajada: null };
+      return;
+    }
+
+    const conVariacion = this.datosUltimoMes.filter(d => d.variacion !== 0);
+
+    if (!conVariacion.length) {
+      this.rankingMes = { disponible: false, mayorSubida: null, mayorBajada: null };
+      return;
+    }
+
+    const construir = (d: { categoria: string; total: number; variacion: number }) => {
+      const valorAnterior = d.total - d.variacion;
+      const variacionPorcentaje = valorAnterior !== 0
+        ? (d.variacion / Math.abs(valorAnterior)) * 100
+        : null;
+
+      return { categoria: d.categoria, variacion: d.variacion, variacionPorcentaje };
+    };
+
+    const ordenadas = [...conVariacion].sort((a, b) => b.variacion - a.variacion);
+    const top = ordenadas[0];
+    const bottom = ordenadas[ordenadas.length - 1];
+
+    this.rankingMes = {
+      disponible: true,
+      mayorSubida: top.variacion > 0 ? construir(top) : null,
+      // Evita mostrar la misma categoría como "mayor subida" y "mayor bajada"
+      // cuando solo hay una categoría con variación ese mes.
+      mayorBajada: (bottom.variacion < 0 && bottom !== top) ? construir(bottom) : null
+    };
+  }
+
+  // ======================================================
+  // CALENDARIO DE VARIACIÓN (heatmap tipo "contribuciones")
+  // ======================================================
+  calcularHeatmap() {
+
+    if (!this.registros.length) {
+      this.heatmapAnios = [];
+      return;
+    }
+
+    const totalesPorMes = new Map<string, number>();
+    this.registros.forEach(r => totalesPorMes.set(r.mes, this.sumarTotalMes(r)));
+
+    const anios = Array.from(
+      new Set(this.registros.map(r => Number(r.mes.split('-')[0])))
+    ).sort((a, b) => a - b);
+
+    this.heatmapAnios = anios.map(anio => {
+      const meses = [];
+
+      for (let m = 1; m <= 12; m++) {
+        const mesStr = `${anio}-${m.toString().padStart(2, '0')}`;
+        const total = totalesPorMes.get(mesStr);
+
+        // Mes anterior, con salto de año si m === 1 (enero mira a diciembre del año previo)
+        const mAnt = m === 1 ? 12 : m - 1;
+        const anioAnt = m === 1 ? anio - 1 : anio;
+        const mesAntStr = `${anioAnt}-${mAnt.toString().padStart(2, '0')}`;
+        const totalAnterior = totalesPorMes.get(mesAntStr);
+
+        let estado: 'sube' | 'baja' | 'igual' | 'sin-dato' = 'sin-dato';
+        let tooltip = `${this.MESES_CORTO[m - 1]} ${anio}: sin datos`;
+
+        if (total !== undefined && totalAnterior !== undefined) {
+          const variacion = total - totalAnterior;
+          const variacionPorcentaje = totalAnterior > 0 ? (variacion / totalAnterior) * 100 : 0;
+
+          estado = variacion > 0 ? 'sube' : variacion < 0 ? 'baja' : 'igual';
+
+          tooltip = `${this.MESES_CORTO[m - 1]} ${anio}: ` +
+            `${variacion.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € ` +
+            `(${variacionPorcentaje.toFixed(1)}%)`;
+        }
+
+        meses.push({ mes: m, label: this.MESES_CORTO[m - 1], estado, tooltip });
+      }
+
+      return { anio, meses };
+    });
+  }
+
+  // ======================================================
+  // PROYECCIÓN HACIA EL OBJETIVO
+  // ======================================================
+  calcularProyeccion() {
+
+    if (!this.objetivoTotal || this.objetivoTotal <= 0) {
+      this.proyeccion = { estado: 'sin-objetivo', ritmoMensual: 0, mesesRestantes: null, fechaEstimadaTexto: null };
+      return;
+    }
+
+    if (this.registros.length < 2) {
+      this.proyeccion = { estado: 'datos-insuficientes', ritmoMensual: 0, mesesRestantes: null, fechaEstimadaTexto: null };
+      return;
+    }
+
+    // Ritmo medio mensual: media de los incrementos netos mes a mes de, como
+    // máximo, los últimos 12 meses. Así reflejamos el ritmo de ahorro reciente
+    // en vez de diluirlo con todo el histórico si llevas años usando la app.
+    const historicos = this.registros.slice(-13);
+    const totales = historicos.map(r => this.sumarTotalMes(r));
+
+    const incrementos: number[] = [];
+    for (let i = 1; i < totales.length; i++) {
+      incrementos.push(totales[i] - totales[i - 1]);
+    }
+
+    const ritmoMensual = incrementos.length
+      ? incrementos.reduce((a, b) => a + b, 0) / incrementos.length
+      : 0;
+
+    const actual = this.totalUltimoMes;
+
+    if (actual >= this.objetivoTotal) {
+      this.proyeccion = { estado: 'alcanzado', ritmoMensual, mesesRestantes: 0, fechaEstimadaTexto: null };
+      return;
+    }
+
+    if (ritmoMensual <= 0) {
+      this.proyeccion = { estado: 'sin-ritmo', ritmoMensual, mesesRestantes: null, fechaEstimadaTexto: null };
+      return;
+    }
+
+    const mesesRestantes = Math.ceil((this.objetivoTotal - actual) / ritmoMensual);
+
+    const [anioStr, mesStr] = this.registros[this.registros.length - 1].mes.split('-');
+    const fecha = new Date(Number(anioStr), Number(mesStr) - 1 + mesesRestantes, 1);
+    const fechaEstimadaTexto = `${this.MESES_ES[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+
+    this.proyeccion = { estado: 'en-progreso', ritmoMensual, mesesRestantes, fechaEstimadaTexto };
   }
 
   toggleCategoriaBarra(cat: string, checked: boolean) {

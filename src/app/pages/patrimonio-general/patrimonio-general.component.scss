@@ -63,10 +63,207 @@
   height: 550px;
 }
 
+/* ================================
+   COMPARATIVA INTERANUAL (dentro de resumen-variacion)
+   ================================= */
+.detalle-anterior.interanual {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.variacion.interanual {
+  font-size: 15px;
+}
+
+/* ================================
+   RANKING "QUÉ HA MOVIDO EL MES"
+   ================================= */
+.card-ranking {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.ranking-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.ranking-item.ranking-sube {
+  color: #2e7d32;
+  background: rgba(67, 160, 71, 0.08);
+}
+
+.ranking-item.ranking-baja {
+  color: #c62828;
+  background: rgba(229, 57, 53, 0.08);
+}
+
+.ranking-item mat-icon {
+  flex-shrink: 0;
+}
+
+/* ================================
+   CALENDARIO DE VARIACIÓN (heatmap)
+   ================================= */
+.card-heatmap {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.heatmap-fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.heatmap-anio {
+  width: 48px;
+  flex-shrink: 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.heatmap-celdas {
+  display: flex;
+  gap: 5px;
+}
+
+.heatmap-celda {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  cursor: default;
+}
+
+.heatmap-celda.estado-sube {
+  background: #43a047;
+}
+
+.heatmap-celda.estado-baja {
+  background: #e53935;
+}
+
+.heatmap-celda.estado-igual {
+  background: #9e9e9e;
+}
+
+.heatmap-celda.estado-sin-dato {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.heatmap-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.heatmap-leyenda .punto {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.heatmap-leyenda .punto.estado-sube {
+  background: #43a047;
+}
+
+.heatmap-leyenda .punto.estado-baja {
+  background: #e53935;
+}
+
+.heatmap-leyenda .punto.estado-igual {
+  background: #9e9e9e;
+}
+
+.heatmap-leyenda .punto.estado-sin-dato {
+  background: rgba(0, 0, 0, 0.08);
+}
+
 /* Tarjeta de deuda: siempre a ancho completo, al final */
 .card-deuda {
   width: 100%;
   margin-bottom: 25px;
+}
+
+/* ================================
+   PROYECCIÓN HACIA EL OBJETIVO
+   ================================= */
+.card-proyeccion {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.proyeccion-mensaje {
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0.85;
+  margin: 0;
+}
+
+.proyeccion-mensaje.exito {
+  color: #2e7d32;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.proyeccion-mensaje.aviso {
+  color: var(--app-text);
+}
+
+.proyeccion-datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.proyeccion-dato {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.proyeccion-dato span {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.proyeccion-dato strong {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.proyeccion-dato strong.positivo {
+  color: #2e7d32;
+}
+
+.proyeccion-dato.destacado strong {
+  font-size: 22px;
+  color: #2563EB;
 }
 
 .card {
