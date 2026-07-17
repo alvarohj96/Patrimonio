@@ -23,12 +23,18 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  flex: 1 1 480px;
   min-width: 340px;
 }
 
+.columna-izquierda {
+  flex: 1 1 420px;
+}
+
 .columna-derecha {
-  width: 600px;
+  /* Más ancha que la izquierda: parte de una base mayor (560px vs 420px)
+     y crece más deprisa (1.6 vs 1) al repartir el espacio libre de la fila. */
+  flex: 1.6 1 560px;
+  min-width: 400px;
 }
 
 .card-tabla,
