@@ -80,8 +80,8 @@
    RANKING "QUÉ HA MOVIDO EL MES"
    ================================= */
 .card-ranking {
-  width: 100%;
-  margin-bottom: 25px;
+  flex: 1 1 320px;
+  min-width: 280px;
 }
 
 .ranking-lista {
@@ -117,8 +117,8 @@
    CALENDARIO DE VARIACIÓN (heatmap)
    ================================= */
 .card-heatmap {
-  width: 100%;
-  margin-bottom: 25px;
+  flex: 1 1 360px;
+  min-width: 340px;
 }
 
 .heatmap {
@@ -212,9 +212,20 @@
 /* ================================
    PROYECCIÓN HACIA EL OBJETIVO
    ================================= */
-.card-proyeccion {
-  width: 100%;
+/* ================================
+   FILA DE INSIGHTS: ranking + heatmap + proyección, lado a lado
+   ================================= */
+.fila-insights {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  flex-wrap: wrap;
   margin-bottom: 25px;
+}
+
+.card-proyeccion {
+  flex: 1 1 320px;
+  min-width: 280px;
 }
 
 .proyeccion-mensaje {
@@ -317,6 +328,13 @@ canvas {
 @media (max-width: 900px) {
   .columna-izquierda,
   .columna-derecha {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .card-ranking,
+  .card-heatmap,
+  .card-proyeccion {
     flex: 1 1 100%;
     width: 100%;
   }
