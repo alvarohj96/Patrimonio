@@ -207,7 +207,7 @@
       <mat-card class="card card-heatmap" *ngIf="heatmapAnios.length">
         <h2>📅 Consistencia de ahorro</h2>
 
-        <div class="heatmap">
+        <div class="heatmap" #heatmapScroll>
           <div class="heatmap-fila" *ngFor="let fila of heatmapAnios">
             <span class="heatmap-anio">{{ fila.anio }}</span>
 

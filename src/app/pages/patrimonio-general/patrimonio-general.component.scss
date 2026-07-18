@@ -128,6 +128,20 @@
   align-items: center;
   gap: 8px;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 116px;
+  /* ~4 filas visibles; con más años, aparece scroll para ver el resto */
+  padding-right: 6px;
+  scrollbar-width: thin;
+}
+
+.heatmap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.heatmap::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 }
 
 .heatmap-fila {

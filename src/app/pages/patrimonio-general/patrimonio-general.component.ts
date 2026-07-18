@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -103,6 +103,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     anio: number;
     meses: { mes: number; label: string; estado: 'sube' | 'baja' | 'igual' | 'sin-dato'; tooltip: string }[];
   }[] = [];
+
+  @ViewChild('heatmapScroll') heatmapScrollRef?: ElementRef<HTMLDivElement>;
 
   colorPalette: string[] = [
     '#2563EB',
@@ -687,6 +689,13 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       }
 
       return { anio, meses };
+    });
+
+    // Por defecto se ve el histórico más reciente (abajo), no el más antiguo.
+    // Se espera al siguiente ciclo para que la vista ya tenga las nuevas filas pintadas.
+    setTimeout(() => {
+      const el = this.heatmapScrollRef?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
     });
   }
 
