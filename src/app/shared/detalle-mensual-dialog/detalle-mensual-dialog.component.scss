@@ -24,32 +24,39 @@
 }
 
 .subtitulo {
-  font-size: 18px;
-  font-weight: 500;
-  margin: 18px 0;
-  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 16px 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-text);
+  opacity: 0.6;
 }
 
 
 /* =====================================================
-   GRÁFICO
+   FILA GRÁFICO + LEYENDA
 ===================================================== */
 
-.chart-container {
+.chart-legend-row {
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
-  max-width: 100%;
-  margin: 0 auto 20px auto;
-  width: 180px; 
-  height: 180px;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.chart-container {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 600px) {
   .chart-container {
-    width: 150px;
-    height: 150px;
-    margin-bottom: 10px;
+    width: 130px;
+    height: 130px;
   }
 }
 
@@ -59,14 +66,88 @@ canvas {
 }
 
 /* =====================================================
+   LEYENDA
+===================================================== */
+
+.leyenda {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.leyenda-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.leyenda-nombre {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.leyenda-pct {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--app-text);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   TOTAL DEL MES – BANNER
+===================================================== */
+
+.total-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 18px;
+  color: #fff;
+}
+
+.total-label {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.total-valor {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+:host-context(.dark-theme) .total-banner {
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+}
+
+
+/* =====================================================
    GRID DE CATEGORÍAS
 ===================================================== */
 
 .grid-datos {
   display: grid;
-  /* Bajamos el mínimo a 280px para que quepa en cualquier móvil */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px 20px;
+  gap: 14px 16px;
 }
 
 
@@ -75,9 +156,22 @@ canvas {
 ===================================================== */
 
 .categoria-item {
-  padding: 14px 16px;
+  display: flex;
   border-radius: 10px;
   border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.cat-color-bar {
+  width: 5px;
+  flex-shrink: 0;
+  border-radius: 10px 0 0 10px;
+}
+
+.cat-body {
+  flex: 1;
+  padding: 12px 14px;
+  min-width: 0;
 }
 
 
@@ -89,23 +183,51 @@ canvas {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .cat-nombre {
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cat-total {
   font-weight: 700;
-  color: #1e88e5;
+  font-size: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pct {
-  font-weight: 500;
+  font-weight: 400;
   color: #6a6a6a;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+}
+
+
+/* =====================================================
+   BARRA DE PROGRESO
+===================================================== */
+
+.progress-bar-bg {
+  height: 5px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  opacity: 0.75;
 }
 
 
@@ -114,56 +236,53 @@ canvas {
 ===================================================== */
 
 .sub-lista {
-  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .sub-item {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 8px;
   padding: 3px 0;
-  font-size: 14px;
+  font-size: 13px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.sub-item:last-child {
+  border-bottom: none;
+}
+
+.sub-nombre {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--app-text);
+  opacity: 0.8;
+}
+
+.sub-valores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
 }
 
 .sub-valor {
   font-weight: 600;
+  font-size: 13px;
 }
 
 .sub-pct {
   color: #888;
   font-weight: 400;
   margin-left: 4px;
-  font-size: 0.75rem;
-}
-
-.flecha-expansion {
-  color: var(--app-text);
-}
-
-
-/* =====================================================
-   TOTALES Y ACCIONES
-===================================================== */
-
-.total-general {
-  text-align: center;
-  margin: 22px 0 12px;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.acciones {
-  position: sticky;
-  bottom: 0;
-  padding-top: 12px;
-  text-align: right;
-}
-
-.acciones {
-  button {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-  }
+  font-size: 0.72rem;
 }
 
 
@@ -171,22 +290,38 @@ canvas {
    INMUEBLES – DESGLOSE
 ===================================================== */
 
-.valor-normal {
-  font-weight: 500;
-}
-
 .valor-bruto {
-  font-weight: 500;
+  font-size: 11px;
+  opacity: 0.65;
 }
 
 .valor-deuda {
   color: #c62828;
-  font-size: 0.8rem;
+  font-size: 11px;
 }
 
 .valor-neto {
   font-weight: 600;
+  font-size: 13px;
 }
+
+
+/* =====================================================
+   ACCIONES
+===================================================== */
+
+.acciones {
+  position: sticky;
+  bottom: 0;
+  padding-top: 12px;
+  text-align: right;
+  background-color: var(--card-bg);
+
+  button {
+    border: 1px solid var(--border-color);
+  }
+}
+
 
 /* =====================================================
    SCROLLBAR ESTILIZADA (solo diálogo)
@@ -197,7 +332,6 @@ canvas {
   scrollbar-color: #bdbdbd transparent;
 }
 
-/* Webkit (Chrome, Edge, Safari) */
 .dialog-container::-webkit-scrollbar {
   width: 10px;
 }
@@ -214,7 +348,6 @@ canvas {
   background-clip: content-box;
 }
 
-/* Hover más visible */
 .dialog-container::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.4);
 }

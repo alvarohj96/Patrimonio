@@ -5,14 +5,13 @@ import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
 @Component({
   selector: 'app-detalle-mensual-dialog',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, MatButtonModule, MatIcon],
+  imports: [CommonModule, BaseChartDirective, MatButtonModule],
   templateUrl: './detalle-mensual-dialog.component.html',
   styleUrls: ['./detalle-mensual-dialog.component.scss']
 })
@@ -29,12 +28,15 @@ export class DetalleMensualDialogComponent implements OnInit {
       '#43a047',
       '#fb8c00',
       '#8e24aa',
-      '#e53935'
+      '#e53935',
+      '#00acc1',
+      '#f06292'
     ]
   }];
 
   totalMes = 0;
 
+  /** Ya no se usa para expandir/colapsar — se mantiene por si se reutiliza */
   categoriasAbiertas: { [cat: string]: boolean } = {};
 
   constructor(
@@ -45,8 +47,9 @@ export class DetalleMensualDialogComponent implements OnInit {
   ngOnInit(): void {
     this.categorias = Object.keys(this.data.valores);
 
+    // Todas abiertas por defecto (ya no se pliegan)
     this.categorias.forEach(cat => {
-      this.categoriasAbiertas[cat] = false;
+      this.categoriasAbiertas[cat] = true;
     });
 
     this.calcularTotales();
@@ -54,18 +57,13 @@ export class DetalleMensualDialogComponent implements OnInit {
   }
 
   public donutOptions: any = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false 
-    },
-    tooltip: {
-      enabled: true
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true }
     }
-  }
-};
-
+  };
 
   // ===============================
   // Cálculo de totales (NETO)
@@ -128,10 +126,4 @@ export class DetalleMensualDialogComponent implements OnInit {
   esInmuebles(cat: string): boolean {
     return cat.toLowerCase().includes('inmueble');
   }
-
-  toggleCategoria(cat: string) {
-    this.categoriasAbiertas[cat] = !this.categoriasAbiertas[cat];
-  }
-
-
 }

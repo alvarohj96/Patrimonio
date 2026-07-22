@@ -2,105 +2,106 @@
 
   <h2 class="titulo">Detalle del mes {{ data.mes }}</h2>
 
-  <!-- ===== Gráfico circular ===== -->
-  <div class="chart-container">
-    <canvas baseChart [data]="{
-        labels: donutLabels,
-        datasets: [{ data: donutData, backgroundColor: donutColors[0].backgroundColor }]
-      }" 
-      [options]="donutOptions"
-      type="doughnut" width="260" height="260"></canvas>
+  <!-- ===== Layout superior: gráfico + leyenda ===== -->
+  <div class="chart-legend-row">
+
+    <div class="chart-container">
+      <canvas baseChart [data]="{
+          labels: donutLabels,
+          datasets: [{ data: donutData, backgroundColor: donutColors[0].backgroundColor }]
+        }"
+        [options]="donutOptions"
+        type="doughnut" width="200" height="200"></canvas>
+    </div>
+
+    <!-- Leyenda inline con colores y porcentajes -->
+    <div class="leyenda">
+      <div *ngFor="let cat of categorias; let i = index" class="leyenda-item">
+        <span class="leyenda-color" [style.background]="donutColors[0].backgroundColor[i % donutColors[0].backgroundColor.length]"></span>
+        <span class="leyenda-nombre">{{ cat }}</span>
+        <span class="leyenda-pct">{{ getPorcentajeCategoria(cat) | number:'1.1-1' }}%</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== Total del mes destacado ===== -->
+  <div class="total-banner">
+    <span class="total-label">Total del mes</span>
+    <span class="total-valor">{{ totalMes | number:'1.2-2' }} €</span>
   </div>
 
   <h3 class="subtitulo">Distribución por categorías</h3>
 
-  <!-- ===== Resumen en dos columnas ===== -->
+  <!-- ===== Grid de categorías — SIEMPRE EXPANDIDAS ===== -->
   <div class="grid-datos">
-    <div *ngFor="let cat of categorias" class="categoria-item">
+    <div *ngFor="let cat of categorias; let i = index" class="categoria-item">
 
-      <div class="cat-header">
+      <!-- Franja de color a la izquierda según índice -->
+      <div class="cat-color-bar" [style.background]="donutColors[0].backgroundColor[i % donutColors[0].backgroundColor.length]"></div>
 
-        <div class="cat-nombre">
-          <button class="toggle-btn" (click)="toggleCategoria(cat)" aria-label="Mostrar subcategorías">
-            <mat-icon class="flecha-expansion">
-              {{ categoriasAbiertas[cat] ? 'expand_more' : 'chevron_right' }}
-            </mat-icon>
-          </button>
+      <div class="cat-body">
 
-          {{ cat }}
+        <!-- Cabecera: nombre + total + barra de progreso -->
+        <div class="cat-header">
+          <div class="cat-nombre">{{ cat }}</div>
+          <div class="cat-total">
+            {{ totalesPorCategoria[cat] | number:'1.2-2' }} €
+            <span class="pct">({{ getPorcentajeCategoria(cat) | number:'1.1-1' }}%)</span>
+          </div>
         </div>
 
-        <div class="cat-total">
-          {{ totalesPorCategoria[cat] | number:'1.2-2' }} €
-          <span class="pct">
-            ({{ getPorcentajeCategoria(cat) | number:'1.2-2' }}%)
-          </span>
+        <!-- Barra de progreso visual para el peso de la categoría -->
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill"
+            [style.width]="getPorcentajeCategoria(cat) + '%'"
+            [style.background]="donutColors[0].backgroundColor[i % donutColors[0].backgroundColor.length]">
+          </div>
         </div>
 
-      </div>
+        <!-- Subcategorías siempre visibles -->
+        <div class="sub-lista">
+          <div *ngFor="let s of getSubcategorias(cat)" class="sub-item">
 
+            <div class="sub-nombre">{{ s }}</div>
 
-      <!-- Subcategorías -->
-      <div class="sub-lista" *ngIf="categoriasAbiertas[cat]">
-        <div *ngFor="let s of getSubcategorias(cat)" class="sub-item">
+            <div class="sub-valores">
 
-          <div class="sub-nombre">{{ s }}: </div>
+              <!-- ===== INMUEBLES ===== -->
+              <ng-container *ngIf="esInmuebles(cat); else normal">
 
-          <div class="sub-valores">
-
-            <!-- ===== INMUEBLES ===== -->
-            <ng-container *ngIf="esInmuebles(cat); else normal">
-
-              <!-- INMUEBLE CON DEUDA -->
-              <ng-container *ngIf="data.valores[cat][s]?.deuda && data.valores[cat][s].deuda !== 0; else sinDeuda">
-
-                <div class="valor-bruto">
-                  {{ data.valores[cat][s]?.valor | number:'1.2-2' }} €
-                </div>
-
-                <div class="valor-deuda">
-                  − {{ data.valores[cat][s]?.deuda | number:'1.2-2' }} €
-                </div>
-
-                <div class="valor-neto">
-                  {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
-                  <span class="sub-pct">
-                    ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
+                <ng-container *ngIf="data.valores[cat][s]?.deuda && data.valores[cat][s].deuda !== 0; else sinDeuda">
+                  <span class="valor-bruto">{{ data.valores[cat][s]?.valor | number:'1.2-2' }} €</span>
+                  <span class="valor-deuda">− {{ data.valores[cat][s]?.deuda | number:'1.2-2' }} €</span>
+                  <span class="valor-neto">
+                    = {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
+                    <span class="sub-pct">({{ getPorcentajeSubcategoria(cat, s) | number:'1.1-1' }}%)</span>
                   </span>
-                </div>
+                </ng-container>
+
+                <ng-template #sinDeuda>
+                  <span class="sub-valor">
+                    {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
+                    <span class="sub-pct">({{ getPorcentajeSubcategoria(cat, s) | number:'1.1-1' }}%)</span>
+                  </span>
+                </ng-template>
 
               </ng-container>
 
-              <!-- INMUEBLE SIN DEUDA -->
-              <ng-template #sinDeuda>
-                <div class="sub-valor">
+              <!-- ===== NORMALES ===== -->
+              <ng-template #normal>
+                <span class="sub-valor">
                   {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
-                  <span class="sub-pct">
-                    ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
-                  </span>
-                </div>
+                  <span class="sub-pct">({{ getPorcentajeSubcategoria(cat, s) | number:'1.1-1' }}%)</span>
+                </span>
               </ng-template>
 
-            </ng-container>
-
-            <!-- ===== CATEGORÍAS NORMALES ===== -->
-            <ng-template #normal>
-              <div class="sub-valor">
-                {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
-                <span class="sub-pct">
-                  ({{ getPorcentajeSubcategoria(cat, s) | number:'1.2-2' }}%)
-                </span>
-              </div>
-            </ng-template>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
-  </div>
-
-  <div class="total-general">
-    Total del mes:
-    <strong>{{ totalMes | number:'1.2-2' }} €</strong>
   </div>
 
   <div class="acciones">
