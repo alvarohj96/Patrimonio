@@ -285,6 +285,23 @@ canvas {
   font-size: 0.72rem;
 }
 
+.sub-cantidad {
+  font-size: 0.72rem;
+  color: #f9a825;
+  font-weight: 500;
+  display: block;
+  margin-top: 1px;
+}
+
+.sub-precio-unit {
+  opacity: 0.75;
+  font-weight: 400;
+}
+
+:host-context(.dark-theme) .sub-cantidad {
+  color: #ffcc02;
+}
+
 
 /* =====================================================
    INMUEBLES – DESGLOSE

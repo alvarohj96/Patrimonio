@@ -115,3 +115,71 @@ h3 {
 table {
   color: var(--text-color);
 }
+
+/* =====================================================
+   OVERLAYS GLOBALES – TEMA OSCURO
+   Los paneles de mat-select, mat-datepicker y mat-dialog
+   se renderizan en un CDK overlay fuera del DOM del
+   componente, por lo que ::ng-deep no llega. Necesitamos
+   reglas globales bajo .dark-theme.
+===================================================== */
+
+/* ── Select panel ── */
+.dark-theme .mat-mdc-select-panel {
+  background-color: var(--card-bg) !important;
+}
+
+.dark-theme .mat-mdc-option {
+  color: var(--app-text) !important;
+  background-color: var(--card-bg) !important;
+}
+
+.dark-theme .mat-mdc-option:hover:not(.mdc-list-item--disabled),
+.dark-theme .mat-mdc-option.mat-mdc-option-active {
+  background-color: var(--hover) !important;
+}
+
+.dark-theme .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--app-text) !important;
+}
+
+/* ── Datepicker calendar ── */
+.dark-theme .mat-datepicker-content {
+  background-color: var(--card-bg) !important;
+  color: var(--app-text) !important;
+}
+
+.dark-theme .mat-calendar-body-cell-content,
+.dark-theme .mat-calendar-body-label,
+.dark-theme .mat-calendar-period-button,
+.dark-theme .mat-calendar-arrow,
+.dark-theme .mat-calendar-next-button,
+.dark-theme .mat-calendar-previous-button {
+  color: var(--app-text) !important;
+}
+
+.dark-theme .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border-color: var(--app-text) !important;
+}
+
+.dark-theme .mat-calendar-body-selected {
+  background-color: #1e88e5 !important;
+  color: #fff !important;
+}
+
+.dark-theme .mat-calendar-table-header th {
+  color: var(--app-text) !important;
+  opacity: 0.6;
+}
+
+/* ── Dialog container (fondo del modal) ── */
+.dark-theme .mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--card-bg) !important;
+  color: var(--app-text) !important;
+}
+
+/* ── Snackbar / tooltip ── */
+.dark-theme .mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--card-bg);
+  --mdc-snackbar-supporting-text-color: var(--app-text);
+}

@@ -47,8 +47,29 @@ export class FormularioMensualDialogComponent {
 
   valor = 0;
   deuda = 0;
+  cantidad: number | null = null;
 
   porcentajePropiedad = 100;
+
+  // -------------------------------------------------------
+  // Categorías para las que tiene sentido guardar unidades
+  // -------------------------------------------------------
+  private readonly CATS_CON_UNIDADES = ['Cripto', 'Acciones', 'Fondos'];
+
+  mostrarCampoUnidades(): boolean {
+    return this.CATS_CON_UNIDADES.includes(this.categoria);
+  }
+
+  unidadLabel(): string {
+    if (!this.subcategoria) return 'unidades';
+    const upper = this.subcategoria.toUpperCase();
+    const CRIPTO_CONOCIDOS = ['BTC', 'ETH', 'SOL', 'USDT', 'XRP', 'ADA', 'DOT', 'AVAX', 'MATIC', 'LINK'];
+    if (CRIPTO_CONOCIDOS.some(c => upper.includes(c))) {
+      const match = this.subcategoria.match(/\(([^)]+)\)/);
+      return match ? match[1] : this.subcategoria;
+    }
+    return 'participaciones';
+  }
 
   mes = '';
   mesSeleccionado: Date | null = null;
@@ -76,6 +97,7 @@ export class FormularioMensualDialogComponent {
     // Reset valores inmuebles
     this.deuda = 0;
     this.porcentajePropiedad = 100;
+    this.cantidad = null;
   }
 
   // Subcategorías de la categoría actual que todavía no se han guardado en esta sesión.
@@ -191,7 +213,8 @@ export class FormularioMensualDialogComponent {
       registro.valores[this.categoria][this.subcategoria] = {
         valor: this.valor,
         deuda: 0,
-        porcentaje: 100
+        porcentaje: 100,
+        ...(this.cantidad !== null && this.cantidad > 0 ? { cantidad: this.cantidad } : {})
       };
 
     }
@@ -224,6 +247,7 @@ export class FormularioMensualDialogComponent {
     this.valor = 0;
     this.deuda = 0;
     this.porcentajePropiedad = 100;
+    this.cantidad = null;
 
     // Devolver el foco al selector de subcategoría para poder encadenar
     // "seleccionar subcategoría -> escribir valor -> Enter" sin usar el ratón.

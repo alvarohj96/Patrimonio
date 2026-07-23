@@ -155,6 +155,26 @@
 
     </ng-container>
 
+    <!-- CANTIDAD DE ACTIVO (Cripto, Acciones, Fondos…) -->
+    <ng-container *ngIf="mostrarCampoUnidades()">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cantidad ({{ unidadLabel() }})</mat-label>
+
+        <input
+          matInput
+          type="number"
+          [(ngModel)]="cantidad"
+          name="cantidad"
+          min="0"
+          step="any">
+
+        <span matSuffix>{{ unidadLabel() }}</span>
+        <mat-hint>Opcional · el precio/unidad se calcula automáticamente</mat-hint>
+      </mat-form-field>
+
+    </ng-container>
+
     <div class="acciones">
 
       <button mat-button mat-dialog-close *ngIf="!entradasSesion.length">

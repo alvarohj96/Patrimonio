@@ -1,28 +1,29 @@
+/* =====================================================
+   HOST / DIALOG CONTAINER
+   El fondo del dialog lo gestiona Material a través de
+   mat-dialog-container, pero necesitamos sobreescribirlo
+   con nuestras variables de tema.
+===================================================== */
+
+:host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--card-bg) !important;
+  color: var(--app-text) !important;
+}
+
+/* Título del dialog */
+:host ::ng-deep [mat-dialog-title] {
+  color: var(--app-text);
+}
+
 mat-dialog-content {
   padding-top: 12px;
   overflow-x: hidden;
 }
 
-.form-grid {
-  display: grid;
-  gap: 16px;
-  min-width: 320px;
-}
 
-.acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-@media (max-width: 768px) {
-
-  .form-grid {
-    min-width: unset;
-  }
-
-}
+/* =====================================================
+   CABECERA – BOTONES DE GESTIÓN
+===================================================== */
 
 .header-actions {
   display: flex;
@@ -34,21 +35,32 @@ mat-dialog-content {
 .header-actions button {
   flex: 1;
   min-width: 180px;
+  background-color: var(--card-bg);
+  color: var(--app-text);
+  border: 1px solid var(--border-color);
 }
+
+
+/* =====================================================
+   ENTRADAS DE SESIÓN
+===================================================== */
 
 .entradas-sesion {
   margin: 4px 0 16px;
   padding: 10px 14px;
   border-radius: 8px;
-  background: var(--card-bg, rgba(0, 0, 0, 0.04));
-  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   max-height: 160px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
 }
 
 .entradas-titulo {
   font-size: 0.85rem;
   font-weight: 600;
+  color: var(--app-text);
   opacity: 0.75;
   margin-bottom: 6px;
 }
@@ -63,12 +75,14 @@ mat-dialog-content {
 
 .entrada-item .entrada-texto {
   font-size: 0.9rem;
+  color: var(--app-text);
 }
 
 .entrada-item button {
   width: 28px;
   height: 28px;
   line-height: 28px;
+  color: var(--app-text);
 }
 
 .entrada-item mat-icon {
@@ -77,8 +91,127 @@ mat-dialog-content {
   height: 18px;
 }
 
+
+/* =====================================================
+   FORMULARIO
+===================================================== */
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+  min-width: 320px;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    min-width: unset;
+  }
+}
+
 .aviso-completo {
   font-size: 0.85rem;
+  color: var(--app-text);
   opacity: 0.8;
   margin: -8px 0 4px;
+}
+
+
+/* =====================================================
+   ACCIONES
+===================================================== */
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+
+/* =====================================================
+   MATERIAL FORM FIELD – OVERRIDES TEMA OSCURO
+   Usamos ::ng-deep desde el host del componente para
+   que los tokens de Material respeten nuestras variables.
+===================================================== */
+
+/* Label flotante */
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-floating-label,
+:host ::ng-deep .mat-mdc-form-field label {
+  color: var(--app-text) !important;
+  opacity: 0.75;
+}
+
+/* Label cuando el campo está activo/enfocado: pleno color */
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label,
+:host ::ng-deep .mat-mdc-form-field.mat-focused label {
+  opacity: 1;
+}
+
+/* Texto del input */
+:host ::ng-deep .mat-mdc-input-element,
+:host ::ng-deep .mdc-text-field__input {
+  color: var(--app-text) !important;
+  caret-color: var(--app-text) !important;
+}
+
+/* Fondo del input outlined */
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+  border-color: var(--border-color) !important;
+}
+
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) {
+  background-color: var(--card-bg) !important;
+}
+
+/* Foco: borde azul estándar — no lo cambiamos, Material lo gestiona */
+
+/* Valor del select */
+:host ::ng-deep .mat-mdc-select-value-text,
+:host ::ng-deep .mat-mdc-select-value {
+  color: var(--app-text) !important;
+}
+
+/* Flecha del select */
+:host ::ng-deep .mat-mdc-select-arrow svg {
+  fill: var(--app-text) !important;
+}
+
+/* Sufijos (€, %) */
+:host ::ng-deep .mat-mdc-form-field-text-suffix,
+:host ::ng-deep .mat-icon-button.mat-mdc-icon-button {
+  color: var(--app-text) !important;
+  opacity: 0.7;
+}
+
+/* Hint */
+:host ::ng-deep .mat-mdc-form-field-hint {
+  color: var(--app-text) !important;
+  opacity: 0.55;
+}
+
+/* Icono del datepicker toggle */
+:host ::ng-deep .mat-datepicker-toggle,
+:host ::ng-deep .mat-datepicker-toggle .mat-mdc-icon-button {
+  color: var(--app-text) !important;
+}
+
+
+/* =====================================================
+   PANEL DEL SELECT (overlay global — necesita ::ng-deep
+   a nivel de componente + panelClass si fuera necesario)
+===================================================== */
+
+:host ::ng-deep .mat-mdc-select-panel {
+  background-color: var(--card-bg) !important;
+}
+
+:host ::ng-deep .mat-mdc-option {
+  color: var(--app-text) !important;
+}
+
+:host ::ng-deep .mat-mdc-option:hover:not(.mdc-list-item--disabled),
+:host ::ng-deep .mat-mdc-option.mat-mdc-option-active {
+  background-color: var(--hover) !important;
 }

@@ -94,6 +94,12 @@
                   {{ getValorSubcategoria(cat, s) | number:'1.2-2' }} €
                   <span class="sub-pct">({{ getPorcentajeSubcategoria(cat, s) | number:'1.1-1' }}%)</span>
                 </span>
+                <span class="sub-cantidad" *ngIf="getCantidad(cat, s) as qty">
+                  {{ qty | number:'1.0-8' }} {{ getUnidadLabel(cat, s) }}
+                  <span class="sub-precio-unit" *ngIf="getPrecioUnitario(cat, s) as pu">
+                    · {{ pu | number:'1.2-2' }} €/u
+                  </span>
+                </span>
               </ng-template>
 
             </div>

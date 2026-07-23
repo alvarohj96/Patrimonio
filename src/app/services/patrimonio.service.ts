@@ -13,6 +13,7 @@ export interface RegistroMensual {
         valor: number;
         deuda?: number;
         porcentaje?: number;
+        cantidad?: number;   // unidades de activo (BTC, ETH, acciones, etc.)
       };
     };
   };

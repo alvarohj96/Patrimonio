@@ -126,4 +126,28 @@ export class DetalleMensualDialogComponent implements OnInit {
   esInmuebles(cat: string): boolean {
     return cat.toLowerCase().includes('inmueble');
   }
+
+  // -------------------------------------------------------
+  // Cantidad de unidades almacenada (BTC, participaciones…)
+  // -------------------------------------------------------
+  getCantidad(cat: string, sub: string): number | null {
+    const item = this.data.valores[cat]?.[sub];
+    return item?.cantidad ?? null;
+  }
+
+  getUnidadLabel(cat: string, sub: string): string {
+    const CRIPTO_CONOCIDOS = ['BTC', 'ETH', 'SOL', 'USDT', 'XRP', 'ADA', 'DOT', 'AVAX', 'MATIC', 'LINK'];
+    const upper = sub.toUpperCase();
+    if (CRIPTO_CONOCIDOS.some(c => upper.includes(c))) {
+      const match = sub.match(/\(([^)]+)\)/);
+      return match ? match[1] : sub;
+    }
+    return 'participaciones';
+  }
+
+  getPrecioUnitario(cat: string, sub: string): number | null {
+    const qty = this.getCantidad(cat, sub);
+    if (!qty || qty === 0) return null;
+    return this.getValorSubcategoria(cat, sub) / qty;
+  }
 }
