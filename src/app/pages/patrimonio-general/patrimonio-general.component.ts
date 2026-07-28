@@ -78,12 +78,12 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     porcentaje: number;
     tendencia: 'sube' | 'baja' | 'igual';
   } = {
-    disponible: false,
-    totalAnterior: 0,
-    absoluta: 0,
-    porcentaje: 0,
-    tendencia: 'igual'
-  };
+      disponible: false,
+      totalAnterior: 0,
+      absoluta: 0,
+      porcentaje: 0,
+      tendencia: 'igual'
+    };
 
   // ===== Ranking "qué ha movido el mes" =====
   rankingMes: {
@@ -91,10 +91,10 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     mayorSubida: { categoria: string; variacion: number; variacionPorcentaje: number | null } | null;
     mayorBajada: { categoria: string; variacion: number; variacionPorcentaje: number | null } | null;
   } = {
-    disponible: false,
-    mayorSubida: null,
-    mayorBajada: null
-  };
+      disponible: false,
+      mayorSubida: null,
+      mayorBajada: null
+    };
 
   // ===== Calendario de variación (heatmap) =====
   private readonly MESES_CORTO = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -238,7 +238,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   deudaBarData: any;
   deudaBarOptions: any;
 
-// ===== Proyección hacia el objetivo =====
+  // ===== Proyección hacia el objetivo =====
   objetivoTotal = 0;
 
   proyeccion: {
@@ -247,11 +247,11 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     mesesRestantes: number | null;
     fechaEstimadaTexto: string | null;
   } = {
-    estado: 'sin-objetivo',
-    ritmoMensual: 0,
-    mesesRestantes: null,
-    fechaEstimadaTexto: null
-  };
+      estado: 'sin-objetivo',
+      ritmoMensual: 0,
+      mesesRestantes: null,
+      fechaEstimadaTexto: null
+    };
 
   private readonly MESES_ES = [
     'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -260,11 +260,39 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
   private subObjetivos: any;
 
+  // ===== Comparativa Donuts Antes → Después =====
+  mesesDisponiblesComparativa: string[] = [];
+  mesComparativaSeleccionado: string = '';
+  mesActual: string = '';
+
+  donutAntes: any = { labels: [], datasets: [] };
+  donutDespues: any = { labels: [], datasets: [] };
+
+  donutComparativaOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const value = context.raw || 0;
+            const dataArray = context.chart.data.datasets[0].data;
+            const total = dataArray.reduce((a: number, b: number) => a + b, 0);
+            const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+            return `${context.label}: ${value.toLocaleString()} € (${pct}%)`;
+          }
+        }
+      }
+    }
+  };
+
   constructor(
     private patrimonioService: PatrimonioService,
     private ui: UiConfigService,
     private objetivosService: ObjetivosService
-  ) {    this.config$ = this.ui.config$;
+  ) {
+    this.config$ = this.ui.config$;
   }
 
   ngOnInit(): void {
@@ -318,6 +346,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       this.calcularComparativaInteranual();
       this.calcularRankingMes();
       this.calcularHeatmap();
+      this.calcularComparativaDonuts();
 
       return;
     }
@@ -376,6 +405,7 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     this.calcularComparativaInteranual();
     this.calcularRankingMes();
     this.calcularHeatmap();
+    this.calcularComparativaDonuts();
   }
 
   // ======================================================
@@ -820,6 +850,76 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
       }
       return a + (b.valor - (b.deuda || 0)); // datos nuevos
     }, 0);
+  }
+
+  // ======================================================
+  // COMPARATIVA DONUTS ANTES → DESPUÉS
+  // ======================================================
+  calcularComparativaDonuts() {
+    if (this.registros.length < 2) {
+      this.mesesDisponiblesComparativa = [];
+      this.mesComparativaSeleccionado = '';
+      this.donutAntes = { labels: [], datasets: [] };
+      this.donutDespues = { labels: [], datasets: [] };
+      return;
+    }
+
+    const ordenados = [...this.registros].sort((a, b) => a.mes.localeCompare(b.mes));
+    const ultimo = ordenados[ordenados.length - 1];
+    this.mesActual = ultimo.mes;
+
+    // Todos los meses menos el actual (son los candidatos para "antes")
+    this.mesesDisponiblesComparativa = ordenados
+      .slice(0, ordenados.length - 1)
+      .map(r => r.mes)
+      .reverse(); // más reciente primero en el selector
+
+    // Seleccionar por defecto el inmediatamente anterior si no hay selección previa
+    if (
+      !this.mesComparativaSeleccionado ||
+      !this.mesesDisponiblesComparativa.includes(this.mesComparativaSeleccionado)
+    ) {
+      this.mesComparativaSeleccionado = this.mesesDisponiblesComparativa[0] ?? '';
+    }
+
+    this.actualizarComparativaDonuts();
+  }
+
+  actualizarComparativaDonuts() {
+    if (!this.mesComparativaSeleccionado) return;
+
+    const ordenados = [...this.registros].sort((a, b) => a.mes.localeCompare(b.mes));
+    const registroAntes = ordenados.find(r => r.mes === this.mesComparativaSeleccionado);
+    const registroDespues = ordenados[ordenados.length - 1];
+
+    if (!registroAntes || !registroDespues) return;
+
+    this.donutAntes = this.buildDonutData(registroAntes);
+    this.donutDespues = this.buildDonutData(registroDespues);
+  }
+
+  private buildDonutData(registro: RegistroMensual): any {
+    const categorias = this.categoriasDisponibles.length
+      ? this.categoriasDisponibles
+      : Object.keys(registro.valores);
+
+    const labels: string[] = [];
+    const data: number[] = [];
+    const colors: string[] = [];
+
+    categorias.forEach((cat, idx) => {
+      const total = this.sumarValoresCategoria(registro.valores[cat]);
+      if (total > 0) {
+        labels.push(cat);
+        data.push(total);
+        colors.push(this.colorPalette[idx % this.colorPalette.length]);
+      }
+    });
+
+    return {
+      labels,
+      datasets: [{ data, backgroundColor: colors }]
+    };
   }
 
 }

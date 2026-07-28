@@ -22,76 +22,76 @@
           <div class="tabla-scroll">
             <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla-patrimonio">
 
-            <ng-container matColumnDef="categoria">
-              <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
-              <td class="total-col" mat-cell *matCellDef="let r">{{ r.categoria }}</td>
-            </ng-container>
+              <ng-container matColumnDef="categoria">
+                <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
+                <td class="total-col" mat-cell *matCellDef="let r">{{ r.categoria }}</td>
+              </ng-container>
 
-            <ng-container matColumnDef="total">
-              <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
-              <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
-            </ng-container>
+              <ng-container matColumnDef="total">
+                <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
+                <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
+              </ng-container>
 
-            <ng-container matColumnDef="porcentaje">
-              <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
-              <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
-            </ng-container>
+              <ng-container matColumnDef="porcentaje">
+                <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
+                <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
+              </ng-container>
 
-            <ng-container matColumnDef="variacion">
-              <th class="total-col" mat-header-cell *matHeaderCellDef>Variacion</th>
-              <td class="total-col" mat-cell *matCellDef="let r">{{ r.variacion | number:'1.2-2' }} €</td>
-            </ng-container>
+              <ng-container matColumnDef="variacion">
+                <th class="total-col" mat-header-cell *matHeaderCellDef>Variacion</th>
+                <td class="total-col" mat-cell *matCellDef="let r">{{ r.variacion | number:'1.2-2' }} €</td>
+              </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje','variacion']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje','variacion']"></tr>
-          </table>
-        </div>
-
-        <!-- 🔥 TARJETA DE VARIACIÓN -->
-        <div class="resumen-variacion">
-
-          <div class="numero-principal">
-            Total: {{ totalUltimoMes | number:'1.2-2' }} €
+              <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje','variacion']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje','variacion']"></tr>
+            </table>
           </div>
 
-          <div class="detalle-anterior">
-            Mes anterior: {{ totalMesAnterior | number:'1.2-2' }} €
-          </div>
+          <!-- 🔥 TARJETA DE VARIACIÓN -->
+          <div class="resumen-variacion">
 
-          <div class="variacion" [ngClass]="{
+            <div class="numero-principal">
+              Total: {{ totalUltimoMes | number:'1.2-2' }} €
+            </div>
+
+            <div class="detalle-anterior">
+              Mes anterior: {{ totalMesAnterior | number:'1.2-2' }} €
+            </div>
+
+            <div class="variacion" [ngClass]="{
          'sube': tendencia === 'sube',
          'baja': tendencia === 'baja',
          'igual': tendencia === 'igual'
        }">
 
-            <mat-icon *ngIf="tendencia === 'sube'">trending_up</mat-icon>
-            <mat-icon *ngIf="tendencia === 'baja'">trending_down</mat-icon>
-            <mat-icon *ngIf="tendencia === 'igual'">horizontal_rule</mat-icon>
+              <mat-icon *ngIf="tendencia === 'sube'">trending_up</mat-icon>
+              <mat-icon *ngIf="tendencia === 'baja'">trending_down</mat-icon>
+              <mat-icon *ngIf="tendencia === 'igual'">horizontal_rule</mat-icon>
 
-            {{ variacionAbsoluta | number:'1.2-2' }} €
-            ({{ variacionPorcentaje | number:'1.0-2' }} %)
-          </div>
-
-          <ng-container *ngIf="comparativaInteranual.disponible">
-            <div class="detalle-anterior interanual">
-              Hace 1 año: {{ comparativaInteranual.totalAnterior | number:'1.2-2' }} €
+              {{ variacionAbsoluta | number:'1.2-2' }} €
+              ({{ variacionPorcentaje | number:'1.0-2' }} %)
             </div>
 
-            <div class="variacion interanual" [ngClass]="{
+            <ng-container *ngIf="comparativaInteranual.disponible">
+              <div class="detalle-anterior interanual">
+                Hace 1 año: {{ comparativaInteranual.totalAnterior | number:'1.2-2' }} €
+              </div>
+
+              <div class="variacion interanual" [ngClass]="{
            'sube': comparativaInteranual.tendencia === 'sube',
            'baja': comparativaInteranual.tendencia === 'baja',
            'igual': comparativaInteranual.tendencia === 'igual'
          }">
 
-              <mat-icon *ngIf="comparativaInteranual.tendencia === 'sube'">trending_up</mat-icon>
-              <mat-icon *ngIf="comparativaInteranual.tendencia === 'baja'">trending_down</mat-icon>
-              <mat-icon *ngIf="comparativaInteranual.tendencia === 'igual'">horizontal_rule</mat-icon>
+                <mat-icon *ngIf="comparativaInteranual.tendencia === 'sube'">trending_up</mat-icon>
+                <mat-icon *ngIf="comparativaInteranual.tendencia === 'baja'">trending_down</mat-icon>
+                <mat-icon *ngIf="comparativaInteranual.tendencia === 'igual'">horizontal_rule</mat-icon>
 
-              {{ comparativaInteranual.absoluta | number:'1.2-2' }} €
-              ({{ comparativaInteranual.porcentaje | number:'1.0-2' }} %) interanual
-            </div>
-          </ng-container>
-        </div>
+                {{ comparativaInteranual.absoluta | number:'1.2-2' }} €
+                ({{ comparativaInteranual.porcentaje | number:'1.0-2' }} %) interanual
+              </div>
+            </ng-container>
+          </div>
         </mat-card>
 
         <!-- ============== GRÁFICO DONUT (debajo de "Patrimonio del último mes") ============== -->
@@ -186,7 +186,8 @@
             <mat-icon>trending_up</mat-icon>
             <span>
               <strong>{{ r.categoria }}</strong> fue la categoría que más creció este mes
-              (+{{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, +{{ r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
+              (+{{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, +{{
+                r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
             </span>
           </div>
 
@@ -194,7 +195,8 @@
             <mat-icon>trending_down</mat-icon>
             <span>
               <strong>{{ r.categoria }}</strong> fue la que más cayó este mes
-              ({{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, {{ r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
+              ({{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, {{
+                r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
             </span>
           </div>
 
@@ -212,10 +214,7 @@
             <span class="heatmap-anio">{{ fila.anio }}</span>
 
             <div class="heatmap-celdas">
-              <div
-                *ngFor="let m of fila.meses"
-                class="heatmap-celda"
-                [ngClass]="'estado-' + m.estado"
+              <div *ngFor="let m of fila.meses" class="heatmap-celda" [ngClass]="'estado-' + m.estado"
                 [title]="m.tooltip">
               </div>
             </div>
@@ -286,38 +285,67 @@
     </div>
 
     <!-- ================================
-       DEUDA (si hay inmuebles con deuda) — siempre al final, a ancho completo
-  ================================= -->
-    <mat-card class="card card-deuda deuda-card" *ngIf="deudaInmuebles > 0">
-      <h2>🏦 Deuda actual</h2>
-      <div class="deuda-layout">
-        <!-- Barra horizontal -->
-        <div class="deuda-bar">
-          <canvas baseChart type="bar" [data]="deudaBarData" [options]="deudaBarOptions">
-          </canvas>
-        </div>
-        <!-- Valores -->
-        <div class="deuda-valores">
-          <div class="deuda-linea">
-            <span>Valor bruto</span>
-            <strong>{{ valorBrutoInmuebles | number:'1.2-2' }} €</strong>
+      FILA: DEUDA + COMPARATIVA DONUTS — misma fila
+   ================================= -->
+    <div class="fila-deuda-comparativa">
+
+      <!-- ================================
+        DEUDA ACTUAL (antes estaba sola a ancho completo)
+     ================================= -->
+      <mat-card class="card card-deuda" *ngIf="deudaInmuebles > 0">
+        <h2>🏦 Deuda actual</h2>
+        <div class="deuda-layout">
+          <div class="deuda-bar">
+            <canvas baseChart type="bar" [data]="deudaBarData" [options]="deudaBarOptions"></canvas>
           </div>
-          <div class="deuda-linea deuda">
-            <span>Deuda</span>
-            <strong>
-              -{{ deudaInmuebles | number:'1.2-2' }} €
-              ({{ porcentajeDeuda | number:'1.1-1' }}%)
-            </strong>
-          </div>
-          <div class="deuda-linea neto">
-            <span>Valor neto</span>
-            <strong>
-              {{ valorNetoInmuebles | number:'1.2-2' }} €
-              ({{ porcentajeValorNeto | number:'1.1-1' }}%)
-            </strong>
+          <div class="deuda-valores">
+            <div class="deuda-linea">
+              <span>Valor bruto</span>
+              <strong>{{ valorBrutoInmuebles | number:'1.2-2' }} €</strong>
+            </div>
+            <div class="deuda-linea deuda">
+              <span>Deuda</span>
+              <strong>-{{ deudaInmuebles | number:'1.2-2' }} € ({{ porcentajeDeuda | number:'1.1-1' }}%)</strong>
+            </div>
+            <div class="deuda-linea neto">
+              <span>Valor neto</span>
+              <strong>{{ valorNetoInmuebles | number:'1.2-2' }} € ({{ porcentajeValorNeto | number:'1.1-1' }}%)</strong>
+            </div>
           </div>
         </div>
-      </div>
-    </mat-card>
+      </mat-card>
+
+      <!-- ================================
+        COMPARATIVA DONUTS ANTES → DESPUÉS
+     ================================= -->
+      <mat-card class="card card-comparativa-donuts">
+        <h2>🍩 Composición antes → después</h2>
+        <div class="comparativa-donuts-controls">
+          <label class="comparativa-label">Comparar con:</label>
+          <select class="comparativa-select" [(ngModel)]="mesComparativaSeleccionado"
+            (ngModelChange)="actualizarComparativaDonuts()">
+            <option *ngFor="let mes of mesesDisponiblesComparativa" [value]="mes">{{ mes }}</option>
+          </select>
+        </div>
+        <div class="comparativa-donuts-wrapper">
+          <div class="comparativa-donut-bloque">
+            <span class="comparativa-donut-titulo">{{ mesComparativaSeleccionado || '—' }}</span>
+            <div class="comparativa-donut-canvas">
+              <canvas baseChart [data]="donutAntes" [options]="donutComparativaOptions" type="doughnut">
+              </canvas>
+            </div>
+          </div>
+          <div class="comparativa-flecha">→</div>
+          <div class="comparativa-donut-bloque">
+            <span class="comparativa-donut-titulo">{{ mesActual }}</span>
+            <div class="comparativa-donut-canvas">
+              <canvas baseChart [data]="donutDespues" [options]="donutComparativaOptions" type="doughnut">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+    </div><!-- /fila-deuda-comparativa -->
   </ng-container>
 </div>

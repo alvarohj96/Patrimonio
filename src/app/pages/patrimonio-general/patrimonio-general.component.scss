@@ -220,10 +220,122 @@
   background: rgba(0, 0, 0, 0.08);
 }
 
-/* Tarjeta de deuda: siempre a ancho completo, al final */
-.card-deuda {
-  width: 100%;
+/* ================================
+   FILA DEUDA + COMPARATIVA DONUTS
+   ================================= */
+.fila-deuda-comparativa {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  flex-wrap: wrap;
   margin-bottom: 25px;
+}
+
+/* La tarjeta de deuda ahora comparte fila con los donuts */
+.card-deuda {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+
+/* ================================
+   TARJETA COMPARATIVA DONUTS
+   ================================= */
+.card-comparativa-donuts {
+  flex: 1.5 1 460px;
+  min-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comparativa-donuts-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.comparativa-label {
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+.comparativa-select {
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(0,0,0,0.2));
+  background: var(--card-bg, #fff);
+  color: var(--app-text, #222);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: #2563EB;
+  }
+}
+
+.comparativa-donuts-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  min-height: 200px;
+}
+
+.comparativa-donut-bloque {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.comparativa-donut-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+  letter-spacing: 0.02em;
+}
+
+.comparativa-donut-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 190px;
+  height: 190px;
+}
+
+.comparativa-flecha {
+  font-size: 28px;
+  opacity: 0.4;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+@media (max-width: 900px) {
+  .fila-deuda-comparativa {
+    flex-direction: column;
+  }
+
+  .card-deuda,
+  .card-comparativa-donuts {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .comparativa-donuts-wrapper {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .comparativa-flecha {
+    transform: rotate(90deg);
+  }
 }
 
 /* ================================
