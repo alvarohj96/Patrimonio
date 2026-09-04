@@ -130,19 +130,60 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   barOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: { duration: 600, easing: 'easeInOutQuart' as const },
+
+    plugins: {
+      legend: {
+        display: false  // La leyenda la manejamos con los chips del HTML
+      },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.92)',
+        titleColor: 'rgba(255,255,255,0.6)',
+        bodyColor: '#fff',
+        footerColor: 'rgba(255,255,255,0.5)',
+        padding: 14,
+        cornerRadius: 12,
+        bodySpacing: 6,
+        footerSpacing: 8,
+        footerMarginTop: 10,
+        usePointStyle: true,
+        boxPadding: 6,
+        callbacks: {
+          label: (context: any) => {
+            const value: number = context.raw ?? 0;
+            return ` ${context.dataset.label}: ${value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+          },
+          footer: (items: any[]) => {
+            const total = items.reduce((sum: number, item: any) => sum + (item.raw ?? 0), 0);
+            return `Total: ${total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+          }
+        }
+      }
+    },
 
     scales: {
       x: {
-        stacked: false,
-        grid: {
-          display: false
+        stacked: true,
+        grid: { display: false },
+        border: { display: false },
+        ticks: {
+          color: 'rgba(100,116,139,0.8)',
+          font: { size: 11 },
+          maxRotation: 45
         }
       },
-
       y: {
-        stacked: false,
-        grid: {
-          color: 'rgba(0,0,0,0.08)'
+        stacked: true,
+        grid: { color: 'rgba(148,163,184,0.12)', lineWidth: 1 },
+        border: { display: false, dash: [4, 4] },
+        ticks: {
+          color: 'rgba(100,116,139,0.8)',
+          font: { size: 11 },
+          callback: (value: any) => {
+            if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M €`;
+            if (value >= 1_000) return `${(value / 1_000).toFixed(0)}k €`;
+            return `${value} €`;
+          }
         }
       }
     }
@@ -525,30 +566,19 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.barLabels = registros.map(r => r.mes);
 
+    const catSeleccionadas = this.categoriasDisponibles.filter(cat => this.categoriasBarras.has(cat));
+
     this.barData = {
       labels: this.barLabels,
-
-      datasets: [
-        {
-          label: 'Patrimonio total',
-
-          data: registros.map(r =>
-            this.categoriasDisponibles
-              .filter(cat => this.categoriasBarras.has(cat))
-              .reduce(
-                (sum, cat) =>
-                  sum + this.sumarValoresCategoria(r.valores[cat]),
-                0
-              )
-          ),
-
-          backgroundColor: '#2563EB',
-
-          borderRadius: 8,
-          borderSkipped: false,
-          maxBarThickness: 50
-        }
-      ]
+      datasets: catSeleccionadas.map((cat, idx) => ({
+        label: cat,
+        data: registros.map(r => this.sumarValoresCategoria(r.valores[cat])),
+        backgroundColor: this.getColorCategoria(cat),
+        borderRadius: 4,
+        borderSkipped: false,
+        maxBarThickness: 60,
+        stack: 'patrimonio'
+      }))
     };
   }
 
