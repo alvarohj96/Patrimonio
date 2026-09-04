@@ -140,22 +140,15 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         backgroundColor: 'rgba(15, 23, 42, 0.92)',
         titleColor: 'rgba(255,255,255,0.6)',
         bodyColor: '#fff',
-        footerColor: 'rgba(255,255,255,0.5)',
         padding: 14,
         cornerRadius: 12,
         bodySpacing: 6,
-        footerSpacing: 8,
-        footerMarginTop: 10,
         usePointStyle: true,
         boxPadding: 6,
         callbacks: {
           label: (context: any) => {
             const value: number = context.raw ?? 0;
             return ` ${context.dataset.label}: ${value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
-          },
-          footer: (items: any[]) => {
-            const total = items.reduce((sum: number, item: any) => sum + (item.raw ?? 0), 0);
-            return `Total: ${total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
           }
         }
       }
@@ -574,8 +567,15 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
         label: cat,
         data: registros.map(r => this.sumarValoresCategoria(r.valores[cat])),
         backgroundColor: this.getColorCategoria(cat),
-        borderRadius: 4,
+        borderRadius: {
+          topLeft: 7,
+          topRight: 7,
+          bottomLeft: 7,
+          bottomRight: 7
+        },
         borderSkipped: false,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.92)',
         maxBarThickness: 60,
         stack: 'patrimonio'
       }))

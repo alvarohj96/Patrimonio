@@ -630,31 +630,26 @@ canvas {
 
 /* Toggle de rango: pill compacto */
 .rango-toggle {
-  &.mat-button-toggle-group {
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid var(--border-color, rgba(0,0,0,0.15));
-    box-shadow: none;
-    height: 32px;
-  }
-
   .mat-button-toggle {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 0 14px;
-    height: 32px;
-    line-height: 32px;
-    border: none;
-    background: transparent;
-    color: var(--app-text);
-    opacity: 0.55;
-    transition: opacity 0.2s, background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
 
-    &.mat-button-toggle-checked {
-      background: #2563EB;
-      color: #fff;
-      opacity: 1;
-      border-radius: 999px;
+    .mat-button-toggle-button {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mat-button-toggle-label-content {
+      height: 100%;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: normal;
     }
   }
 }
