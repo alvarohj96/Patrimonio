@@ -328,7 +328,7 @@ export class PatrimonioMensualComponent implements OnInit {
     let lineas: string[] = [];
 
     // Cabecera CSV
-    lineas.push("Mes;Categoría;Subcategoría;Valor (€);Deuda (€)");
+    lineas.push("Mes;Categoría;Subcategoría;Valor (€);Deuda (€);Cantidad");
 
     // Cada registro → muchas líneas
     this.registros.forEach(reg => {
@@ -340,9 +340,10 @@ export class PatrimonioMensualComponent implements OnInit {
         Object.keys(subs).forEach(sub => {
           const dato = subs[sub];
           if (typeof dato === 'number') {
-            lineas.push(`${mes};${cat};${sub};${dato};0`);
+            lineas.push(`${mes};${cat};${sub};${dato};0;`);
           } else {
-            lineas.push(`${mes};${cat};${sub};${dato.valor};${dato.deuda || 0}`);
+            const cantidad = (dato.cantidad != null && dato.cantidad > 0) ? dato.cantidad : '';
+            lineas.push(`${mes};${cat};${sub};${dato.valor};${dato.deuda || 0};${cantidad}`);
           }
         });
       });
@@ -388,8 +389,7 @@ export class PatrimonioMensualComponent implements OnInit {
       const registrosMap: { [mes: string]: any } = {};
 
       lineas.forEach(linea => {
-        const [mes, categoria, subcategoria, valorStr, deudaStr] = linea.split(";");
-
+        const [mes, categoria, subcategoria, valorStr, deudaStr, cantidadStr] = linea.split(";");
 
         if (!mes || !categoria || !subcategoria || !valorStr) return;
 
@@ -409,14 +409,13 @@ export class PatrimonioMensualComponent implements OnInit {
           registrosMap[mes].valores[categoria] = {};
         }
 
-        // Asignar valor
-        registrosMap[mes].valores[categoria][subcategoria] = valor;
-
         const deuda = deudaStr ? Number(deudaStr) : 0;
+        const cantidad = cantidadStr && cantidadStr.trim() !== '' ? Number(cantidadStr) : undefined;
 
         registrosMap[mes].valores[categoria][subcategoria] = {
           valor,
-          deuda: categoria === 'Inmuebles' ? deuda : 0
+          deuda: categoria === 'Inmuebles' ? deuda : 0,
+          ...(cantidad != null && !isNaN(cantidad) && cantidad > 0 ? { cantidad } : {})
         };
       });
 
