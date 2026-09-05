@@ -213,37 +213,52 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   lineOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: { duration: 600, easing: 'easeInOutQuart' as const },
 
     plugins: {
       legend: {
-        position: 'bottom' as const,
-        labels: {
-          usePointStyle: true,
-          padding: 20,
-          boxWidth: 10,
-          font: {
-            size: 13
+        display: false  // La leyenda la manejamos con los chips del HTML
+      },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.92)',
+        titleColor: 'rgba(255,255,255,0.6)',
+        bodyColor: '#fff',
+        footerColor: 'rgba(255,255,255,0.5)',
+        padding: 14,
+        cornerRadius: 12,
+        bodySpacing: 6,
+        usePointStyle: true,
+        boxPadding: 6,
+        callbacks: {
+          label: (context: any) => {
+            const value: number = context.raw ?? 0;
+            return ` ${context.dataset.label}: ${value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
           }
         }
-      },
-
-      tooltip: {
-        backgroundColor: '#1e293b',
-        padding: 12,
-        cornerRadius: 10
       }
     },
 
     scales: {
       x: {
-        grid: {
-          display: false
+        grid: { display: false },
+        border: { display: false },
+        ticks: {
+          color: 'rgba(100,116,139,0.8)',
+          font: { size: 11 },
+          maxRotation: 45
         }
       },
-
       y: {
-        grid: {
-          color: 'rgba(0,0,0,0.08)'
+        grid: { color: 'rgba(148,163,184,0.12)', lineWidth: 1 },
+        border: { display: false, dash: [4, 4] },
+        ticks: {
+          color: 'rgba(100,116,139,0.8)',
+          font: { size: 11 },
+          callback: (value: any) => {
+            if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M €`;
+            if (value >= 1_000) return `${(value / 1_000).toFixed(0)}k €`;
+            return `${value} €`;
+          }
         }
       }
     }

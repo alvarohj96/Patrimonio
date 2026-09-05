@@ -149,28 +149,34 @@
        GRÁFICO DE LÍNEAS
   ================================= -->
         <mat-card class="card card-evolucion" *ngIf="config?.mostrarLineas">
-          <h2>Evolución por categorías (Líneas)</h2>
-          <div class="filtro-meses">
-            <mat-button-toggle-group [(ngModel)]="rangoMeses" (change)="actualizarGraficos()" appearance="legacy">
-              <mat-button-toggle [value]="12">12 meses</mat-button-toggle>
-              <mat-button-toggle [value]="24">24 meses</mat-button-toggle>
-              <mat-button-toggle value="all">Todos</mat-button-toggle>
+          <div class="evolucion-header">
+            <div class="evolucion-titulo-bloque">
+              <h2>Evolución por categoría</h2>
+              <span class="evolucion-subtitulo">Patrimonio histórico por categoría</span>
+            </div>
+            <mat-button-toggle-group class="rango-toggle" [(ngModel)]="rangoMeses" (change)="actualizarGraficos()">
+              <mat-button-toggle [value]="12">12m</mat-button-toggle>
+              <mat-button-toggle [value]="24">24m</mat-button-toggle>
+              <mat-button-toggle value="all">Todo</mat-button-toggle>
             </mat-button-toggle-group>
           </div>
-          <div class="filtros-categorias lineas">
-            <span class="filtro-titulo">📈 Categorías:</span>
 
-            <label *ngFor="let cat of categoriasDisponibles" class="filtro-item">
-              <input type="checkbox" [checked]="categoriasLineas.has(cat)"
-                (change)="toggleCategoriaLinea(cat, $event.target.checked)" />
+          <div class="filtros-chips">
+            <button
+              *ngFor="let cat of categoriasDisponibles"
+              class="chip-cat"
+              [class.chip-cat--activo]="categoriasLineas.has(cat)"
+              [style.--chip-color]="getColorCategoria(cat)"
+              (click)="toggleCategoriaLinea(cat, !categoriasLineas.has(cat))">
+              <span class="chip-dot"></span>
               {{ cat }}
-            </label>
-            <button mat-button class="btn-filtro" (click)="seleccionarTodasLineas()">Seleccionar todo</button>
-            <button mat-button class="btn-filtro" (click)="ocultarTodasLineas()">Ocultar todo</button>
+            </button>
+            <button class="chip-accion" (click)="seleccionarTodasLineas()">Todas</button>
+            <button class="chip-accion chip-accion--secondary" (click)="ocultarTodasLineas()">Ninguna</button>
           </div>
+
           <div class="chart-container">
-            <canvas baseChart [data]="lineData" [options]="lineOptions" type="line">
-            </canvas>
+            <canvas baseChart [data]="lineData" [options]="lineOptions" type="line"></canvas>
           </div>
         </mat-card>
       </div>
