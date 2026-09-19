@@ -97,6 +97,26 @@
         <!-- ============== GRÁFICO DONUT (debajo de "Patrimonio del último mes") ============== -->
         <mat-card class="card card-donut">
           <h2>Distribución por categorías</h2>
+
+          <!-- Botones de selección: Global + Categorías -->
+          <div class="filtros-donuts">
+            <button
+              class="chip-donut-selector"
+              [class.chip-donut-selector--activo]="donutModoGlobal"
+              (click)="seleccionarGlobalDonut()">
+              Global
+            </button>
+            <button
+              *ngFor="let cat of categoriasDisponiblesDonut"
+              class="chip-donut-selector"
+              [class.chip-donut-selector--activo]="!donutModoGlobal && categoriaSeleccionada === cat"
+              [style.--chip-color]="getColorCategoriaDonut(cat)"
+              (click)="seleccionarCategoriaDonut(cat)">
+              <span class="chip-dot"></span>
+              {{ cat }}
+            </button>
+          </div>
+
           <div class="donut-chart-container">
             <canvas baseChart [data]="{
     labels: chartLabels,

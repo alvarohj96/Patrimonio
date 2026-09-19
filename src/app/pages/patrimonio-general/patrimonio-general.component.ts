@@ -119,6 +119,13 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
     '#14B8A6'
   ];
 
+  // Estado del donut interactivo
+  donutModoGlobal = true;
+  categoriaSeleccionada: string | null = null;
+  categoriasDisponiblesDonut: string[] = [];
+  subcategoriasActuales: string[] = [];
+  chartColorsActuales: string[] = [];
+
   // Gráfico donut (último mes)
   chartLabels: string[] = [];
   chartData: number[] = [];
@@ -489,12 +496,15 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
 
     this.chartLabels = resumen.map(r => r.categoria);
     this.chartData = resumen.map(r => r.total);
+    this.categoriasDisponiblesDonut = resumen.map(r => r.categoria);
 
     this.chartColors = [{
       backgroundColor: resumen.map(r =>
         this.getColorCategoria(r.categoria)
       )
     }];
+
+    this.chartColorsActuales = resumen.map(r => this.getColorCategoria(r.categoria));
 
     const inmuebles = ultimo.valores['Inmuebles'];
 
@@ -872,6 +882,104 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   actualizarGraficos() {
     this.procesarBarras();
     this.procesarLineas();
+  }
+
+  // ======================================================
+  // DONUT INTERACTIVO - Selección de Global/Categorías
+  // ======================================================
+  seleccionarGlobalDonut() {
+    this.donutModoGlobal = true;
+    this.categoriaSeleccionada = null;
+
+    // Restaurar datos globales
+    const ultimo = this.registros[this.registros.length - 1];
+    if (!ultimo) return;
+
+    const categorias = Object.keys(ultimo.valores);
+    const totalesPorCategoria = categorias.map(cat => {
+      const total = this.sumarValoresCategoria(ultimo.valores[cat]);
+      return { categoria: cat, total };
+    });
+
+    this.chartLabels = totalesPorCategoria
+      .filter(c => c.total > 0)
+      .map(c => c.categoria);
+
+    this.chartData = totalesPorCategoria
+      .filter(c => c.total > 0)
+      .map(c => c.total);
+
+    this.chartColorsActuales = this.chartLabels.map(label =>
+      this.getColorCategoria(label)
+    );
+
+    this.chartColors = [{ backgroundColor: this.chartColorsActuales }];
+  }
+
+  seleccionarCategoriaDonut(categoria: string) {
+    this.donutModoGlobal = false;
+    this.categoriaSeleccionada = categoria;
+
+    const ultimo = this.registros[this.registros.length - 1];
+    if (!ultimo || !ultimo.valores[categoria]) return;
+
+    const categoriaDatos = ultimo.valores[categoria];
+    const subcategorias: Array<{ nombre: string; valor: number; idx: number }> = [];
+
+    // Iterar sobre las subcategorías (claves dentro de la categoría)
+    Object.entries(categoriaDatos).forEach(([nombre, valor], idx) => {
+      let total = 0;
+      if (typeof valor === 'number') {
+        // Formato antiguo: valor directo
+        total = valor;
+      } else if (typeof valor === 'object' && valor !== null) {
+        // Formato nuevo: { valor, deuda }
+        total = (valor as any).valor - ((valor as any).deuda || 0);
+      }
+
+      if (total > 0) {
+        subcategorias.push({ nombre, valor: total, idx });
+      }
+    });
+
+    // Ordenar por valor descendente
+    subcategorias.sort((a, b) => b.valor - a.valor);
+
+    this.chartLabels = subcategorias.map(s => s.nombre);
+    this.chartData = subcategorias.map(s => s.valor);
+
+    // Generar colores para las subcategorías
+    this.chartColorsActuales = subcategorias.map((s, idx) => {
+      const idxCategoria = this.categoriasDisponiblesDonut.indexOf(categoria);
+      const colorBase = this.colorPalette[idxCategoria % this.colorPalette.length];
+      // Variación de brillo para las subcategorías
+      return this.ajustarColorBrillo(colorBase, -15 + (idx % 3) * 10);
+    });
+
+    this.chartColors = [{ backgroundColor: this.chartColorsActuales }];
+  }
+
+  /**
+   * Ajusta el brillo de un color hexadecimal
+   * @param color Color en formato #RRGGBB
+   * @param brillo Valor entre -100 (más oscuro) y 100 (más claro)
+   */
+  private ajustarColorBrillo(color: string, brillo: number): string {
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+
+    const factor = 1 + brillo / 100;
+    const rAjustado = Math.max(0, Math.min(255, Math.round(r * factor)));
+    const gAjustado = Math.max(0, Math.min(255, Math.round(g * factor)));
+    const bAjustado = Math.max(0, Math.min(255, Math.round(b * factor)));
+
+    return `#${rAjustado.toString(16).padStart(2, '0')}${gAjustado.toString(16).padStart(2, '0')}${bAjustado.toString(16).padStart(2, '0')}`;
+  }
+
+  getColorCategoriaDonut(categoria: string): string {
+    const idx = this.categoriasDisponiblesDonut.indexOf(categoria);
+    return this.colorPalette[idx % this.colorPalette.length];
   }
 
   get porcentajeDeuda(): number {
