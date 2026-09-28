@@ -100,18 +100,13 @@
 
           <!-- Botones de selección: Global + Categorías -->
           <div class="filtros-donuts">
-            <button
-              class="chip-donut-selector"
-              [class.chip-donut-selector--activo]="donutModoGlobal"
+            <button class="chip-donut-selector" [class.chip-donut-selector--activo]="donutModoGlobal"
               (click)="seleccionarGlobalDonut()">
               Global
             </button>
-            <button
-              *ngFor="let cat of categoriasDisponiblesDonut"
-              class="chip-donut-selector"
+            <button *ngFor="let cat of categoriasDisponiblesDonut" class="chip-donut-selector"
               [class.chip-donut-selector--activo]="!donutModoGlobal && categoriaSeleccionada === cat"
-              [style.--chip-color]="getColorCategoriaDonut(cat)"
-              (click)="seleccionarCategoriaDonut(cat)">
+              [style.--chip-color]="getColorCategoriaDonut(cat)" (click)="seleccionarCategoriaDonut(cat)">
               <span class="chip-dot"></span>
               {{ cat }}
             </button>
@@ -147,11 +142,8 @@
           </div>
 
           <div class="filtros-chips">
-            <button
-              *ngFor="let cat of categoriasDisponibles"
-              class="chip-cat"
-              [class.chip-cat--activo]="categoriasBarras.has(cat)"
-              [style.--chip-color]="getColorCategoria(cat)"
+            <button *ngFor="let cat of categoriasDisponibles" class="chip-cat"
+              [class.chip-cat--activo]="categoriasBarras.has(cat)" [style.--chip-color]="getColorCategoria(cat)"
               (click)="toggleCategoriaBarra(cat, !categoriasBarras.has(cat))">
               <span class="chip-dot"></span>
               {{ cat }}
@@ -182,11 +174,8 @@
           </div>
 
           <div class="filtros-chips">
-            <button
-              *ngFor="let cat of categoriasDisponibles"
-              class="chip-cat"
-              [class.chip-cat--activo]="categoriasLineas.has(cat)"
-              [style.--chip-color]="getColorCategoria(cat)"
+            <button *ngFor="let cat of categoriasDisponibles" class="chip-cat"
+              [class.chip-cat--activo]="categoriasLineas.has(cat)" [style.--chip-color]="getColorCategoria(cat)"
               (click)="toggleCategoriaLinea(cat, !categoriasLineas.has(cat))">
               <span class="chip-dot"></span>
               {{ cat }}
@@ -237,28 +226,28 @@
       </mat-card>
 
       <!-- ================================
-       CALENDARIO DE VARIACIÓN (heatmap)
-  ================================= -->
-      <mat-card class="card card-heatmap" *ngIf="heatmapAnios.length">
-        <h2>📅 Consistencia de ahorro</h2>
-
-        <div class="heatmap" #heatmapScroll>
-          <div class="heatmap-fila" *ngFor="let fila of heatmapAnios">
-            <span class="heatmap-anio">{{ fila.anio }}</span>
-
-            <div class="heatmap-celdas">
-              <div *ngFor="let m of fila.meses" class="heatmap-celda" [ngClass]="'estado-' + m.estado"
-                [title]="m.tooltip">
-              </div>
+        DEUDA ACTUAL (antes estaba sola a ancho completo)
+     ================================= -->
+      <mat-card class="card card-deuda" *ngIf="deudaInmuebles > 0">
+        <h2>🏦 Deuda actual</h2>
+        <div class="deuda-layout">
+          <div class="deuda-bar">
+            <canvas baseChart type="bar" [data]="deudaBarData" [options]="deudaBarOptions"></canvas>
+          </div>
+          <div class="deuda-valores">
+            <div class="deuda-linea">
+              <span>Valor bruto</span>
+              <strong>{{ valorBrutoInmuebles | number:'1.2-2' }} €</strong>
+            </div>
+            <div class="deuda-linea deuda">
+              <span>Deuda</span>
+              <strong>-{{ deudaInmuebles | number:'1.2-2' }} € ({{ porcentajeDeuda | number:'1.1-1' }}%)</strong>
+            </div>
+            <div class="deuda-linea neto">
+              <span>Valor neto</span>
+              <strong>{{ valorNetoInmuebles | number:'1.2-2' }} € ({{ porcentajeValorNeto | number:'1.1-1' }}%)</strong>
             </div>
           </div>
-        </div>
-
-        <div class="heatmap-leyenda">
-          <span><i class="punto estado-sube"></i> Sube</span>
-          <span><i class="punto estado-baja"></i> Baja</span>
-          <span><i class="punto estado-igual"></i> Igual</span>
-          <span><i class="punto estado-sin-dato"></i> Sin datos</span>
         </div>
       </mat-card>
 
@@ -323,28 +312,28 @@
     <div class="fila-deuda-comparativa">
 
       <!-- ================================
-        DEUDA ACTUAL (antes estaba sola a ancho completo)
-     ================================= -->
-      <mat-card class="card card-deuda" *ngIf="deudaInmuebles > 0">
-        <h2>🏦 Deuda actual</h2>
-        <div class="deuda-layout">
-          <div class="deuda-bar">
-            <canvas baseChart type="bar" [data]="deudaBarData" [options]="deudaBarOptions"></canvas>
-          </div>
-          <div class="deuda-valores">
-            <div class="deuda-linea">
-              <span>Valor bruto</span>
-              <strong>{{ valorBrutoInmuebles | number:'1.2-2' }} €</strong>
-            </div>
-            <div class="deuda-linea deuda">
-              <span>Deuda</span>
-              <strong>-{{ deudaInmuebles | number:'1.2-2' }} € ({{ porcentajeDeuda | number:'1.1-1' }}%)</strong>
-            </div>
-            <div class="deuda-linea neto">
-              <span>Valor neto</span>
-              <strong>{{ valorNetoInmuebles | number:'1.2-2' }} € ({{ porcentajeValorNeto | number:'1.1-1' }}%)</strong>
+       CALENDARIO DE VARIACIÓN (heatmap)
+  ================================= -->
+      <mat-card class="card card-heatmap" *ngIf="heatmapAnios.length">
+        <h2>📅 Consistencia de ahorro</h2>
+
+        <div class="heatmap" #heatmapScroll>
+          <div class="heatmap-fila" *ngFor="let fila of heatmapAnios">
+            <span class="heatmap-anio">{{ fila.anio }}</span>
+
+            <div class="heatmap-celdas">
+              <div *ngFor="let m of fila.meses" class="heatmap-celda" [ngClass]="'estado-' + m.estado"
+                [title]="m.tooltip">
+              </div>
             </div>
           </div>
+        </div>
+
+        <div class="heatmap-leyenda">
+          <span><i class="punto estado-sube"></i> Sube</span>
+          <span><i class="punto estado-baja"></i> Baja</span>
+          <span><i class="punto estado-igual"></i> Igual</span>
+          <span><i class="punto estado-sin-dato"></i> Sin datos</span>
         </div>
       </mat-card>
 
