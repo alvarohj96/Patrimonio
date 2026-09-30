@@ -231,9 +231,30 @@
       <mat-card class="card card-deuda" *ngIf="deudaInmuebles > 0">
         <h2>🏦 Deuda actual</h2>
         <div class="deuda-layout">
-          <div class="deuda-bar">
-            <canvas baseChart type="bar" [data]="deudaBarData" [options]="deudaBarOptions"></canvas>
+
+          <!-- BARRA VISUAL -->
+          <div class="deuda-bar-visual">
+            <div class="deuda-bar-deuda" [style.width.%]="porcentajeDeuda">
+              {{ porcentajeDeuda | number:'1.0-0' }}%
+            </div>
+            <div class="deuda-bar-neto">
+              {{ (100 - porcentajeDeuda) | number:'1.0-0' }}%
+            </div>
           </div>
+
+          <!-- LEYENDA -->
+          <div class="deuda-bar-leyenda">
+            <div class="deuda-bar-leyenda-item">
+              <span class="deuda-bar-leyenda-punto deuda"></span>
+              <span>Deuda</span>
+            </div>
+            <div class="deuda-bar-leyenda-item">
+              <span class="deuda-bar-leyenda-punto neto"></span>
+              <span>Valor neto</span>
+            </div>
+          </div>
+
+          <!-- VALORES NUMÉRICOS -->
           <div class="deuda-valores">
             <div class="deuda-linea">
               <span>Valor bruto</span>
@@ -241,13 +262,14 @@
             </div>
             <div class="deuda-linea deuda">
               <span>Deuda</span>
-              <strong>-{{ deudaInmuebles | number:'1.2-2' }} € ({{ porcentajeDeuda | number:'1.1-1' }}%)</strong>
+              <strong>-{{ deudaInmuebles | number:'1.2-2' }} €</strong>
             </div>
             <div class="deuda-linea neto">
               <span>Valor neto</span>
-              <strong>{{ valorNetoInmuebles | number:'1.2-2' }} € ({{ porcentajeValorNeto | number:'1.1-1' }}%)</strong>
+              <strong>{{ valorNetoInmuebles | number:'1.2-2' }} €</strong>
             </div>
           </div>
+
         </div>
       </mat-card>
 
@@ -260,7 +282,7 @@
         <div [ngSwitch]="proyeccion.estado">
 
           <p *ngSwitchCase="'sin-objetivo'" class="proyeccion-mensaje aviso">
-            Define un objetivo de patrimonio total en la sección "Objetivos" (más abajo en esta
+            Define un objetivo de patrimonio total en la sección "Objetivos" (en esta
             misma página) para ver aquí una estimación de cuándo lo alcanzarás según tu ritmo de
             ahorro actual.
           </p>
@@ -334,6 +356,39 @@
           <span><i class="punto estado-baja"></i> Baja</span>
           <span><i class="punto estado-igual"></i> Igual</span>
           <span><i class="punto estado-sin-dato"></i> Sin datos</span>
+        </div>
+      </mat-card>
+
+      <!-- ================================
+       REGLA DEL 4% - Retiro mensual calculado
+  ================================= -->
+      <mat-card class="card card-regla-cuatro">
+        <h2>💰 Regla del 4%</h2>
+        <div class="regla-cuatro-selector">
+          <label>Tasa de retiro:</label>
+          <div class="regla-cuatro-botones">
+            <button *ngFor="let pct of opcionesRegla" class="regla-boton"
+              [class.regla-boton--activo]="reglaPorcentaje === pct" (click)="reglaPorcentaje = pct">
+              {{ pct }}%
+            </button>
+          </div>
+        </div>
+        <div class="regla-cuatro-contenido">
+          <div class="regla-cuatro-dato">
+            <span>Patrimonio actual</span>
+            <strong>{{ totalUltimoMes | number:'1.2-2' }} €</strong>
+          </div>
+          <div class="regla-cuatro-dato">
+            <span>Retiro anual ({{ reglaPorcentaje }}%)</span>
+            <strong class="anual">{{ (totalUltimoMes * reglaPorcentaje / 100) | number:'1.2-2' }} €</strong>
+          </div>
+          <div class="regla-cuatro-dato destacado">
+            <span>Retiro mensual</span>
+            <strong class="mensual">{{ (totalUltimoMes * reglaPorcentaje / 100 / 12) | number:'1.2-2' }} €</strong>
+          </div>
+        </div>
+        <div class="regla-cuatro-aviso">
+          <small>Basado en la teoría SWR (Safe Withdrawal Rate)</small>
         </div>
       </mat-card>
 

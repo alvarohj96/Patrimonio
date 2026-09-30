@@ -120,8 +120,8 @@
    CALENDARIO DE VARIACIÓN (heatmap)
    ================================= */
 .card-heatmap {
-  flex: 1 1 360px;
-  min-width: 340px;
+  flex: 1 1 300px;
+  min-width: 300px;
 }
 
 .heatmap {
@@ -266,7 +266,7 @@
   font-size: 14px;
   padding: 4px 10px;
   border-radius: 8px;
-  border: 1px solid var(--border-color, rgba(0,0,0,0.2));
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.2));
   background: var(--card-bg, #fff);
   color: var(--app-text, #222);
   cursor: pointer;
@@ -461,6 +461,7 @@ canvas {
 }
 
 @media (max-width: 900px) {
+
   .columna-izquierda,
   .columna-derecha {
     flex: 1 1 100%;
@@ -714,7 +715,7 @@ canvas {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  border: 1.5px solid rgba(0,0,0,0.15);
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
   background: transparent;
   color: var(--app-text);
   opacity: 0.6;
@@ -727,7 +728,7 @@ canvas {
   }
 
   &--secondary:hover {
-    background: rgba(0,0,0,0.06);
+    background: rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -771,8 +772,73 @@ canvas {
   gap: 14px;
 }
 
-.deuda-bar {
-  height: 22px;
+.deuda-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Barra visual apilada - Deuda vs Valor Neto */
+.deuda-bar-visual {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e0e0e0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.deuda-bar-deuda {
+  background: linear-gradient(90deg, #c62828, #d32f2f);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  transition: width 0.3s ease;
+}
+
+.deuda-bar-neto {
+  background: linear-gradient(90deg, #2e7d32, #43a047);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  flex: 1;
+}
+
+/* Leyenda debajo de la barra */
+.deuda-bar-leyenda {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  justify-content: center;
+}
+
+.deuda-bar-leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deuda-bar-leyenda-punto {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.deuda-bar-leyenda-punto.deuda {
+  background: #d32f2f;
+}
+
+.deuda-bar-leyenda-punto.neto {
+  background: #43a047;
 }
 
 .deuda-bar canvas {
@@ -817,7 +883,7 @@ canvas {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  border: 1.5px solid rgba(0,0,0,0.15);
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
   background: transparent;
   color: var(--app-text);
   opacity: 0.6;
@@ -828,7 +894,7 @@ canvas {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--chip-color, rgba(0,0,0,0.3));
+    background: var(--chip-color, rgba(0, 0, 0, 0.3));
     flex-shrink: 0;
     transition: transform 0.2s;
   }
@@ -860,4 +926,106 @@ canvas {
     border-color: #2563EB;
     background: rgba(37, 99, 235, 0.12);
   }
+}
+
+/* ================================
+   TARJETA REGLA DEL 4%
+   ================================= */
+.card-regla-cuatro {
+  flex: 1 1 220px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.regla-cuatro-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.regla-cuatro-selector label {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.regla-cuatro-botones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.regla-boton {
+  flex: 1;
+  min-width: 50px;
+  padding: 8px 12px;
+  border: 2px solid rgba(37, 99, 235, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 0.85;
+    border-color: rgba(37, 99, 235, 0.6);
+    transform: translateY(-1px);
+  }
+
+  &--activo {
+    background: #2563EB;
+    color: white;
+    border-color: #2563EB;
+    opacity: 1;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+}
+
+.regla-cuatro-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.regla-cuatro-dato {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(37, 99, 235, 0.05);
+  border-radius: 8px;
+}
+
+.regla-cuatro-dato span {
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+.regla-cuatro-dato strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.regla-cuatro-dato.destacado strong {
+  font-size: 20px;
+  color: #2563EB;
+}
+
+.regla-cuatro-aviso {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  text-align: center;
+  opacity: 0.6;
 }

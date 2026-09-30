@@ -69,6 +69,8 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   variacionAbsoluta = 0;
   variacionPorcentaje = 0;
   tendencia: 'sube' | 'baja' | 'igual' = 'igual';
+  reglaPorcentaje: number = 4;  // Valor por defecto
+  opcionesRegla: number[] = [3, 4, 5, 6];  // Opciones disponibles
 
   // ===== Comparativa interanual (YoY) =====
   comparativaInteranual: {
