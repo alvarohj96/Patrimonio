@@ -20,6 +20,8 @@
 
 .columna-izquierda,
 .columna-derecha {
+  height: 100%;
+  /* Asegurar que ambas columnas tengan la misma altura */
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -44,7 +46,7 @@
 
 /* La tabla crece para ocupar el espacio libre que deja un donut más compacto */
 .card-tabla {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
 }
@@ -785,7 +787,7 @@ canvas {
 }
 
 .chart-container {
-  height: 380px;
+  height: 465px;
   position: relative;
 }
 
