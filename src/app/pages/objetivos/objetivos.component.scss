@@ -1,335 +1,653 @@
 /* =====================================================
+   TOKENS
+===================================================== */
+
+:host {
+  display: block;
+
+  --obj-radius-lg: 24px;
+  --obj-radius-md: 16px;
+  --obj-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --obj-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.05),
+    0 10px 28px -12px rgba(16, 24, 40, 0.14);
+  --obj-shadow-hover:
+    0 2px 4px rgba(16, 24, 40, 0.06),
+    0 18px 36px -14px rgba(16, 24, 40, 0.22);
+
+  --obj-muted: color-mix(in srgb, var(--app-text, #1e1e1e) 58%, transparent);
+  --obj-track: color-mix(in srgb, var(--app-text, #1e1e1e) 9%, transparent);
+  --obj-field-bg: color-mix(in srgb, var(--app-text, #1e1e1e) 5%, transparent);
+  --obj-field-border: color-mix(in srgb, var(--app-text, #1e1e1e) 12%, transparent);
+}
+
+:host-context(.dark-theme) {
+  --obj-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 10px 28px -12px rgba(0, 0, 0, 0.6);
+  --obj-shadow-hover:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 18px 36px -14px rgba(0, 0, 0, 0.75);
+}
+
+/* =====================================================
    CONTENEDOR
 ===================================================== */
 
 .contenedor-centrado {
   width: 88%;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
-.objetivos-bar {
-  padding: 14px 18px;
-  border-radius: 14px;
+mat-icon {
+  flex-shrink: 0;
 }
-
 
 /* =====================================================
-   OBJETIVO TOTAL
+   HERO · OBJETIVO TOTAL
 ===================================================== */
 
-.objetivo-total {
-  margin-bottom: 14px;
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 32px 24px;
+  border-radius: var(--obj-radius-lg);
+  color: #fff;
+  background: linear-gradient(135deg, #1e40af 0%, #4f46e5 55%, #7c3aed 100%);
+  box-shadow: 0 18px 40px -18px rgba(79, 70, 229, 0.65);
+
+  /* Brillos decorativos */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  &::before {
+    width: 280px;
+    height: 280px;
+    top: -110px;
+    right: -70px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 70%);
+  }
+
+  &::after {
+    width: 220px;
+    height: 220px;
+    bottom: -120px;
+    left: -60px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 70%);
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
-.titulo {
-  font-size: 12px;
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 500;
-  opacity: 0.65;
-  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
 }
 
-.objetivo-total .valores {
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  transition: background 0.4s var(--obj-ease), color 0.4s var(--obj-ease);
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  &.completado {
+    background: #34d399;
+    color: #052e1b;
+  }
+}
+
+.hero-importe {
+  margin: 14px 0 12px;
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.hero-meta-texto {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.hero-foot {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.88;
+}
+
+/* =====================================================
+   INPUT DE META (integrado en la UI)
+===================================================== */
+
+.meta-input {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 0 10px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--obj-field-border);
+  background: var(--obj-field-bg);
+  cursor: text;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  input {
+    width: 96px;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+
+    /* Sin flechas de incremento */
+    -moz-appearance: textfield;
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+
+  .suffix {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.65;
+  }
+
+  .editar {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+    margin-left: 2px;
+    opacity: 0.35;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--app-text, #1e1e1e) 28%, transparent);
+
+    .editar {
+      opacity: 0.8;
+    }
+  }
+
+  &:focus-within {
+    border-color: var(--accent, #4f46e5);
+    background: color-mix(in srgb, var(--accent, #4f46e5) 10%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #4f46e5) 22%, transparent);
+
+    .editar {
+      opacity: 0;
+    }
+  }
+}
+
+/* Variante sobre el hero (efecto cristal) */
+.meta-input--hero {
+  height: 38px;
+  padding: 0 14px;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+
+  input {
+    width: 130px;
+    font-size: 16px;
+  }
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  &:focus-within {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.28);
+  }
+}
+
+/* =====================================================
+   BARRA DE PROGRESO
+===================================================== */
+
+.progreso {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--obj-track);
+}
+
+.progreso-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--accent, #4f46e5),
+    color-mix(in srgb, var(--accent, #4f46e5) 65%, #fff)
+  );
+  transition: width 0.9s var(--obj-ease);
+}
+
+.progreso--hero {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.2);
+
+  .progreso-fill {
+    background: linear-gradient(90deg, #ffffff, #c7d2fe);
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.55);
+  }
+}
+
+/* =====================================================
+   TÍTULO DE SECCIÓN
+===================================================== */
+
+.seccion-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 30px 4px 14px;
+}
+
+.seccion-titulo {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.objetivo-total .actual {
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.objetivo-total .sep {
-  opacity: 0.6;
-}
-
-.objetivo-total-input {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  height: 26px;
-  padding: 0 6px;
-
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  background: transparent;
-}
-
-
-@media (max-width: 600px) {
-  .objetivo-total .actual {
-    font-size: 18px;
-    font-weight: 700;
-  }
-  .objetivo-total-input {
-    width: 15px;
-  }
-}
-
-/* Input real */
-.objetivo-total-input input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-
-  font-size: 1.2rem;
-  font-weight: 600;
-  text-align: right;
-
-  background: transparent;
-}
-
-/* Símbolo € */
-.objetivo-total-input .suffix {
-  font-size: 0.7rem;
-  opacity: 0.7;
-}
-
-/* Tamaños */
-.categoria .objetivo-total-input {
-  width: 70px;
-}
-
-.objetivo-total .objetivo-total-input {
-  width: 100px;
-  height: 30px;
-  font-size: 0.9rem;
-}
-
-/* =====================================================
-   EFECTOS PROFESIONALES
-===================================================== */
-
-.objetivo-total-input:hover {
-  border-color: rgba(0, 0, 0, 0.4);
-}
-
-.objetivo-total-input:focus-within {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.2);
-}
-
-/* =====================================================
-   TEMA OSCURO
-===================================================== */
-
-:host-context(.dark-theme) {
-  .objetivo-total-input {
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-
-  .objetivo-total-input input {
-    color: #fff;
-  }
-
-  .objetivo-total-input:hover {
-    border-color: rgba(255, 255, 255, 0.45);
-  }
-
-  .objetivo-total-input:focus-within {
-    border-color: #90caf9;
-    box-shadow: 0 0 0 1px rgba(144, 202, 249, 0.25);
-  }
-}
-
-.barra-wrapper {
-  margin-top: 10px;
-}
-
-
-/* =====================================================
-   OBJETIVOS POR CATEGORÍA – UNA SOLA FILA
-===================================================== */
-
-.objetivos-categorias {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 12px;
-  margin-top: 10px;
-  justify-content: center;
-}
-
-.porcentaje {
+  margin: 0;
   font-size: 15px;
   font-weight: 600;
-  min-width: 30px;
-  text-align: right;
-  opacity: 0.8;
+  letter-spacing: 0.01em;
+  color: var(--app-text);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    opacity: 0.6;
+  }
 }
 
-/* Cada categoría ocupa una columna pequeña */
-.categoria {
-  display: grid;
-  row-gap: 4px;
+/* =====================================================
+   PERSONALIZAR CATEGORÍAS (ocultar / mostrar)
+===================================================== */
 
-  padding: 6px 10px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.025);
-
-  width: 250px;
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
-/* Nombre */
-.categoria .cat-nombre {
-  grid-column: 1 / 2;
-  font-size: 11px;
-  font-weight: 500;
-  opacity: 0.65;
-  margin-top: 2px;
-}
-
-/* Valor actual */
-.categoria .cat-valores {
-  grid-column: 2 / 3;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  margin-top: 2px;
-}
-
-/* Input objetivo */
-.categoria mat-form-field {
-  grid-column: 3 / 4;
-  width: 80px;
-  margin: 0;
-  justify-self: end;
-}
-
-/* Barra + % */
-.categoria .barra-wrapper {
-  grid-column: 1 / 4;
-  display: flex;
+.btn-personalizar {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 2px;
-}
-
-.categoria mat-progress-bar {
-  flex: 1;
-  height: 3px;
-  border-radius: 3px;
-}
-
-.categoria .porcentaje {
-  font-size: 10px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--obj-field-border);
+  background: var(--card-bg, #fff);
+  font-size: 13px;
   font-weight: 600;
-  min-width: 30px;
-  text-align: right;
-  opacity: 0.8;
-}
+  transition: background 0.2s ease, border-color 0.2s ease;
 
-
-/* =====================================================
-   MATERIAL INPUT – ULTRA COMPACTO REAL
-===================================================== */
-
-:host ::ng-deep .mat-mdc-form-field {
-  line-height: 1;
-}
-
-:host ::ng-deep .mat-mdc-text-field-wrapper {
-  padding: 0 !important;
-}
-
-:host ::ng-deep .mdc-text-field {
-  min-height: 28px !important;
-}
-
-:host ::ng-deep .mdc-text-field__input {
-  padding: 2px 6px !important;
-  font-size: 0.75rem !important;
-  font-weight: 600;
-  text-align: right;
-}
-
-/* Label pequeño */
-:host ::ng-deep .mdc-floating-label {
-  font-size: 0.65rem;
-}
-
-
-/* =====================================================
-   TEMA OSCURO / CLARO
-===================================================== */
-
-:host-context(.dark-theme) {
-  .categoria {
-    background: rgba(255, 255, 255, 0.05);
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
   }
 
-  ::ng-deep .mdc-text-field__input {
-    color: #fff;
+  .contador {
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    background: var(--obj-field-bg);
+    color: var(--obj-muted);
+  }
+
+  &:hover,
+  &.activo {
+    background: var(--obj-field-bg);
+    border-color: color-mix(in srgb, var(--app-text, #1e1e1e) 28%, transparent);
   }
 }
 
-:host-context(.light-theme) {
-  .categoria {
-    background: rgba(0, 0, 0, 0.025);
-  }
-}
-
-/* =====================================================
-   INPUT OBJETIVOS – DASHBOARD PRO
-===================================================== */
-
-.objetivo-input {
+.panel-categorias {
   display: flex;
   align-items: center;
-  gap: 4px;
-
-  height: 26px;
-  padding: 0 6px;
-
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  background: transparent;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--obj-radius-md);
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: var(--obj-shadow);
+  animation: entrada 0.25s var(--obj-ease);
 }
 
-/* Input real */
-.objetivo-input input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-  font-size: 0.8rem;
+.chip {
+  --accent: #4f46e5;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--app-text);
+  font-size: 13px;
   font-weight: 600;
-  text-align: right;
+  transition: all 0.2s ease;
 
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--accent);
+  }
+
+  .ojo {
+    opacity: 0.7;
+    color: inherit;
+  }
+
+  &.off {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--obj-field-border);
+    color: var(--obj-muted);
+    text-decoration: line-through;
+
+    mat-icon {
+      color: inherit;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.btn-texto {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
   background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4f46e5;
+
+  &:hover {
+    background: color-mix(in srgb, #4f46e5 12%, transparent);
+  }
 }
 
-/* Símbolo € */
-.objetivo-input .suffix {
-  font-size: 0.7rem;
-  opacity: 0.7;
+.btn-ocultar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--obj-muted);
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  &:hover {
+    background: var(--obj-field-bg);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+  }
 }
 
-/* Tamaños */
-.categoria .objetivo-input {
-  width: 60px;
+.cat-card:hover .btn-ocultar {
+  opacity: 1;
 }
 
-.objetivo-total .objetivo-input {
-  width: 110px;
-  height: 30px;
-  font-size: 0.9rem;
+/* En táctil no hay hover: el botón siempre visible */
+@media (hover: none) {
+  .btn-ocultar {
+    opacity: 0.7;
+  }
+}
+
+.vacio {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 16px;
+  border-radius: var(--obj-radius-md);
+  border: 1px dashed var(--obj-field-border);
+  color: var(--obj-muted);
+  font-size: 14px;
+}
+
+@keyframes entrada {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* =====================================================
-   EFECTOS PROFESIONALES
+   GRID DE CATEGORÍAS
 ===================================================== */
 
-.objetivo-input:hover {
-  border-color: rgba(0, 0, 0, 0.4);
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
 }
 
-.objetivo-input:focus-within {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.2);
+/* =====================================================
+   CARD DE CATEGORÍA
+===================================================== */
+
+.cat-card {
+  --accent: #4f46e5; /* se sobrescribe por categoría desde la plantilla */
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: var(--obj-radius-md);
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: var(--obj-shadow);
+  overflow: hidden;
+  transition:
+    transform 0.25s var(--obj-ease),
+    box-shadow 0.25s var(--obj-ease),
+    border-color 0.25s ease;
+
+  /* Filo de color superior */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0.85;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--obj-shadow-hover);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border-color, #e5e7eb));
+  }
+}
+
+.cat-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-icono {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+
+  mat-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+  }
+}
+
+.cat-nombre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--app-text);
+}
+
+.cat-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  font-variant-numeric: tabular-nums;
+  transition: background 0.3s ease, color 0.3s ease;
+
+  &.completado {
+    color: #047857;
+    background: color-mix(in srgb, #10b981 22%, transparent);
+  }
+}
+
+.cat-importe {
+  margin: 18px 0 12px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.cat-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cat-meta-texto {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--obj-muted);
+}
+
+.cat-foot {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--obj-muted);
 }
 
 /* =====================================================
@@ -337,31 +655,52 @@
 ===================================================== */
 
 :host-context(.dark-theme) {
-  .objetivo-input {
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-
-  .objetivo-input input {
-    color: #fff;
-  }
-
-  .objetivo-input:hover {
-    border-color: rgba(255, 255, 255, 0.45);
-  }
-
-  .objetivo-input:focus-within {
-    border-color: #90caf9;
-    box-shadow: 0 0 0 1px rgba(144, 202, 249, 0.25);
+  .cat-badge.completado {
+    color: #6ee7b7;
   }
 }
 
-:host ::ng-deep input[type='number'] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+@media (max-width: 600px) {
+  .contenedor-centrado {
+    width: 94%;
+  }
+
+  .hero {
+    padding: 22px 20px 20px;
+  }
+
+  .meta-input--hero input {
+    width: 100px;
+  }
+
+  .categorias-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .panel-categorias {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-personalizar span:not(.contador) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progreso-fill,
+  .cat-card,
+  .meta-input,
+  .hero-badge {
+    transition: none;
+  }
+
+  .cat-card:hover {
+    transform: none;
   }
 }

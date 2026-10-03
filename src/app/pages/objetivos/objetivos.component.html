@@ -1,63 +1,145 @@
-<div class="contenedor-centrado">
-  <mat-card class="objetivos-bar">
+<section class="contenedor-centrado">
 
-    <!-- OBJETIVO TOTAL -->
-    <div class="objetivo-total">
-      <div class="titulo">🎯 Objetivo total</div>
+  <!-- =====================================================
+       HERO · OBJETIVO TOTAL
+  ===================================================== -->
+  @let pctTotal = progreso(patrimonioActual, objetivoTotal);
 
-      <div class="valores">
-        <span class="actual">
-          {{ patrimonioActual | number:'1.2-2' }} €
-        </span>
-
-        <span class="sep">/</span>
-
-        <div class="objetivo-total-input">
-          <input type="number" [(ngModel)]="objetivoTotal" (blur)="guardarTotal()">
-          <span class="suffix">€</span>
-        </div>
-
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-label">
+        <mat-icon aria-hidden="true">flag</mat-icon>
+        <span>Objetivo de patrimonio</span>
       </div>
 
-      <div class="barra-wrapper">
-        <mat-progress-bar [value]="progreso(patrimonioActual, objetivoTotal)"
-          [color]="estado(progreso(patrimonioActual, objetivoTotal))">
-        </mat-progress-bar>
-
-        <span class="porcentaje">
-          {{ progreso(patrimonioActual, objetivoTotal) | number:'1.2-2' }} %
-        </span>
-      </div>
-
+      <span class="hero-badge" [class.completado]="pctTotal >= 100">
+        @if (pctTotal >= 100) {
+          <mat-icon aria-hidden="true">check_circle</mat-icon>
+        }
+        {{ porcentaje(pctTotal) }} %
+      </span>
     </div>
 
-    <!-- OBJETIVOS POR CATEGORÍA -->
-    <div class="titulo">🎯 Objetivos por categorías</div>
+    <div class="hero-importe">{{ euros(patrimonioActual) }}</div>
 
-    <div class="objetivos-categorias">
+    <div class="hero-meta">
+      <span class="hero-meta-texto">Meta</span>
 
-      <div class="categoria" *ngFor="let c of objetivosCat">
+      <label class="meta-input meta-input--hero">
+        <input type="number" inputmode="decimal" min="0" step="100"
+          aria-label="Objetivo total de patrimonio en euros"
+          [(ngModel)]="objetivoTotal"
+          (blur)="guardarTotal()"
+          (keydown.enter)="$any($event.target).blur()">
+        <span class="suffix">€</span>
+        <mat-icon class="editar" aria-hidden="true">edit</mat-icon>
+      </label>
+    </div>
 
-        <div class="cat-nombre">{{ c.categoria }}</div>
+    <div class="progreso progreso--hero" role="progressbar"
+      aria-label="Progreso hacia el objetivo total"
+      aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="pctTotal">
+      <div class="progreso-fill" [style.width.%]="pctTotal"></div>
+    </div>
 
-        <div class="cat-valores">
-          {{ c.actual | number:'1.2-2' }} €
-        </div>
+    <div class="hero-foot">{{ restante(patrimonioActual, objetivoTotal) }}</div>
+  </header>
 
-        <div class="objetivo-input">
-          <input type="number" [(ngModel)]="c.objetivo" (blur)="guardarCategoria(c)">
-          <span class="suffix">€</span>
-        </div>
+  <!-- =====================================================
+       OBJETIVOS POR CATEGORÍA
+  ===================================================== -->
+  <div class="seccion-cabecera">
+    <h2 class="seccion-titulo">
+      <mat-icon aria-hidden="true">donut_small</mat-icon>
+      Objetivos por categoría
+    </h2>
 
-        <div class="barra-wrapper small">
-          <mat-progress-bar [value]="progreso(c.actual, c.objetivo)" [color]="estado(progreso(c.actual, c.objetivo))">
-          </mat-progress-bar>
+    <button type="button" class="btn-personalizar" [class.activo]="panelAbierto"
+      (click)="togglePanel()" [attr.aria-expanded]="panelAbierto">
+      <mat-icon aria-hidden="true">tune</mat-icon>
+      <span>Categorías</span>
+      @if (numOcultas > 0) {
+        <span class="contador">{{ numOcultas }} ocultas</span>
+      }
+    </button>
+  </div>
 
-          <span class="porcentaje">
-            {{ progreso(c.actual, c.objetivo) | number:'1.0-0' }} %
+  @if (panelAbierto) {
+    <div class="panel-categorias">
+      <div class="chips">
+        @for (c of objetivosCat; track c.categoria) {
+          <button type="button" class="chip" [class.off]="estaOculta(c.categoria)"
+            [style.--accent]="c.color" [attr.aria-pressed]="!estaOculta(c.categoria)"
+            (click)="alternarCategoria(c.categoria)">
+            <mat-icon aria-hidden="true">{{ c.icono }}</mat-icon>
+            {{ c.categoria }}
+            <mat-icon class="ojo" aria-hidden="true">
+              {{ estaOculta(c.categoria) ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+          </button>
+        }
+      </div>
+
+      @if (numOcultas > 0) {
+        <button type="button" class="btn-texto" (click)="mostrarTodas()">Mostrar todas</button>
+      }
+    </div>
+  }
+
+  <div class="categorias-grid">
+    @for (c of visibles; track c.categoria) {
+      @let pct = progreso(c.actual, c.objetivo);
+
+      <article class="cat-card" [style.--accent]="c.color">
+
+        <div class="cat-head">
+          <span class="cat-icono">
+            <mat-icon aria-hidden="true">{{ c.icono }}</mat-icon>
           </span>
+
+          <h3 class="cat-nombre">{{ c.categoria }}</h3>
+
+          <span class="cat-badge" [class.completado]="pct >= 100">
+            {{ porcentaje(pct) }} %
+          </span>
+
+          <button type="button" class="btn-ocultar"
+            [attr.aria-label]="'Ocultar ' + c.categoria"
+            title="Ocultar categoría" (click)="alternarCategoria(c.categoria)">
+            <mat-icon aria-hidden="true">visibility_off</mat-icon>
+          </button>
         </div>
+
+        <div class="cat-importe">{{ euros(c.actual) }}</div>
+
+        <div class="cat-meta">
+          <span class="cat-meta-texto">Meta</span>
+
+          <label class="meta-input">
+            <input type="number" inputmode="decimal" min="0" step="100"
+              [attr.aria-label]="'Objetivo de ' + c.categoria + ' en euros'"
+              [(ngModel)]="c.objetivo"
+              (blur)="guardarCategoria(c)"
+              (keydown.enter)="$any($event.target).blur()">
+            <span class="suffix">€</span>
+            <mat-icon class="editar" aria-hidden="true">edit</mat-icon>
+          </label>
+        </div>
+
+        <div class="progreso" role="progressbar"
+          [attr.aria-label]="'Progreso de ' + c.categoria"
+          aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="pct">
+          <div class="progreso-fill" [style.width.%]="pct"></div>
+        </div>
+
+        <div class="cat-foot">{{ restante(c.actual, c.objetivo) }}</div>
+      </article>
+    } @empty {
+      <div class="vacio">
+        <mat-icon aria-hidden="true">visibility_off</mat-icon>
+        <span>Todas las categorías están ocultas.</span>
+        <button type="button" class="btn-texto" (click)="mostrarTodas()">Mostrar todas</button>
       </div>
-    </div>
-  </mat-card>
-</div>
+    }
+  </div>
+</section>
