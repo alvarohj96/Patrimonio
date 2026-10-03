@@ -704,3 +704,11 @@ button {
     transform: none;
   }
 }
+
+/* En tablet/móvil ocupa el mismo ancho que el resto de tarjetas de la página */
+@media (max-width: 900px) {
+  .contenedor-centrado {
+    width: 100%;
+    max-width: none;
+  }
+}
