@@ -215,3 +215,133 @@ mat-dialog-content {
 :host ::ng-deep .mat-mdc-option.mat-mdc-option-active {
   background-color: var(--hover) !important;
 }
+
+
+/* =====================================================
+   ESTILO UNIFICADO (igual que Objetivos / General / Mensual)
+===================================================== */
+
+/* Superficie del diálogo más redondeada */
+:host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 20px !important;
+  box-shadow: 0 24px 60px -20px rgba(16, 24, 40, 0.45) !important;
+}
+
+/* Título con icono de color */
+.dlg-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dlg-icono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  color: #2563eb;
+  background: color-mix(in srgb, #2563eb 15%, transparent);
+
+  mat-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+  }
+}
+
+/* Botones de gestión en pill */
+.header-actions button {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-weight: 600;
+  background-color: transparent !important;
+  border-color: color-mix(in srgb, var(--app-text, #1e1e1e) 14%, transparent) !important;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    margin-right: 6px;
+  }
+}
+
+/* Entradas añadidas: tile verde suave */
+.entradas-sesion {
+  border-radius: 14px;
+  background: color-mix(in srgb, #10b981 9%, transparent);
+  border-color: color-mix(in srgb, #10b981 28%, transparent);
+}
+
+.entradas-titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #059669;
+  opacity: 1;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+:host-context(.dark-theme) .entradas-titulo {
+  color: #6ee7b7;
+}
+
+/* Campos con esquinas más suaves */
+:host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading {
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+}
+
+:host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-top-right-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+}
+
+/* Acciones */
+.acciones {
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--app-text, #1e1e1e) 10%, transparent);
+}
+
+.acciones button {
+  border-radius: 999px !important;
+  font-weight: 600;
+}
+
+.acciones .btn-guardar,
+.acciones .btn-guardar-otro {
+  box-shadow: none !important;
+}
+
+.acciones .btn-guardar:not(:disabled) {
+  color: #2563eb !important;
+  background-color: color-mix(in srgb, #2563eb 12%, transparent) !important;
+}
+
+.acciones .btn-guardar-otro:not(:disabled) {
+  color: #fff !important;
+  background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+  box-shadow: 0 8px 20px -10px rgba(79, 70, 229, 0.8) !important;
+}
+
+@media (max-width: 520px) {
+  .acciones {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .acciones button {
+    flex: 1 1 100%;
+    min-height: 44px;
+  }
+}

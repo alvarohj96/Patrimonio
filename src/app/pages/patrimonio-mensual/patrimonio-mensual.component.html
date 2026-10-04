@@ -1,142 +1,344 @@
-<div class="patrimonio-mensual-container">
+<div class="pm-pagina">
 
-  <!-- BOTÓN FLOTANTE -->
-  <button class="fab-add" mat-fab color="primary" (click)="abrirFormulario()" matTooltip="Añadir registro mensual">
+  <!-- =====================================================
+       CABECERA
+  ===================================================== -->
+  <header class="pm-cabecera">
+    <div class="pm-titulo-bloque">
+      <span class="pm-icono"><mat-icon aria-hidden="true">edit_calendar</mat-icon></span>
+      <div class="pm-titulo-texto">
+        <h1>Datos registrados</h1>
+        <span class="pm-sub">
+          @if (resumen.n > 0) {
+            {{ resumen.n }} {{ resumen.n === 1 ? 'mes' : 'meses' }} · desde {{ formatMes(resumen.primerMes) }}
+          } @else {
+            Aún no hay meses registrados
+          }
+        </span>
+      </div>
+    </div>
 
-    <mat-icon>add</mat-icon>
-
-  </button>
-
-  <h2 class="titulo">📁 Datos registrados</h2>
-
-  <div class="botones-datos">
-    <button mat-raised-button color="warn" class="btn-exportar" (click)="exportarCSV()">
-      Exportar datos
+    <button type="button" class="btn btn-primario btn-anadir" (click)="abrirFormulario()">
+      <mat-icon aria-hidden="true">add</mat-icon>
+      <span>Añadir registro</span>
     </button>
+  </header>
 
-    <button mat-raised-button color="primary" class="btn-importar" (click)="inputImport.click()">
-      Importar datos
-    </button>
+  <!-- =====================================================
+       RESUMEN (KPIs)
+  ===================================================== -->
+  @if (resumen.n > 0) {
+    <section class="pm-kpis" aria-label="Resumen">
 
-    <button mat-raised-button color="warn" class="btn-borrar-todo" (click)="confirmarBorradoTotal()">
-      Borrar todos los datos
-    </button>
+      <article class="kpi">
+        <span class="kpi-icono acc-azul"><mat-icon aria-hidden="true">account_balance_wallet</mat-icon></span>
+        <div class="kpi-texto">
+          <span class="kpi-label">Patrimonio actual</span>
+          <strong class="kpi-valor">{{ resumen.actual | number:'1.2-2' }} €</strong>
+          <span class="kpi-sub">{{ formatMes(resumen.mesActual) }}</span>
+        </div>
+      </article>
 
-    <button class="porcentaje-button" mat-raised-button color="primary" (click)="togglePorcentajeGlobal()">
-      <mat-icon>
-        {{
-        modoPorcentajeGlobal === true
-        ? 'percent'
-        : modoPorcentajeGlobal === false
-        ? 'euro'
-        : 'swap_horiz'
-        }}
-      </mat-icon>
+      <article class="kpi">
+        <span class="kpi-icono"
+          [class.acc-verde]="(resumen.diff ?? 0) >= 0"
+          [class.acc-rojo]="(resumen.diff ?? 0) < 0">
+          <mat-icon aria-hidden="true">{{ (resumen.diff ?? 0) < 0 ? 'trending_down' : 'trending_up' }}</mat-icon>
+        </span>
+        <div class="kpi-texto">
+          <span class="kpi-label">Último mes</span>
+          @if (resumen.diff !== null) {
+            <strong class="kpi-valor" [class.positivo]="resumen.diff > 0" [class.negativo]="resumen.diff < 0">
+              {{ resumen.diff > 0 ? '+' : '' }}{{ resumen.diff | number:'1.2-2' }} €
+            </strong>
+            <span class="kpi-sub">
+              @if (resumen.pct !== null) {
+                {{ resumen.pct > 0 ? '+' : '' }}{{ resumen.pct | number:'1.2-2' }} % ·
+              }
+              frente al mes anterior
+            </span>
+          } @else {
+            <strong class="kpi-valor">—</strong>
+            <span class="kpi-sub">Necesitas al menos dos meses</span>
+          }
+        </div>
+      </article>
 
-      <span>
-        {{
-        modoPorcentajeGlobal === true
-        ? 'Mostrar todo en %'
-        : modoPorcentajeGlobal === false
-        ? 'Mostrar todo en €'
-        : 'Modo por fila'
-        }}
-      </span>
-    </button>
+      <article class="kpi">
+        <span class="kpi-icono acc-ambar"><mat-icon aria-hidden="true">emoji_events</mat-icon></span>
+        <div class="kpi-texto">
+          <span class="kpi-label">Máximo histórico</span>
+          <strong class="kpi-valor">{{ resumen.max | number:'1.2-2' }} €</strong>
+          <span class="kpi-sub">{{ formatMes(resumen.mesMax) }}</span>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <span class="kpi-icono acc-violeta"><mat-icon aria-hidden="true">event_available</mat-icon></span>
+        <div class="kpi-texto">
+          <span class="kpi-label">Meses registrados</span>
+          <strong class="kpi-valor">{{ resumen.n }}</strong>
+          <span class="kpi-sub">desde {{ formatMes(resumen.primerMes) }}</span>
+        </div>
+      </article>
+
+    </section>
+  }
+
+  <!-- =====================================================
+       BARRA DE HERRAMIENTAS
+  ===================================================== -->
+  <div class="pm-herramientas">
+
+    <div class="segmento" role="group" aria-label="Formato de las cifras por categoría">
+      <button type="button" [class.activo]="modoPorcentajeGlobal === null"
+        [attr.aria-pressed]="modoPorcentajeGlobal === null"
+        matTooltip="Cada fila elige su formato" (click)="setModoGlobal(null)">
+        <mat-icon aria-hidden="true">swap_horiz</mat-icon>
+        <span>Por fila</span>
+      </button>
+      <button type="button" [class.activo]="modoPorcentajeGlobal === false"
+        [attr.aria-pressed]="modoPorcentajeGlobal === false"
+        matTooltip="Mostrar todo en euros" (click)="setModoGlobal(false)">
+        <mat-icon aria-hidden="true">euro</mat-icon>
+        <span>Euros</span>
+      </button>
+      <button type="button" [class.activo]="modoPorcentajeGlobal === true"
+        [attr.aria-pressed]="modoPorcentajeGlobal === true"
+        matTooltip="Mostrar todo en porcentaje" (click)="setModoGlobal(true)">
+        <mat-icon aria-hidden="true">percent</mat-icon>
+        <span>Porcentaje</span>
+      </button>
+    </div>
+
+    <div class="pm-datos">
+      <button type="button" class="btn" (click)="inputImport.click()" matTooltip="Importar un CSV">
+        <mat-icon aria-hidden="true">upload</mat-icon>
+        <span>Importar</span>
+      </button>
+
+      <button type="button" class="btn" (click)="exportarCSV()" matTooltip="Descargar todos los datos en CSV">
+        <mat-icon aria-hidden="true">download</mat-icon>
+        <span>Exportar</span>
+      </button>
+
+      <button type="button" class="btn btn-peligro" (click)="confirmarBorradoTotal()"
+        matTooltip="Borrar todos los datos">
+        <mat-icon aria-hidden="true">delete_sweep</mat-icon>
+        <span>Borrar todo</span>
+      </button>
+    </div>
   </div>
 
   <input #inputImport type="file" accept=".csv" style="display:none" (change)="importarCSV($event)">
 
-  <div class="tabla-wrapper">
+  <!-- =====================================================
+       ESTADO VACÍO
+  ===================================================== -->
+  @if (filas.length === 0) {
+    <div class="pm-vacio">
+      <span class="pm-vacio-icono"><mat-icon aria-hidden="true">inventory_2</mat-icon></span>
+      <h2>Todavía no hay registros</h2>
+      <p>Añade el patrimonio de tu primer mes o importa un CSV con tus datos.</p>
+      <button type="button" class="btn btn-primario" (click)="abrirFormulario()">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        <span>Añadir primer registro</span>
+      </button>
+    </div>
+  } @else {
 
-    <table class="tabla-registros mat-elevation-z2">
+    <!-- =====================================================
+         TABLA (escritorio)
+    ===================================================== -->
+    <div class="tabla-wrapper">
+      <table class="tabla-registros">
 
-      <thead>
-        <tr>
-          <th>Mes</th>
-          <th>Total</th>
-          <th class="col-categoria desktop-only" *ngFor="let cat of categorias">{{ cat }}</th>
-          <th class="desktop-only">Diferencia mes anterior</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+        <thead>
+          <tr>
+            <th class="th-mes">Mes</th>
+            <th class="th-num">Total</th>
+            @for (cat of categorias; track cat) {
+              <th class="th-num col-categoria desktop-only">
+                <span class="th-cat">
+                  <span class="dot" [style.background]="colorCategoria(cat)"></span>{{ cat }}
+                </span>
+              </th>
+            }
+            <th class="th-num desktop-only">Variación</th>
+            <th class="th-acciones">Acciones</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngFor="let r of registros">
+        <tbody>
+          @for (f of filas; track f.reg.mes) {
+            <tr>
 
-          <!-- Mes -->
-          <td class="mes-col">
-            {{ formatMes(r.mes) }}
-          </td>
+              <!-- Mes -->
+              <td class="mes-col">
+                <span class="mes-texto">{{ formatMes(f.reg.mes) }}</span>
+                @if (f.esMaximo) {
+                  <span class="badge-max" matTooltip="Máximo histórico">
+                    <mat-icon aria-hidden="true">emoji_events</mat-icon>
+                  </span>
+                }
+              </td>
 
-          <!-- Total del mes -->
-          <td class="total-col">
-            {{ getTotalMes(r) | number:'1.2-2' }} €
-          </td>
+              <!-- Total del mes + barra relativa al máximo -->
+              <td class="total-col">
+                <span class="total-valor">{{ f.total | number:'1.2-2' }} €</span>
+                <span class="barra-total" aria-hidden="true">
+                  <span class="barra-total-fill" [style.width.%]="f.barra"></span>
+                </span>
+              </td>
 
-          <!-- Totales por categoría -->
-          <ng-container *ngFor="let cat of categorias">
-            <td class="cat-val desktop-only">
-              <!-- MODO € -->
-              <ng-container *ngIf="!esModoPorcentaje(r); else porcentajeTpl">
-                <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
-                  {{ getTotalCategoria(r, cat) | number:'1.2-2' }} €
-                </ng-container>
-              </ng-container>
+              <!-- Totales por categoría -->
+              @for (cat of categorias; track cat) {
+                <td class="cat-val desktop-only">
+                  @if (getTotalCategoria(f.reg, cat) !== 0) {
+                    @if (!esModoPorcentaje(f.reg)) {
+                      {{ getTotalCategoria(f.reg, cat) | number:'1.2-2' }} €
+                    } @else {
+                      {{ getPorcentajeCategoria(f.reg, cat) | number:'1.1-1' }} %
+                    }
+                  } @else {
+                    <span class="vacio-celda">—</span>
+                  }
+                </td>
+              }
 
-              <!-- MODO % -->
-              <ng-template #porcentajeTpl>
-                <ng-container *ngIf="getTotalCategoria(r, cat) > 0; else cero">
-                  {{ getPorcentajeCategoria(r, cat) | number:'1.1-1' }} %
-                </ng-container>
-              </ng-template>
+              <!-- Variación vs mes anterior -->
+              <td class="diff-col desktop-only">
+                @if (f.diff === null) {
+                  <span class="pill pill-neutro">Inicio</span>
+                } @else if (f.diff > 0) {
+                  <span class="pill pill-sube">
+                    <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+                    +{{ f.diff | number:'1.2-2' }} €
+                    @if (f.pct !== null) { <span class="pct">+{{ f.pct | number:'1.2-2' }}%</span> }
+                  </span>
+                } @else if (f.diff < 0) {
+                  <span class="pill pill-baja">
+                    <mat-icon aria-hidden="true">arrow_downward</mat-icon>
+                    {{ f.diff | number:'1.2-2' }} €
+                    @if (f.pct !== null) { <span class="pct">{{ f.pct | number:'1.2-2' }}%</span> }
+                  </span>
+                } @else {
+                  <span class="pill pill-neutro">Sin cambios</span>
+                }
+              </td>
 
-              <ng-template #cero>—</ng-template>
+              <!-- Acciones -->
+              <td class="acciones">
+                <button type="button" class="icon-btn" [disabled]="modoPorcentajeGlobal !== null"
+                  [attr.aria-label]="esModoPorcentaje(f.reg) ? 'Ver en euros' : 'Ver en porcentaje'"
+                  [matTooltip]="modoPorcentajeGlobal !== null ? 'Desactiva el formato global para cambiar esta fila' : (esModoPorcentaje(f.reg) ? 'Ver en euros' : 'Ver en porcentaje')"
+                  (click)="togglePorcentaje(f.reg); $event.stopPropagation()">
+                  <mat-icon aria-hidden="true">{{ esModoPorcentaje(f.reg) ? 'euro' : 'percent' }}</mat-icon>
+                </button>
 
-            </td>
-          </ng-container>
+                <button type="button" class="icon-btn" aria-label="Ver detalle del mes"
+                  matTooltip="Ver detalle" (click)="abrirDetalle(f.reg)">
+                  <mat-icon aria-hidden="true">visibility</mat-icon>
+                </button>
 
-          <!-- Diferencia vs mes anterior -->
-          <td class="diff-col desktop-only">
-            <ng-container *ngIf="getDiferenciaMes(r) as diff">
+                <button type="button" class="icon-btn icon-btn--peligro" aria-label="Eliminar mes"
+                  matTooltip="Eliminar mes" (click)="eliminarRegistro(f.reg)">
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
+              </td>
 
-              <span *ngIf="diff > 0" class="positivo">
-                ▲ +{{ diff | number:'1.2-2' }} €
-                <span class="pct">(+{{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
+            </tr>
+          }
+        </tbody>
+
+      </table>
+    </div>
+
+    <!-- =====================================================
+         LISTA DE TARJETAS (móvil / tablet)
+    ===================================================== -->
+    <div class="lista-movil">
+      @for (f of filas; track f.reg.mes) {
+        <article class="reg-card">
+
+          <div class="reg-top">
+            <div class="reg-mes">
+              {{ formatMes(f.reg.mes) }}
+              @if (f.esMaximo) {
+                <span class="badge-max badge-max--texto">
+                  <mat-icon aria-hidden="true">emoji_events</mat-icon> Máximo
+                </span>
+              }
+            </div>
+
+            <div class="reg-acciones">
+              <button type="button" class="icon-btn" [disabled]="modoPorcentajeGlobal !== null"
+                [attr.aria-label]="esModoPorcentaje(f.reg) ? 'Ver en euros' : 'Ver en porcentaje'"
+                (click)="togglePorcentaje(f.reg)">
+                <mat-icon aria-hidden="true">{{ esModoPorcentaje(f.reg) ? 'euro' : 'percent' }}</mat-icon>
+              </button>
+              <button type="button" class="icon-btn" aria-label="Ver detalle del mes" (click)="abrirDetalle(f.reg)">
+                <mat-icon aria-hidden="true">visibility</mat-icon>
+              </button>
+              <button type="button" class="icon-btn icon-btn--peligro" aria-label="Eliminar mes"
+                (click)="eliminarRegistro(f.reg)">
+                <mat-icon aria-hidden="true">delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="reg-total-fila">
+            <span class="reg-total">{{ f.total | number:'1.2-2' }} €</span>
+
+            @if (f.diff === null) {
+              <span class="pill pill-neutro">Inicio</span>
+            } @else if (f.diff > 0) {
+              <span class="pill pill-sube">
+                <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+                +{{ f.diff | number:'1.2-2' }} €
               </span>
-
-              <span *ngIf="diff < 0" class="negativo">
-                ▼ {{ diff | number:'1.2-2' }} €
-                <span class="pct">({{ getPorcentajeMes(r) | number:'1.2-2' }}%)</span>
+            } @else if (f.diff < 0) {
+              <span class="pill pill-baja">
+                <mat-icon aria-hidden="true">arrow_downward</mat-icon>
+                {{ f.diff | number:'1.2-2' }} €
               </span>
+            } @else {
+              <span class="pill pill-neutro">Sin cambios</span>
+            }
+          </div>
 
-              <span *ngIf="diff === 0" class="neutro">—</span>
+          <span class="barra-total barra-total--movil" aria-hidden="true">
+            <span class="barra-total-fill" [style.width.%]="f.barra"></span>
+          </span>
 
-            </ng-container>
-          </td>
+          <div class="reg-cats">
+            @for (cat of categorias; track cat) {
+              @if (getTotalCategoria(f.reg, cat) !== 0) {
+                <div class="reg-cat">
+                  <span class="reg-cat-nombre">
+                    <span class="dot" [style.background]="colorCategoria(cat)"></span>{{ cat }}
+                  </span>
+                  <strong>
+                    @if (!esModoPorcentaje(f.reg)) {
+                      {{ getTotalCategoria(f.reg, cat) | number:'1.2-2' }} €
+                    } @else {
+                      {{ getPorcentajeCategoria(f.reg, cat) | number:'1.1-1' }} %
+                    }
+                  </strong>
+                </div>
+              }
+            }
+          </div>
 
-          <!-- Botones -->
-          <td class="acciones">
-            <button mat-icon-button color="accent" [disabled]="modoPorcentajeGlobal !== null"
-              (click)="togglePorcentaje(r); $event.stopPropagation()">
-              <mat-icon>
-                {{ esModoPorcentaje(r) ? 'euro' : 'percent' }}
-              </mat-icon>
-            </button>
+        </article>
+      }
+    </div>
+  }
 
-            <button mat-icon-button color="primary" (click)="abrirDetalle(r)">
-              <mat-icon>info</mat-icon>
-            </button>
+  <!-- Botón flotante (solo móvil) -->
+  <button type="button" class="fab-add" (click)="abrirFormulario()" aria-label="Añadir registro mensual"
+    matTooltip="Añadir registro mensual">
+    <mat-icon aria-hidden="true">add</mat-icon>
+  </button>
 
-            <button mat-icon-button color="warn" (click)="eliminarRegistro(r)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-
-        </tr>
-      </tbody>
-
-    </table>
-
-  </div>
 </div>

@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 export const FORMATO_MES = {
   parse: {
@@ -32,6 +33,33 @@ import { RegistroMensual, PatrimonioService } from '../../services/patrimonio.se
 import { DetalleMensualDialogComponent } from '../../shared/detalle-mensual-dialog/detalle-mensual-dialog.component';
 import { FormularioMensualDialogComponent } from '../../shared/formulario-mensual-dialog/formulario-mensual-dialog';
 
+/** Fila ya calculada para pintar (tabla de escritorio y lista móvil). */
+interface FilaVista {
+  reg: RegistroMensual;
+  total: number;
+  diff: number | null;   // vs. mes anterior (cronológico)
+  pct: number | null;
+  barra: number;         // 0-100, relativo al máximo histórico
+  esMaximo: boolean;
+}
+
+interface ResumenMensual {
+  n: number;
+  mesActual: string;
+  actual: number;
+  diff: number | null;
+  pct: number | null;
+  max: number;
+  mesMax: string;
+  primerMes: string;
+}
+
+/** Misma paleta que los gráficos de Patrimonio General. */
+const PALETA_CATEGORIAS = [
+  '#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#14B8A6'
+];
+
 @Component({
   selector: 'app-patrimonio-mensual',
   standalone: true,
@@ -46,6 +74,7 @@ import { FormularioMensualDialogComponent } from '../../shared/formulario-mensua
     MatExpansionModule,
     MatDialogModule,
     MatCardModule,
+    MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule
   ],
@@ -60,6 +89,13 @@ export class PatrimonioMensualComponent implements OnInit {
   categorias: string[] = [];
 
   registros: RegistroMensual[] = [];
+
+  /** Registros ordenados del más reciente al más antiguo, con cifras precalculadas. */
+  filas: FilaVista[] = [];
+
+  resumen: ResumenMensual = {
+    n: 0, mesActual: '', actual: 0, diff: null, pct: null, max: 0, mesMax: '', primerMes: ''
+  };
 
   // Subcategorías 100% centralizadas en el servicio
   subcategoriasPorCategoria: { [cat: string]: string[] } = {};
@@ -103,6 +139,7 @@ export class PatrimonioMensualComponent implements OnInit {
     // Subscribirse a cambios futuros
     this.patrimonioService.registros$.subscribe(regs => {
       this.registros = regs;
+      this.recalcularVista();
       this.cdr.detectChanges();
     });
   }
@@ -273,36 +310,62 @@ export class PatrimonioMensualComponent implements OnInit {
   }
 
   getDiferenciaMes(regActual: RegistroMensual): number | null {
-    // Obtener posición del registro actual
-    const index = this.registros.indexOf(regActual);
-
-    // Si es el primer mes, no hay diferencia
-    if (index <= 0) return null;
-
-    const regAnterior = this.registros[index - 1];
-    if (!regAnterior) return null;
-
-    const totalActual = this.getTotalMes(regActual);
-    const totalAnterior = this.getTotalMes(regAnterior);
-
-    return totalActual - totalAnterior;
+    return this.filas.find(f => f.reg === regActual)?.diff ?? null;
   }
 
   getPorcentajeMes(regActual: RegistroMensual): number | null {
-    const index = this.registros.indexOf(regActual);
-    if (index <= 0) return null;
+    return this.filas.find(f => f.reg === regActual)?.pct ?? null;
+  }
 
-    const regAnterior = this.registros[index - 1];
-    if (!regAnterior) return null;
+  /** Precalcula totales, variaciones (contra el mes anterior cronológico) y resumen. */
+  private recalcularVista() {
+    const asc = [...this.registros].sort((a, b) => a.mes.localeCompare(b.mes));
+    const totales = asc.map(r => this.getTotalMes(r));
+    const max = totales.length ? Math.max(...totales) : 0;
 
-    const totalActual = this.getTotalMes(regActual);
-    const totalAnterior = this.getTotalMes(regAnterior);
+    const filasAsc: FilaVista[] = asc.map((reg, i) => {
+      const total = totales[i];
+      const previo = i > 0 ? totales[i - 1] : null;
+      const diff = previo === null ? null : total - previo;
+      const pct = previo ? ((total - previo) / previo) * 100 : null;
+      return {
+        reg,
+        total,
+        diff,
+        pct,
+        barra: max > 0 ? Math.max(0, total) / max * 100 : 0,
+        esMaximo: max > 0 && total === max
+      };
+    });
 
-    if (totalAnterior === 0) return null;
+    this.filas = [...filasAsc].reverse();
 
-    const diferencia = totalActual - totalAnterior;
+    const ultima = filasAsc[filasAsc.length - 1];
+    const filaMax = filasAsc.find(f => f.esMaximo);
 
-    return (diferencia / totalAnterior) * 100;
+    this.resumen = {
+      n: filasAsc.length,
+      mesActual: ultima ? ultima.reg.mes : '',
+      actual: ultima ? ultima.total : 0,
+      diff: ultima ? ultima.diff : null,
+      pct: ultima ? ultima.pct : null,
+      max: filaMax ? filaMax.total : 0,
+      mesMax: filaMax ? filaMax.reg.mes : '',
+      primerMes: filasAsc.length ? filasAsc[0].reg.mes : ''
+    };
+  }
+
+  trackByMes(_: number, f: FilaVista): string {
+    return f.reg.mes;
+  }
+
+  colorCategoria(cat: string): string {
+    const idx = Math.max(0, this.categorias.indexOf(cat));
+    return PALETA_CATEGORIAS[idx % PALETA_CATEGORIAS.length];
+  }
+
+  setModoGlobal(valor: boolean | null) {
+    this.modoPorcentajeGlobal = valor;
   }
 
   abrirDetalle(reg: RegistroMensual) {
@@ -452,6 +515,7 @@ export class PatrimonioMensualComponent implements OnInit {
 
       this.patrimonioService.resetearTodo();
       this.registros = [];
+      this.recalcularVista();
       this.categorias = this.patrimonioService.getCategorias();
       this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
     });

@@ -1,4 +1,7 @@
-<h2 mat-dialog-title>📊 Registrar patrimonio mensual</h2>
+<h2 mat-dialog-title class="dlg-titulo">
+  <span class="dlg-icono"><mat-icon aria-hidden="true">edit_calendar</mat-icon></span>
+  <span>Registrar patrimonio mensual</span>
+</h2>
 
 <div class="header-actions">
 
@@ -8,6 +11,7 @@
     class="btn-gestionar"
     (click)="abrirGestionCategorias()">
 
+    <mat-icon aria-hidden="true">category</mat-icon>
     Gestionar categorías
 
   </button>
@@ -17,6 +21,7 @@
     color="accent"
     (click)="abrirGestionSubcategorias()">
 
+    <mat-icon aria-hidden="true">account_tree</mat-icon>
     Gestionar subcategorías
 
   </button>
@@ -25,7 +30,8 @@
 
 <div class="entradas-sesion" *ngIf="entradasSesion.length">
   <div class="entradas-titulo">
-    ✓ Añadido en esta sesión ({{ mes }})
+    <mat-icon aria-hidden="true">check_circle</mat-icon>
+    Añadido en esta sesión ({{ mes }})
   </div>
 
   <div class="entrada-item" *ngFor="let e of entradasSesion; let i = index">
@@ -189,6 +195,7 @@
         mat-raised-button
         color="accent"
         type="button"
+        class="btn-guardar"
         (click)="guardarYCerrar()"
         [disabled]="!categoria || !subcategoria || !valor || !mes">
         Guardar y cerrar
@@ -198,6 +205,7 @@
         mat-raised-button
         color="primary"
         type="submit"
+        class="btn-guardar-otro"
         [disabled]="!categoria || !subcategoria || !valor || !mes">
         Guardar y añadir otro
       </button>
