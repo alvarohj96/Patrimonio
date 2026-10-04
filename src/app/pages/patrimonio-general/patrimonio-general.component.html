@@ -17,29 +17,37 @@
        TARJETA "PATRIMONIO GENERAL" DEL ÚLTIMO MES
   ================================= -->
         <mat-card class="card card-tabla">
-          <h2>Patrimonio del último mes</h2>
+          <div class="card-head">
+            <span class="card-icono acc-azul"><mat-icon aria-hidden="true">account_balance</mat-icon></span>
+            <div class="card-titulo">
+              <h2>Patrimonio del último mes</h2>
+              <span class="card-sub">Desglose y variación por categoría</span>
+            </div>
+          </div>
 
           <div class="tabla-scroll">
-            <table mat-table [dataSource]="datosUltimoMes" class="mat-elevation-z2 tabla-patrimonio">
+            <table mat-table [dataSource]="datosUltimoMes" class="tabla-patrimonio">
 
               <ng-container matColumnDef="categoria">
                 <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
-                <td class="total-col" mat-cell *matCellDef="let r">{{ r.categoria }}</td>
+                <td class="total-col" mat-cell *matCellDef="let r">
+                  <span class="celda-cat"><span class="dot" [style.background]="getColorCategoria(r.categoria) || '#94a3b8'"></span>{{ r.categoria }}</span>
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="total">
                 <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
-                <td class="total-col" mat-cell *matCellDef="let r">{{ r.total | number:'1.2-2' }} €</td>
+                <td class="total-col" mat-cell *matCellDef="let r"><strong>{{ r.total | number:'1.2-2' }} €</strong></td>
               </ng-container>
 
               <ng-container matColumnDef="porcentaje">
                 <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
-                <td class="total-col" mat-cell *matCellDef="let r">{{ r.porcentaje | number:'1.2-2' }} %</td>
+                <td class="total-col" mat-cell *matCellDef="let r"><span class="pill-pct">{{ r.porcentaje | number:'1.1-1' }} %</span></td>
               </ng-container>
 
               <ng-container matColumnDef="variacion">
                 <th class="total-col" mat-header-cell *matHeaderCellDef>Variacion</th>
-                <td class="total-col" mat-cell *matCellDef="let r">{{ r.variacion | number:'1.2-2' }} €</td>
+                <td class="total-col" mat-cell *matCellDef="let r"><span class="delta" [class.sube]="r.variacion > 0" [class.baja]="r.variacion < 0">{{ r.variacion > 0 ? '+' : '' }}{{ r.variacion | number:'1.2-2' }} €</span></td>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje','variacion']"></tr>
@@ -96,7 +104,13 @@
 
         <!-- ============== GRÁFICO DONUT (debajo de "Patrimonio del último mes") ============== -->
         <mat-card class="card card-donut">
-          <h2>Distribución por categorías</h2>
+          <div class="card-head">
+            <span class="card-icono acc-violeta"><mat-icon aria-hidden="true">donut_large</mat-icon></span>
+            <div class="card-titulo">
+              <h2>Distribución por categorías</h2>
+              <span class="card-sub">Reparto del patrimonio</span>
+            </div>
+          </div>
 
           <!-- Botones de selección: Global + Categorías -->
           <div class="filtros-donuts">
@@ -131,8 +145,13 @@
         <mat-card class="card card-evolucion" *ngIf="config?.mostrarBarras">
           <div class="evolucion-header">
             <div class="evolucion-titulo-bloque">
-              <h2>Evolución por categoría</h2>
-              <span class="evolucion-subtitulo">Patrimonio acumulado mes a mes</span>
+              <div class="card-head card-head--sin-margen">
+                <span class="card-icono acc-cian"><mat-icon aria-hidden="true">bar_chart</mat-icon></span>
+                <div class="card-titulo">
+                  <h2>Evolución por categoría</h2>
+                  <span class="card-sub">Patrimonio acumulado mes a mes</span>
+                </div>
+              </div>
             </div>
             <mat-button-toggle-group class="rango-toggle" [(ngModel)]="rangoMeses" (change)="actualizarGraficos()">
               <mat-button-toggle [value]="12">12m</mat-button-toggle>
@@ -163,8 +182,13 @@
         <mat-card class="card card-evolucion" *ngIf="config?.mostrarLineas">
           <div class="evolucion-header">
             <div class="evolucion-titulo-bloque">
-              <h2>Evolución por categoría</h2>
-              <span class="evolucion-subtitulo">Patrimonio histórico por categoría</span>
+              <div class="card-head card-head--sin-margen">
+                <span class="card-icono acc-verde"><mat-icon aria-hidden="true">show_chart</mat-icon></span>
+                <div class="card-titulo">
+                  <h2>Evolución por categoría</h2>
+                  <span class="card-sub">Patrimonio histórico por categoría</span>
+                </div>
+              </div>
             </div>
             <mat-button-toggle-group class="rango-toggle" [(ngModel)]="rangoMeses" (change)="actualizarGraficos()">
               <mat-button-toggle [value]="12">12m</mat-button-toggle>
@@ -200,7 +224,13 @@
        RANKING: qué ha movido el mes
   ================================= -->
       <mat-card class="card card-ranking" *ngIf="rankingMes.disponible">
-        <h2>🏆 Qué ha movido este mes</h2>
+        <div class="card-head">
+          <span class="card-icono acc-ambar"><mat-icon aria-hidden="true">emoji_events</mat-icon></span>
+          <div class="card-titulo">
+            <h2>Qué ha movido este mes</h2>
+            <span class="card-sub">Mayor subida y mayor bajada</span>
+          </div>
+        </div>
 
         <div class="ranking-lista">
 
@@ -229,7 +259,13 @@
         DEUDA ACTUAL (antes estaba sola a ancho completo)
      ================================= -->
       <mat-card class="card card-deuda" *ngIf="deudaInmuebles > 0">
-        <h2>🏦 Deuda actual</h2>
+        <div class="card-head">
+          <span class="card-icono acc-rojo"><mat-icon aria-hidden="true">home_work</mat-icon></span>
+          <div class="card-titulo">
+            <h2>Deuda actual</h2>
+            <span class="card-sub">Inmuebles: valor bruto frente a neto</span>
+          </div>
+        </div>
         <div class="deuda-layout">
 
           <!-- BARRA VISUAL -->
@@ -277,7 +313,13 @@
        PROYECCIÓN HACIA EL OBJETIVO
   ================================= -->
       <mat-card class="card card-proyeccion">
-        <h2>🎯 Proyección hacia tu objetivo</h2>
+        <div class="card-head">
+          <span class="card-icono acc-azul"><mat-icon aria-hidden="true">rocket_launch</mat-icon></span>
+          <div class="card-titulo">
+            <h2>Proyección hacia tu objetivo</h2>
+            <span class="card-sub">Según tu ritmo de ahorro actual</span>
+          </div>
+        </div>
 
         <div [ngSwitch]="proyeccion.estado">
 
@@ -303,6 +345,17 @@
           </p>
 
           <div *ngSwitchCase="'en-progreso'" class="proyeccion-datos">
+
+            <div class="pg-progreso-bloque">
+              <div class="pg-progreso-label">
+                <span>Progreso hacia el objetivo</span>
+                <strong>{{ progresoObjetivo | number:'1.0-1' }} %</strong>
+              </div>
+              <div class="pg-progreso" role="progressbar" aria-label="Progreso hacia el objetivo total"
+                aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progresoObjetivo">
+                <div class="pg-progreso-fill" [style.width.%]="progresoObjetivo"></div>
+              </div>
+            </div>
 
             <div class="proyeccion-dato">
               <span>Ritmo medio mensual</span>
@@ -337,7 +390,13 @@
        CALENDARIO DE VARIACIÓN (heatmap)
   ================================= -->
       <mat-card class="card card-heatmap" *ngIf="heatmapAnios.length">
-        <h2>📅 Consistencia de ahorro</h2>
+        <div class="card-head">
+          <span class="card-icono acc-verde"><mat-icon aria-hidden="true">calendar_month</mat-icon></span>
+          <div class="card-titulo">
+            <h2>Consistencia de ahorro</h2>
+            <span class="card-sub">Meses en que tu patrimonio sube o baja</span>
+          </div>
+        </div>
 
         <div class="heatmap" #heatmapScroll>
           <div class="heatmap-fila" *ngFor="let fila of heatmapAnios">
@@ -363,7 +422,13 @@
        REGLA DEL 4% - Retiro mensual calculado
   ================================= -->
       <mat-card class="card card-regla-cuatro">
-        <h2>💰 Regla del 4%</h2>
+        <div class="card-head">
+          <span class="card-icono acc-ambar"><mat-icon aria-hidden="true">savings</mat-icon></span>
+          <div class="card-titulo">
+            <h2>Regla del 4%</h2>
+            <span class="card-sub">Retiro sostenible estimado</span>
+          </div>
+        </div>
         <div class="regla-cuatro-selector">
           <label>Tasa de retiro:</label>
           <div class="regla-cuatro-botones">
@@ -396,7 +461,13 @@
         COMPARATIVA DONUTS ANTES → DESPUÉS
      ================================= -->
       <mat-card class="card card-comparativa-donuts">
-        <h2>🍩 Composición antes → después</h2>
+        <div class="card-head">
+          <span class="card-icono acc-rosa"><mat-icon aria-hidden="true">compare_arrows</mat-icon></span>
+          <div class="card-titulo">
+            <h2>Composición antes → después</h2>
+            <span class="card-sub">Compara dos meses</span>
+          </div>
+        </div>
         <div class="comparativa-donuts-controls">
           <label class="comparativa-label">Comparar con:</label>
           <select class="comparativa-select" [(ngModel)]="mesComparativaSeleccionado"

@@ -72,6 +72,12 @@ export class PatrimonioGeneralComponent implements OnInit, OnDestroy {
   reglaPorcentaje: number = 4;  // Valor por defecto
   opcionesRegla: number[] = [3, 4, 5, 6];  // Opciones disponibles
 
+  /** % del objetivo total alcanzado (0-100), para la barra de la proyección */
+  get progresoObjetivo(): number {
+    if (!this.objetivoTotal || this.objetivoTotal <= 0) return 0;
+    return Math.max(0, Math.min(100, (this.totalUltimoMes / this.objetivoTotal) * 100));
+  }
+
   // ===== Comparativa interanual (YoY) =====
   comparativaInteranual: {
     disponible: boolean;
