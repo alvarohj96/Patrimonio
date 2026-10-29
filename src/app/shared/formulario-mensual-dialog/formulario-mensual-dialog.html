@@ -31,13 +31,14 @@
 <div class="entradas-sesion" *ngIf="entradasSesion.length">
   <div class="entradas-titulo">
     <mat-icon aria-hidden="true">check_circle</mat-icon>
-    Añadido en esta sesión ({{ mes }})
+    Añadido en esta sesión
   </div>
 
   <div class="entrada-item" *ngFor="let e of entradasSesion; let i = index">
     <span class="entrada-texto">
       <strong>{{ e.categoria }}</strong> · {{ e.subcategoria }}:
       {{ e.valor | number:'1.2-2' }} €
+      <span class="entrada-meta">{{ nombreMes(e.mes) }}<ng-container *ngIf="e.copiado"> · copiado</ng-container></span>
     </span>
 
     <button
@@ -54,48 +55,7 @@
 
   <form (ngSubmit)="guardarYAnadirOtro()" class="form-grid">
 
-    <mat-form-field appearance="outline">
-      <mat-label>Categoría</mat-label>
-
-      <mat-select
-        [(ngModel)]="categoria"
-        name="categoria"
-        (selectionChange)="onCategoriaChange()"
-        required>
-
-        <mat-option *ngFor="let c of categorias" [value]="c">
-          {{ c }}
-        </mat-option>
-
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="categoria">
-      <mat-label>Subcategoría</mat-label>
-
-      <mat-select
-        #subcategoriaSelect
-        [(ngModel)]="subcategoria"
-        name="subcategoria"
-        [disabled]="!subcategoriasDisponibles().length"
-        required>
-
-        <mat-option
-          *ngFor="let s of subcategoriasDisponibles()"
-          [value]="s">
-
-          {{ s }}
-
-        </mat-option>
-
-      </mat-select>
-    </mat-form-field>
-
-    <p class="aviso-completo" *ngIf="categoria && !subcategoriasDisponibles().length">
-      ✅ Ya has añadido un valor para todas las subcategorías de "{{ categoria }}" este mes.
-      Elige otra categoría o pulsa "Guardar y cerrar".
-    </p>
-
+    <!-- MES (por defecto, el mes en curso) -->
     <mat-form-field appearance="outline">
       <mat-label>Mes</mat-label>
 
@@ -119,65 +79,209 @@
 
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Valor (€)</mat-label>
+    <!-- PROGRESO DEL MES -->
+    <div class="progreso-mes" *ngIf="progresoMes() as p">
+      <div class="progreso-texto">
+        <span>{{ nombreMes(mes) }}</span>
+        <strong>{{ p.rellenas }} / {{ p.total }} introducidos</strong>
+      </div>
+      <div class="progreso-barra"><div class="progreso-relleno" [style.width.%]="p.pct"></div></div>
+    </div>
 
-      <input
-        matInput
-        type="number"
-        [(ngModel)]="valor"
-        name="valor"
+    <!-- COPIAR DE MESES ANTERIORES -->
+    <div class="copiar-bloque" *ngIf="mesesOrigen.length">
+
+      <button
+        mat-stroked-button
+        type="button"
+        class="btn-copiar"
+        (click)="alternarCopia()">
+        <mat-icon aria-hidden="true">content_copy</mat-icon>
+        Copiar valores de un mes anterior
+        <mat-icon aria-hidden="true" class="chevron">{{ mostrarCopia ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+
+      <p class="mensaje-copia" *ngIf="mensajeCopia">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        {{ mensajeCopia }}
+      </p>
+
+      <div class="panel-copia" *ngIf="mostrarCopia">
+
+        <mat-form-field appearance="outline" class="origen-field">
+          <mat-label>Copiar desde</mat-label>
+          <mat-select [value]="mesOrigen" (selectionChange)="cambiarMesOrigen($event.value)">
+            <mat-option *ngFor="let m of mesesOrigen" [value]="m">{{ nombreMes(m) }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="copia-atajos" *ngIf="totalCopiables()">
+          <button mat-button type="button" (click)="marcarTodos(true)">Marcar todos</button>
+          <button mat-button type="button" (click)="marcarTodos(false)">Desmarcar todos</button>
+        </div>
+
+        <p class="copia-vacia" *ngIf="!candidatos.length">Ese mes no tiene valores.</p>
+
+        <div class="copia-grupo" *ngFor="let cat of categoriasCandidatos()">
+          <div class="copia-grupo-titulo">{{ cat }}</div>
+
+          <div class="copia-fila" *ngFor="let c of candidatosDe(cat)" [class.copia-fila--ya]="c.yaTiene">
+            <mat-checkbox
+              [checked]="c.seleccionado"
+              [disabled]="c.yaTiene"
+              (change)="c.seleccionado = $event.checked">
+              {{ c.subcategoria }}
+            </mat-checkbox>
+
+            <span class="copia-valor">
+              <ng-container *ngIf="!c.yaTiene">{{ c.entrada.valor | number:'1.2-2' }} €</ng-container>
+              <ng-container *ngIf="c.yaTiene">ya tiene valor</ng-container>
+            </span>
+          </div>
+        </div>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          class="btn-copiar-ahora"
+          [disabled]="!totalSeleccionados()"
+          (click)="copiarSeleccionados()">
+          Copiar {{ totalSeleccionados() }} {{ totalSeleccionados() === 1 ? 'valor' : 'valores' }} a {{ nombreMes(mes) }}
+        </button>
+
+      </div>
+    </div>
+
+    <!-- CATEGORÍA (con progreso por categoría) -->
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+
+      <mat-select
+        [(ngModel)]="categoria"
+        name="categoria"
+        (selectionChange)="onCategoriaChange()"
         required>
+
+        <mat-option *ngFor="let c of categorias" [value]="c">
+          {{ c }}
+          <span class="opcion-progreso" [class.opcion-progreso--ok]="resumenCategoria(c).total && resumenCategoria(c).rellenas === resumenCategoria(c).total">
+            {{ resumenCategoria(c).rellenas }}/{{ resumenCategoria(c).total }}
+          </span>
+        </mat-option>
+
+      </mat-select>
     </mat-form-field>
 
-    <!-- INMUEBLES -->
-    <ng-container *ngIf="categoria === 'Inmuebles'">
+    <!-- SUBCATEGORÍAS: las ya introducidas este mes aparecen marcadas -->
+    <div class="subcats" *ngIf="categoria && subcategoriasDe(categoria).length">
+      <div class="subcats-titulo">Subcategoría</div>
+
+      <div class="subcats-lista">
+        <button
+          type="button"
+          class="chip"
+          *ngFor="let s of subcategoriasDe(categoria)"
+          [class.chip--ok]="tieneValor(categoria, s)"
+          [class.chip--sel]="s === subcategoria"
+          (click)="seleccionarSubcategoria(s)">
+
+          <mat-icon aria-hidden="true" class="chip-icono">{{ tieneValor(categoria, s) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          <span class="chip-nombre">{{ s }}</span>
+          <span class="chip-valor" *ngIf="entradaDelMes(categoria, s) as e">{{ e.valor | number:'1.0-0' }} €</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="aviso-completo" *ngIf="categoria && subcategoriasDe(categoria).length && resumenCategoria(categoria).rellenas === resumenCategoria(categoria).total">
+      ✅ Todas las subcategorías de "{{ categoria }}" tienen valor en {{ nombreMes(mes) }}.
+      Pulsa una para corregirla, elige otra categoría o pulsa "Guardar y cerrar".
+    </p>
+
+    <p class="aviso-completo" *ngIf="categoria && !subcategoriasDe(categoria).length">
+      Esta categoría no tiene subcategorías. Créalas con "Gestionar subcategorías".
+    </p>
+
+    <ng-container *ngIf="subcategoria">
+
+      <!-- Ya existe un valor este mes -->
+      <p class="aviso-edicion" *ngIf="tieneValor(categoria, subcategoria)">
+        <mat-icon aria-hidden="true">edit</mat-icon>
+        Ya tiene valor este mes. Si guardas, se sustituye.
+      </p>
+
+      <!-- Valor del último mes con dato -->
+      <div class="anterior" *ngIf="anterior">
+        <mat-icon aria-hidden="true">history</mat-icon>
+        <span class="anterior-texto">
+          {{ nombreMes(anterior.mes) }}:
+          <strong>{{ anterior.form.valor | number:'1.2-2' }} €</strong>
+        </span>
+        <button mat-button type="button" class="btn-usar" (click)="usarAnterior()">Usar este valor</button>
+      </div>
 
       <mat-form-field appearance="outline">
-        <mat-label>Deuda pendiente</mat-label>
+        <mat-label>Valor (€)</mat-label>
 
         <input
+          #valorInput
           matInput
           type="number"
-          [(ngModel)]="deuda"
-          name="deuda">
-
-        <span matSuffix>€</span>
+          [(ngModel)]="valor"
+          name="valor"
+          required>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>% propiedad</mat-label>
+      <!-- INMUEBLES -->
+      <ng-container *ngIf="categoria === 'Inmuebles'">
 
-        <input
-          matInput
-          type="number"
-          min="1"
-          max="100"
-          [(ngModel)]="porcentajePropiedad"
-          name="porcentajePropiedad">
+        <mat-form-field appearance="outline">
+          <mat-label>Deuda pendiente</mat-label>
 
-        <span matSuffix>%</span>
-      </mat-form-field>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="deuda"
+            name="deuda">
 
-    </ng-container>
+          <span matSuffix>€</span>
+        </mat-form-field>
 
-    <!-- CANTIDAD DE ACTIVO (Cripto, Acciones, Fondos…) -->
-    <ng-container *ngIf="mostrarCampoUnidades()">
+        <mat-form-field appearance="outline">
+          <mat-label>% propiedad</mat-label>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Cantidad ({{ unidadLabel() }})</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            max="100"
+            [(ngModel)]="porcentajePropiedad"
+            name="porcentajePropiedad">
 
-        <input
-          matInput
-          type="number"
-          [(ngModel)]="cantidad"
-          name="cantidad"
-          min="0"
-          step="any">
+          <span matSuffix>%</span>
+        </mat-form-field>
 
-        <span matSuffix>{{ unidadLabel() }}</span>
-        <mat-hint>Opcional · el precio/unidad se calcula automáticamente</mat-hint>
-      </mat-form-field>
+      </ng-container>
+
+      <!-- CANTIDAD DE ACTIVO (Cripto, Acciones, Fondos…) -->
+      <ng-container *ngIf="mostrarCampoUnidades()">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Cantidad ({{ unidadLabel() }})</mat-label>
+
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="cantidad"
+            name="cantidad"
+            min="0"
+            step="any">
+
+          <span matSuffix>{{ unidadLabel() }}</span>
+          <mat-hint>Opcional · el precio/unidad se calcula automáticamente</mat-hint>
+        </mat-form-field>
+
+      </ng-container>
 
     </ng-container>
 
