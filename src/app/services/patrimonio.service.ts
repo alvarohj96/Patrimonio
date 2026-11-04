@@ -1,6 +1,7 @@
 // src/app/services/patrimonio.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { CategoriaPatrimonio } from '../models/objetivos-inversion';
 
 /**
  * Interfaz centralizada: exporta el tipo para que componentes lo importen
@@ -37,6 +38,12 @@ export class PatrimonioService {
   categoriaSubject = new BehaviorSubject<string[]>(this.categorias);
   categorias$ = this.categoriaSubject.asObservable();
 
+  // Identificadores estables de categoría (nombre -> id). Los registros mensuales
+  // siguen indexados por nombre; el id permite asociar datos (p. ej. objetivos de
+  // inversión) a la categoría sin depender de su nombre.
+  private categoriaIdsKey = 'categorias_patrimonio_ids';
+  private categoriaIds: { [nombre: string]: string } = {};
+
 
   // Mapa de subcategorías por categoría
   private subcategoriasMap: { [categoria: string]: string[] } = {
@@ -51,6 +58,7 @@ export class PatrimonioService {
     const stored = localStorage.getItem(this.categoriasKey);
     this.categorias = stored ? JSON.parse(stored) : ['Acciones', 'Fondos', 'Inmuebles', 'Liquidez', 'Cripto'];
     this.categoriaSubject.next([...this.categorias]);
+    this.cargarCategoriaIds();
     // cargar subcategorías guardadas (si existen)
     const guardadasSubs = localStorage.getItem(this.LS_SUBS);
     if (guardadasSubs) {
@@ -95,10 +103,39 @@ export class PatrimonioService {
     return [...this.categorias];
   }
 
+  /** Categorías con su identificador estable, en el orden actual. */
+  getCategoriasConId(): CategoriaPatrimonio[] {
+    return this.categorias.map(nombre => ({ id: this.categoriaIds[nombre], nombre }));
+  }
+
+  /**
+   * Valor neto (valor − deuda) por categoría del último mes registrado, indexado por
+   * nombre de categoría. Admite el formato antiguo (valores numéricos).
+   */
+  valorNetoPorCategoria(registros: RegistroMensual[]): { [categoria: string]: number } {
+    if (!registros || !registros.length) return {};
+
+    const ultimo = registros.reduce((a, b) => (b.mes.localeCompare(a.mes) >= 0 ? b : a));
+    const resultado: { [categoria: string]: number } = {};
+
+    Object.keys(ultimo.valores || {}).forEach(cat => {
+      const subs = ultimo.valores[cat] || {};
+      resultado[cat] = Object.values(subs).reduce((suma: number, item: any) => {
+        if (typeof item === 'number') return suma + item; // formato antiguo
+        return suma + ((item?.valor ?? 0) - (item?.deuda ?? 0));
+      }, 0);
+    });
+
+    return resultado;
+  }
+
   addCategoria(cat: string) {
     if (!this.categorias.includes(cat)) {
       this.categorias.push(cat);
       localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));
+      this.categoriaIds[cat] = this.generarIdCategoria();
+      this.guardarCategoriaIds();
+      this.categoriaSubject.next([...this.categorias]);
 
       // Crear categoría vacía en todos los registros
       const registros = this.getRegistros();
@@ -113,6 +150,9 @@ export class PatrimonioService {
   removeCategoria(cat: string) {
     this.categorias = this.categorias.filter(c => c !== cat);
     localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));
+    delete this.categoriaIds[cat];
+    this.guardarCategoriaIds();
+    this.categoriaSubject.next([...this.categorias]);
 
     // Eliminar categoría de todos los registros
     const registros = this.getRegistros();
@@ -152,6 +192,42 @@ export class PatrimonioService {
     this.categorias = [...cats];
     localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));
     this.categoriaSubject.next([...this.categorias]);
+  }
+
+  private cargarCategoriaIds() {
+    try {
+      const raw = localStorage.getItem(this.categoriaIdsKey);
+      const parsed = raw ? JSON.parse(raw) : {};
+      this.categoriaIds = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      this.categoriaIds = {};
+    }
+
+    // Sincronizar: id para cada categoría existente y limpieza de ids huérfanos
+    const sincronizados: { [nombre: string]: string } = {};
+    const usados = new Set<string>();
+    this.categorias.forEach(nombre => {
+      let id = this.categoriaIds[nombre];
+      if (typeof id !== 'string' || !id || usados.has(id)) id = this.generarIdCategoria();
+      usados.add(id);
+      sincronizados[nombre] = id;
+    });
+
+    const cambio = JSON.stringify(sincronizados) !== JSON.stringify(this.categoriaIds);
+    this.categoriaIds = sincronizados;
+    if (cambio) this.guardarCategoriaIds();
+  }
+
+  private guardarCategoriaIds() {
+    try {
+      localStorage.setItem(this.categoriaIdsKey, JSON.stringify(this.categoriaIds));
+    } catch (e) { console.error('No se pudieron guardar los ids de categoría', e); }
+  }
+
+  private generarIdCategoria(): string {
+    const c: Crypto | undefined = (globalThis as any).crypto;
+    if (c && typeof c.randomUUID === 'function') return c.randomUUID();
+    return 'cat-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
   }
 
   private saveSubcategorias() {
@@ -222,6 +298,8 @@ export class PatrimonioService {
     localStorage.removeItem(this.LS_KEY);
     localStorage.removeItem(this.LS_SUBS);
     localStorage.removeItem(this.categoriasKey);
+    localStorage.removeItem(this.categoriaIdsKey);
+    this.categoriaIds = {};
 
     // 2. Restaurar categorías por defecto
     this.categorias = [];

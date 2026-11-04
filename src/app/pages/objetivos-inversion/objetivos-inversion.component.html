@@ -1,0 +1,388 @@
+<section class="contenedor-centrado">
+
+  <!-- =====================================================
+       HERO
+  ===================================================== -->
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-label">
+        <mat-icon aria-hidden="true">track_changes</mat-icon>
+        <span>Objetivos de inversión</span>
+      </div>
+
+      <span class="hero-badge" [class.completado]="validacion().valida && !hayCambios()">
+        Objetivos: {{ porcentaje(validacion().sumaPorcentajes) }} % de 100 %
+      </span>
+    </div>
+
+    <div class="hero-importe">{{ euros(distribucion().patrimonioTotal) }}</div>
+    <div class="hero-foot">
+      Patrimonio total (último mes registrado). Define cómo quieres repartirlo y simula
+      cómo repartir nuevas aportaciones para acercarte a ese reparto.
+    </div>
+  </header>
+
+  @if (categorias().length === 0) {
+    <div class="vacio">
+      <mat-icon aria-hidden="true">category</mat-icon>
+      <span>No hay categorías de patrimonio. Crea alguna desde «Entrada mensual» para definir objetivos.</span>
+      <a class="btn-texto" routerLink="/mensual">Ir a Entrada mensual</a>
+    </div>
+  } @else {
+
+    <!-- =====================================================
+         1 · CONFIGURACIÓN
+    ===================================================== -->
+    <div class="seccion-cabecera">
+      <h2 class="seccion-titulo">
+        <mat-icon aria-hidden="true">tune</mat-icon>
+        Configuración de objetivos
+      </h2>
+    </div>
+
+    <article class="panel">
+      <p class="panel-ayuda">
+        Reparte el 100 % entre tus categorías y marca cuáles pueden recibir nuevas aportaciones en el simulador.
+        Una categoría que no admite aportaciones (p. ej. un inmueble) sigue contando en tu patrimonio y en el reparto.
+      </p>
+
+      <div class="tabla-scroll">
+        <table class="tabla tabla--config">
+          <thead>
+            <tr>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="num">% objetivo</th>
+              <th scope="col" class="centro">Admite aportaciones</th>
+              <th scope="col" class="num">Importe mínimo</th>
+              <th scope="col" class="num">Incremento mínimo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of filasEdicion(); track f.categoriaId) {
+              <tr>
+                <td data-label="Categoría">
+                  <span class="celda-cat"><span class="dot" [style.background]="f.color"></span>{{ f.nombre }}</span>
+                </td>
+
+                <td data-label="% objetivo" class="num">
+                  <label class="campo" [class.invalido]="f.porcentajeObjetivo < 0 || f.porcentajeObjetivo > 100">
+                    <input type="number" inputmode="decimal" min="0" max="100" step="0.01"
+                      [attr.aria-label]="'Porcentaje objetivo de ' + f.nombre"
+                      [value]="f.porcentajeObjetivo"
+                      (input)="editarNumero(f.categoriaId, 'porcentajeObjetivo', $any($event.target).value)">
+                    <span class="suffix">%</span>
+                  </label>
+                </td>
+
+                <td data-label="Admite aportaciones" class="centro">
+                  <label class="switch">
+                    <input type="checkbox" role="switch"
+                      [attr.aria-label]="f.nombre + ' admite nuevas aportaciones'"
+                      [checked]="f.admiteAportaciones"
+                      (change)="editarAdmite(f.categoriaId, $any($event.target).checked)">
+                    <span class="switch-pista"></span>
+                    <span class="switch-texto">{{ f.admiteAportaciones ? 'Sí' : 'No' }}</span>
+                  </label>
+                </td>
+
+                <td data-label="Importe mínimo" class="num">
+                  <label class="campo" [class.desactivado]="!f.admiteAportaciones"
+                    [class.invalido]="f.importeMinimo !== null && f.importeMinimo < 0">
+                    <input type="number" inputmode="decimal" min="0" step="1" placeholder="Sin mínimo"
+                      [attr.aria-label]="'Importe mínimo por operación de ' + f.nombre"
+                      [disabled]="!f.admiteAportaciones"
+                      [value]="f.importeMinimo ?? ''"
+                      (input)="editarNumero(f.categoriaId, 'importeMinimo', $any($event.target).value)">
+                    <span class="suffix">€</span>
+                  </label>
+                </td>
+
+                <td data-label="Incremento mínimo" class="num">
+                  <label class="campo" [class.desactivado]="!f.admiteAportaciones"
+                    [class.invalido]="f.incrementoMinimo !== null && f.incrementoMinimo < 0">
+                    <input type="number" inputmode="decimal" min="0" step="1" placeholder="Sin incremento"
+                      [attr.aria-label]="'Incremento mínimo de ' + f.nombre + ' (múltiplos)'"
+                      [disabled]="!f.admiteAportaciones"
+                      [value]="f.incrementoMinimo ?? ''"
+                      (input)="editarNumero(f.categoriaId, 'incrementoMinimo', $any($event.target).value)">
+                    <span class="suffix">€</span>
+                  </label>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td data-label="Total">Total</td>
+              <td data-label="% objetivo" class="num">
+                <span class="suma" [class.ok]="validacion().sumaPorcentajes === 100"
+                  [class.mal]="validacion().sumaPorcentajes !== 100">
+                  {{ porcentaje(validacion().sumaPorcentajes) }} %
+                </span>
+              </td>
+              <td colspan="3" class="pie-ayuda">
+                El incremento mínimo obliga a aportar en múltiplos de ese importe (p. ej. 500 €).
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      @if (!validacion().valida) {
+        <ul class="errores" role="alert">
+          @for (e of validacion().errores; track $index) {
+            <li><mat-icon aria-hidden="true">error_outline</mat-icon>{{ e }}</li>
+          }
+        </ul>
+      }
+
+      <div class="acciones">
+        @if (guardadoOk()) {
+          <span class="aviso-ok" role="status"><mat-icon aria-hidden="true">check_circle</mat-icon>Objetivos guardados</span>
+        } @else if (hayCambios()) {
+          <span class="aviso-pendiente">Hay cambios sin guardar</span>
+        }
+        <button type="button" class="btn btn--sec" [disabled]="!hayCambios()" (click)="descartar()">Descartar</button>
+        <button type="button" class="btn btn--prim" [disabled]="!hayCambios() || !validacion().valida" (click)="guardar()">
+          Guardar objetivos
+        </button>
+      </div>
+    </article>
+
+    <!-- =====================================================
+         2 · DISTRIBUCIÓN ACTUAL VS. OBJETIVO
+    ===================================================== -->
+    <div class="seccion-cabecera">
+      <h2 class="seccion-titulo">
+        <mat-icon aria-hidden="true">compare_arrows</mat-icon>
+        Distribución actual frente al objetivo
+      </h2>
+    </div>
+
+    @if (!hayConfiguracion()) {
+      <div class="vacio">
+        <mat-icon aria-hidden="true">flag</mat-icon>
+        <span>Guarda tus porcentajes objetivo para ver la comparación y usar el simulador.</span>
+      </div>
+    } @else {
+      @if (!configUtilizable()) {
+        <div class="nota nota--aviso" role="alert">
+          <mat-icon aria-hidden="true">warning_amber</mat-icon>
+          <span>
+            Los objetivos guardados ya no suman el 100 % (se ha añadido o eliminado alguna categoría).
+            Revisa los porcentajes y guarda de nuevo para activar el simulador.
+          </span>
+        </div>
+      }
+
+      @if (distribucion().patrimonioTotal <= 0) {
+        <div class="nota" role="status">
+          <mat-icon aria-hidden="true">info</mat-icon>
+          <span>El patrimonio total es {{ euros(distribucion().patrimonioTotal) }}: los porcentajes actuales no son significativos todavía.</span>
+        </div>
+      }
+
+      <article class="panel">
+        <div class="tabla-scroll">
+          <table class="tabla tabla--comparacion">
+            <thead>
+              <tr>
+                <th scope="col">Categoría</th>
+                <th scope="col" class="num">Valor actual</th>
+                <th scope="col" class="num">% actual</th>
+                <th scope="col" class="num">% objetivo</th>
+                <th scope="col" class="num">Desviación</th>
+                <th scope="col" class="num">Importe ideal</th>
+                <th scope="col" class="num">Diferencia</th>
+                <th scope="col" class="centro">Aportaciones</th>
+                <th scope="col" class="centro">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of distribucion().filas; track f.categoriaId) {
+                <tr>
+                  <td data-label="Categoría">
+                    <span class="celda-cat"><span class="dot" [style.background]="colores().get(f.categoriaId)"></span>{{ f.nombre }}</span>
+                  </td>
+                  <td data-label="Valor actual" class="num">{{ euros(f.valorActual) }}</td>
+                  <td data-label="% actual" class="num">
+                    <div class="pct-celda">
+                      <span>{{ porcentaje(f.porcentajeActual) }} %</span>
+                      <div class="barra" aria-hidden="true">
+                        <div class="barra-fill" [style.width.%]="limitar(f.porcentajeActual)"
+                          [style.background]="colores().get(f.categoriaId)"></div>
+                        <div class="barra-objetivo" [style.left.%]="limitar(f.porcentajeObjetivo)"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="% objetivo" class="num">{{ porcentaje(f.porcentajeObjetivo) }} %</td>
+                  <td data-label="Desviación" class="num" [class]="'dev dev--' + f.estado">{{ puntos(f.desviacionPuntos) }} pp</td>
+                  <td data-label="Importe ideal" class="num">{{ euros(f.importeIdeal) }}</td>
+                  <td data-label="Diferencia" class="num" [class]="'dev dev--' + f.estado">{{ eurosConSigno(f.diferencia) }}</td>
+                  <td data-label="Aportaciones" class="centro">
+                    @if (f.admiteAportaciones) {
+                      <span class="etiqueta etiqueta--si"><mat-icon aria-hidden="true">add_circle_outline</mat-icon>Admite</span>
+                    } @else {
+                      <span class="etiqueta etiqueta--no"><mat-icon aria-hidden="true">block</mat-icon>No admite</span>
+                    }
+                  </td>
+                  <td data-label="Estado" class="centro">
+                    <span [class]="'chip chip--' + f.estado">{{ etiquetaEstado(f.estado) }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td data-label="Total">Total</td>
+                <td data-label="Valor actual" class="num">{{ euros(distribucion().patrimonioTotal) }}</td>
+                <td data-label="% actual" class="num">{{ distribucion().patrimonioTotal > 0 ? '100 %' : '—' }}</td>
+                <td data-label="% objetivo" class="num">{{ porcentaje(distribucion().sumaObjetivos) }} %</td>
+                <td colspan="5" class="pie-ayuda">
+                  Desviación = % actual − % objetivo (puntos porcentuales).
+                  Diferencia = valor actual − importe ideal: positivo si sobra, negativo si falta.
+                  «Equilibrada» = desviación dentro de ±{{ porcentaje(tolerancia) }} pp.
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </article>
+    }
+
+    <!-- =====================================================
+         3 · SIMULADOR DE APORTACIONES
+    ===================================================== -->
+    <div class="seccion-cabecera">
+      <h2 class="seccion-titulo">
+        <mat-icon aria-hidden="true">savings</mat-icon>
+        Simulador de nuevas aportaciones
+      </h2>
+    </div>
+
+    @if (!configUtilizable()) {
+      <div class="vacio">
+        <mat-icon aria-hidden="true">lock</mat-icon>
+        <span>Guarda unos objetivos que sumen el 100 % para activar el simulador.</span>
+      </div>
+    } @else {
+      @let sim = simulacion();
+
+      <article class="panel">
+        <div class="sim-entrada">
+          <label class="campo campo--grande">
+            <span class="campo-etiqueta">Cantidad a aportar</span>
+            <input type="number" inputmode="decimal" min="0" step="50" placeholder="0"
+              aria-label="Cantidad a aportar en euros"
+              [value]="importe() ?? ''"
+              (input)="editarImporte($any($event.target).value)">
+            <span class="suffix">€</span>
+          </label>
+
+          <div class="chips-importe">
+            @for (v of importesRapidos; track v) {
+              <button type="button" class="chip-btn" [class.activo]="importe() === v" (click)="fijarImporte(v)">
+                {{ euros(v) }}
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (sim) {
+          <div class="resumen">
+            <div class="resumen-item">
+              <span class="resumen-label">Aportación total</span>
+              <span class="resumen-valor">{{ euros(sim.importe) }}</span>
+            </div>
+            <div class="resumen-item resumen-item--ok">
+              <span class="resumen-label">Importe asignado</span>
+              <span class="resumen-valor">{{ euros(sim.asignado) }}</span>
+            </div>
+            <div class="resumen-item" [class.resumen-item--aviso]="sim.noAsignado > 0">
+              <span class="resumen-label">Sin asignar</span>
+              <span class="resumen-valor">{{ euros(sim.noAsignado) }}</span>
+            </div>
+          </div>
+
+          @if (sim.importe > 0) {
+            <div class="progreso" role="progressbar" aria-label="Porcentaje de la aportación asignado"
+              aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="limitar((sim.asignado / sim.importe) * 100)">
+              <div class="progreso-fill" [style.width.%]="limitar((sim.asignado / sim.importe) * 100)"></div>
+            </div>
+          } @else {
+            <div class="nota" role="status">
+              <mat-icon aria-hidden="true">info</mat-icon>
+              <span>Introduce una cantidad mayor que 0 € para ver la propuesta de reparto.</span>
+            </div>
+          }
+
+          @if (sim.explicacion) {
+            <div class="nota" [class.nota--aviso]="sim.noAsignado > 0" role="status">
+              <mat-icon aria-hidden="true">{{ sim.noAsignado > 0 ? 'warning_amber' : 'info' }}</mat-icon>
+              <span>{{ sim.explicacion }}</span>
+            </div>
+          } @else if (sim.importe > 0 && sim.alcanzaObjetivos) {
+            <div class="nota nota--ok" role="status">
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              <span>Con este reparto la cartera queda muy próxima a los objetivos (dentro de ±{{ porcentaje(tolerancia) }} pp).</span>
+            </div>
+          }
+
+          @for (a of sim.avisos; track $index) {
+            <div class="nota nota--aviso" role="status">
+              <mat-icon aria-hidden="true">info</mat-icon>
+              <span>{{ a }}</span>
+            </div>
+          }
+
+          <div class="tabla-scroll">
+            <table class="tabla tabla--simulador">
+              <thead>
+                <tr>
+                  <th scope="col">Categoría</th>
+                  <th scope="col" class="num">Aportación recomendada</th>
+                  <th scope="col" class="num">Valor proyectado</th>
+                  <th scope="col" class="num">% proyectado</th>
+                  <th scope="col" class="num">% objetivo</th>
+                  <th scope="col" class="num">Desviación proyectada</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of sim.filas; track f.categoriaId) {
+                  <tr [class.fila-recibe]="f.aportacion > 0">
+                    <td data-label="Categoría">
+                      <span class="celda-cat">
+                        <span class="dot" [style.background]="colores().get(f.categoriaId)"></span>{{ f.nombre }}
+                        @if (!f.admiteAportaciones) {
+                          <span class="etiqueta etiqueta--no">No admite</span>
+                        }
+                      </span>
+                    </td>
+                    <td data-label="Aportación recomendada" class="num"><strong>{{ euros(f.aportacion) }}</strong></td>
+                    <td data-label="Valor proyectado" class="num">{{ euros(f.valorProyectado) }}</td>
+                    <td data-label="% proyectado" class="num">{{ porcentaje(f.porcentajeProyectado) }} %</td>
+                    <td data-label="% objetivo" class="num">{{ porcentaje(f.porcentajeObjetivo) }} %</td>
+                    <td data-label="Desviación proyectada" class="num" [class]="'dev dev--' + f.estadoProyectado">
+                      {{ puntos(f.desviacionProyectada) }} pp
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td data-label="Total">Total</td>
+                  <td data-label="Aportación recomendada" class="num">{{ euros(sim.asignado) }}</td>
+                  <td data-label="Valor proyectado" class="num">{{ euros(sim.patrimonioProyectado) }}</td>
+                  <td colspan="3" class="pie-ayuda">
+                    El patrimonio proyectado incluye todas las categorías, también las que no admiten aportaciones.
+                    No se contemplan ventas de activos.
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </article>
+    }
+  }
+</section>

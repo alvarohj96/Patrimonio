@@ -5,5 +5,10 @@ import { PatrimonioMensualComponent } from './pages/patrimonio-mensual/patrimoni
 export const routes: Routes = [
   { path: '', redirectTo: 'general', pathMatch: 'full' },
   { path: 'general', component: PatrimonioGeneralComponent },
-  { path: 'mensual', component: PatrimonioMensualComponent }
+  { path: 'mensual', component: PatrimonioMensualComponent },
+  {
+    path: 'objetivos',
+    loadComponent: () =>
+      import('./pages/objetivos-inversion/objetivos-inversion.component').then(m => m.ObjetivosInversionComponent)
+  }
 ];
