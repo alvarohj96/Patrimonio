@@ -42,6 +42,10 @@ export class PatrimonioService {
   // siguen indexados por nombre; el id permite asociar datos (p. ej. objetivos de
   // inversión) a la categoría sin depender de su nombre.
   private categoriaIdsKey = 'categorias_patrimonio_ids';
+
+  // Si el catálogo de subcategorías ya estaba guardado, es la fuente de verdad: no se
+  // reconstruye desde el histórico (si no, una subcategoría eliminada reaparecería al recargar).
+  private catalogoSubsPersistido = false;
   private categoriaIds: { [nombre: string]: string } = {};
 
 
@@ -68,6 +72,7 @@ export class PatrimonioService {
     }
 
     // Cargar registros y migrarlos si vienen en formato antiguo
+    this.catalogoSubsPersistido = guardadasSubs !== null;
     const raw = localStorage.getItem(this.LS_KEY);
     if (raw) {
       try {
@@ -154,12 +159,9 @@ export class PatrimonioService {
     this.guardarCategoriaIds();
     this.categoriaSubject.next([...this.categorias]);
 
-    // Eliminar categoría de todos los registros
-    const registros = this.getRegistros();
-    registros.forEach(r => {
-      delete r.valores[cat];
-    });
-    this.actualizarRegistros(registros);
+    // Los registros mensuales ya almacenados NO se modifican: la categoría solo deja de
+    // ofrecerse para nuevas entradas y su histórico se conserva. Si se vuelve a crear una
+    // categoría con el mismo nombre, recupera sus datos.
   }
 
   // -------------------------
@@ -264,8 +266,8 @@ export class PatrimonioService {
           return { mes: r.mes, valores: nuevoVals };
         } else {
           // ya parece el formato nuevo
-          // aseguramos que las subcategorías se recojan en el mapa
-          Object.keys(r.valores).forEach(cat => {
+          // solo si no había catálogo guardado se recogen las subcategorías del histórico
+          if (!this.catalogoSubsPersistido) Object.keys(r.valores).forEach(cat => {
             const subs = Object.keys(r.valores[cat] || {});
             if (!this.subcategoriasMap[cat]) this.subcategoriasMap[cat] = [];
             subs.forEach(s => {

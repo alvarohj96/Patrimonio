@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -87,6 +88,8 @@ const PALETA_CATEGORIAS = [
 export class PatrimonioMensualComponent implements OnInit {
 
   categorias: string[] = [];
+  categoriasTabla: string[] = [];
+  private readonly destroyRef = inject(DestroyRef);
 
   registros: RegistroMensual[] = [];
 
@@ -124,7 +127,7 @@ export class PatrimonioMensualComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.categorias = this.patrimonioService.getCategorias();
+    this.actualizarCategorias();
 
     // Subcategorías iniciales desde el servicio
     this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
@@ -133,12 +136,21 @@ export class PatrimonioMensualComponent implements OnInit {
     this.registros = this.patrimonioService.getRegistros();
 
     this.patrimonioService.registros$.subscribe(() => {
-      this.categorias = this.patrimonioService.getCategorias();
+      this.actualizarCategorias();
     });
+
+    // Alta/baja de categorías (la baja ya no modifica los registros)
+    this.patrimonioService.categorias$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.actualizarCategorias();
+        this.cdr.markForCheck();
+      });
 
     // Subscribirse a cambios futuros
     this.patrimonioService.registros$.subscribe(regs => {
       this.registros = regs;
+      this.actualizarCategorias();
       this.recalcularVista();
       this.cdr.detectChanges();
     });
@@ -210,6 +222,20 @@ export class PatrimonioMensualComponent implements OnInit {
     this.porcentajePropiedad = 100;
     this.valorNetoCalculado = 0;
     this.deudaNeta = 0;
+  }
+
+  /**
+   * `categorias` son las vigentes; `categoriasTabla` añade las categorías eliminadas que aún
+   * tienen datos históricos, para que sigan visibles y los totales cuadren.
+   */
+  private actualizarCategorias() {
+    this.categorias = this.patrimonioService.getCategorias();
+    const historicas = new Set<string>();
+    (this.registros || []).forEach(r =>
+      Object.keys(r.valores || {}).forEach(c => {
+        if (!this.categorias.includes(c)) historicas.add(c);
+      }));
+    this.categoriasTabla = [...this.categorias, ...historicas];
   }
 
   getCategoriasParaMes(reg: RegistroMensual): string[] {
@@ -360,7 +386,7 @@ export class PatrimonioMensualComponent implements OnInit {
   }
 
   colorCategoria(cat: string): string {
-    const idx = Math.max(0, this.categorias.indexOf(cat));
+    const idx = Math.max(0, this.categoriasTabla.indexOf(cat));
     return PALETA_CATEGORIAS[idx % PALETA_CATEGORIAS.length];
   }
 
@@ -516,7 +542,7 @@ export class PatrimonioMensualComponent implements OnInit {
       this.patrimonioService.resetearTodo();
       this.registros = [];
       this.recalcularVista();
-      this.categorias = this.patrimonioService.getCategorias();
+      this.actualizarCategorias();
       this.subcategoriasPorCategoria = this.patrimonioService.getMapaSubcategorias();
     });
   }

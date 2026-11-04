@@ -89,4 +89,61 @@ describe('PatrimonioService', () => {
       expect(service.valorNetoPorCategoria(registros)).toEqual({ Liquidez: 300 });
     });
   });
+
+  describe('conservación del histórico al eliminar', () => {
+    const registros = (): RegistroMensual[] => [
+      {
+        mes: '2026-01',
+        valores: {
+          Acciones: { General: { valor: 100 } },
+          Cripto: { BTC: { valor: 40 }, ETH: { valor: 10 } }
+        }
+      }
+    ];
+
+    it('eliminar una categoría no modifica los registros ya almacenados', () => {
+      service.actualizarRegistros(registros());
+      service.removeCategoria('Cripto');
+
+      expect(service.getCategorias()).not.toContain('Cripto');
+      expect(service.getRegistros()).toEqual(registros());
+
+      const otraSesion = new PatrimonioService();
+      expect(otraSesion.getRegistros()).toEqual(registros());
+      expect(otraSesion.valorNetoPorCategoria(otraSesion.getRegistros())['Cripto']).toBe(50);
+    });
+
+    it('al volver a crear la categoría recupera su histórico', () => {
+      service.actualizarRegistros(registros());
+      service.removeCategoria('Cripto');
+      service.addCategoria('Cripto');
+
+      expect(service.getRegistros()).toEqual(registros());
+    });
+
+    it('eliminar una subcategoría no modifica los registros', () => {
+      service.actualizarRegistros(registros());
+      service.removeSubcategoria('Cripto', 'BTC');
+
+      expect(service.getSubcategorias('Cripto')).not.toContain('BTC');
+      expect(service.getRegistros()).toEqual(registros());
+    });
+
+    it('una subcategoría eliminada no reaparece al recargar aunque exista en el histórico', () => {
+      service.actualizarRegistros(registros());
+      service.addSubcategoria('Cripto', 'BTC');
+      service.addSubcategoria('Cripto', 'ETH');
+      service.removeSubcategoria('Cripto', 'BTC');
+
+      const otraSesion = new PatrimonioService();
+      expect(otraSesion.getSubcategorias('Cripto')).toEqual(['ETH']);
+      expect(otraSesion.getRegistros()).toEqual(registros());
+    });
+
+    it('sin catálogo guardado se siguen recogiendo las subcategorías del histórico', () => {
+      localStorage.setItem('patrimonioMensual', JSON.stringify(registros()));
+      const s = new PatrimonioService();
+      expect(s.getSubcategorias('Cripto').sort()).toEqual(['BTC', 'ETH']);
+    });
+  });
 });

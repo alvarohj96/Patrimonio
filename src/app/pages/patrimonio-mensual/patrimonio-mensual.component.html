@@ -157,7 +157,7 @@
           <tr>
             <th class="th-mes">Mes</th>
             <th class="th-num">Total</th>
-            @for (cat of categorias; track cat) {
+            @for (cat of categoriasTabla; track cat) {
               <th class="th-num col-categoria desktop-only">
                 <span class="th-cat">
                   <span class="dot" [style.background]="colorCategoria(cat)"></span>{{ cat }}
@@ -192,7 +192,7 @@
               </td>
 
               <!-- Totales por categoría -->
-              @for (cat of categorias; track cat) {
+              @for (cat of categoriasTabla; track cat) {
                 <td class="cat-val desktop-only">
                   @if (getTotalCategoria(f.reg, cat) !== 0) {
                     @if (!esModoPorcentaje(f.reg)) {
@@ -312,7 +312,7 @@
           </span>
 
           <div class="reg-cats">
-            @for (cat of categorias; track cat) {
+            @for (cat of categoriasTabla; track cat) {
               @if (getTotalCategoria(f.reg, cat) !== 0) {
                 <div class="reg-cat">
                   <span class="reg-cat-nombre">
