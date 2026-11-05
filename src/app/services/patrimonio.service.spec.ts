@@ -146,4 +146,31 @@ describe('PatrimonioService', () => {
       expect(s.getSubcategorias('Cripto').sort()).toEqual(['BTC', 'ETH']);
     });
   });
+  describe('subcategorías: orden y uso', () => {
+    it('ordenarSubcategorias reordena sin añadir ni perder ninguna', () => {
+      ['A', 'B', 'C'].forEach(x => service.addSubcategoria('Fondos', x));
+
+      service.ordenarSubcategorias('Fondos', ['C', 'A', 'B']);
+      expect(service.getSubcategorias('Fondos')).toEqual(['C', 'A', 'B']);
+
+      // Una lista parcial o con intrusas no elimina ni inventa subcategorías
+      service.ordenarSubcategorias('Fondos', ['B', 'Z']);
+      expect(service.getSubcategorias('Fondos')).toEqual(['B', 'C', 'A']);
+    });
+
+    it('el orden de subcategorías se conserva entre sesiones', () => {
+      ['A', 'B'].forEach(x => service.addSubcategoria('Fondos', x));
+      service.ordenarSubcategorias('Fondos', ['B', 'A']);
+      expect(new PatrimonioService().getSubcategorias('Fondos')).toEqual(['B', 'A']);
+    });
+
+    it('contarMesesPorSubcategoria cuenta los meses con dato de cada una', () => {
+      service.actualizarRegistros([
+        { mes: '2026-01', valores: { Fondos: { A: { valor: 1 }, B: { valor: 1 } } } },
+        { mes: '2026-02', valores: { Fondos: { A: { valor: 2 } }, Cripto: { BTC: { valor: 3 } } } }
+      ]);
+      expect(service.contarMesesPorSubcategoria('Fondos')).toEqual({ A: 2, B: 1 });
+      expect(service.contarMesesPorSubcategoria('Vacia')).toEqual({});
+    });
+  });
 });

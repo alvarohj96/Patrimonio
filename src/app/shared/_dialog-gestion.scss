@@ -1,0 +1,326 @@
+/* =====================================================
+   Estilos compartidos de los diálogos de gestión
+   (categorías / subcategorías). Cada componente define
+   su color de acento con --dlg-acento.
+===================================================== */
+
+:host {
+  --dlg-acento: #2563eb;
+  display: block;
+  width: min(480px, calc(100vw - 32px));
+  color: var(--app-text);
+}
+
+/* ---------- Cabecera ---------- */
+.dlg-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: var(--app-text);
+}
+
+.dlg-icono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  color: var(--dlg-acento);
+  background: color-mix(in srgb, var(--dlg-acento) 15%, transparent);
+
+  mat-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+  }
+}
+
+.dlg-titulo-texto {
+  display: grid;
+  line-height: 1.2;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  small {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    opacity: 0.65;
+  }
+}
+
+mat-dialog-content {
+  padding-top: 8px !important;
+  padding-bottom: 14px !important;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+/* ---------- Añadir (input + botón en una fila) ---------- */
+.dlg-add {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  mat-form-field {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .btn-add {
+    flex: 0 0 auto;
+    height: 56px;
+    padding: 0 18px;
+    border-radius: 999px !important;
+    font-weight: 600;
+    box-shadow: none !important;
+  }
+
+  .btn-add:not(:disabled) {
+    color: #fff !important;
+    background: var(--dlg-acento) !important;
+  }
+}
+
+.dlg-error,
+.dlg-ayuda {
+  margin: 4px 4px 14px;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.dlg-error {
+  color: #dc2626;
+}
+
+.dlg-ayuda {
+  opacity: 0.65;
+}
+
+:host-context(.dark-theme) .dlg-error {
+  color: #fca5a5;
+}
+
+/* ---------- Chips (selector de categoría) ---------- */
+.dlg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.dlg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--app-text, #1e1e1e) 18%, transparent);
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--hover);
+  }
+
+  &--sel {
+    border-color: var(--dlg-acento);
+    background: color-mix(in srgb, var(--dlg-acento) 12%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dlg-acento) 22%, transparent);
+    font-weight: 600;
+  }
+}
+
+/* ---------- Insignias (contadores) ---------- */
+.dlg-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--app-text, #1e1e1e) 10%, transparent);
+}
+
+button.dlg-badge {
+  border: 0;
+  font-family: inherit;
+  color: var(--dlg-acento);
+  background: color-mix(in srgb, var(--dlg-acento) 12%, transparent);
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--dlg-acento) 22%, transparent);
+  }
+}
+
+/* ---------- Lista ---------- */
+.dlg-lista-cab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 4px 2px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.7;
+
+  .dlg-pista {
+    font-weight: 400;
+    opacity: 0.8;
+  }
+}
+
+.dlg-lista {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 4px;
+}
+
+.dlg-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 4px 4px 2px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--app-text);
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--hover);
+  }
+
+  .dlg-nombre {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .dlg-eliminar {
+    flex: 0 0 auto;
+    color: #dc2626;
+  }
+}
+
+:host-context(.dark-theme) .dlg-item .dlg-eliminar {
+  color: #fca5a5;
+}
+
+.dlg-handle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-text);
+  opacity: 0.45;
+  cursor: grab;
+  touch-action: none;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.9;
+  }
+}
+
+/* Elemento que se está arrastrando (el preview se mueve al <body>) */
+.dlg-item.cdk-drag-preview {
+  box-shadow: 0 12px 30px -10px rgba(16, 24, 40, 0.5);
+  border-color: var(--dlg-acento, #2563eb);
+}
+
+.dlg-item.cdk-drag-placeholder {
+  opacity: 0.35;
+}
+
+.dlg-lista.cdk-drop-list-dragging .dlg-item:not(.cdk-drag-placeholder) {
+  transition: transform 180ms ease;
+}
+
+/* ---------- Estado vacío ---------- */
+.dlg-vacio {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 22px 12px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-color);
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
+
+  mat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    opacity: 0.5;
+  }
+}
+
+/* ---------- Pie ---------- */
+.dlg-acciones button {
+  border-radius: 999px !important;
+  font-weight: 600;
+}
+
+/* ---------- Material en tema oscuro / campos suaves ---------- */
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-floating-label,
+:host ::ng-deep .mat-mdc-form-field label {
+  color: var(--app-text) !important;
+  opacity: 0.75;
+}
+
+:host ::ng-deep .mat-mdc-input-element,
+:host ::ng-deep .mdc-text-field__input {
+  color: var(--app-text) !important;
+  caret-color: var(--app-text) !important;
+}
+
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+:host ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+  border-color: var(--border-color) !important;
+}
+
+:host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading {
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+}
+
+:host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-top-right-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .dlg-add .btn-add {
+    padding: 0 14px;
+  }
+}

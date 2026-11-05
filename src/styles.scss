@@ -183,3 +183,54 @@ table {
   --mdc-snackbar-container-color: var(--card-bg);
   --mdc-snackbar-supporting-text-color: var(--app-text);
 }
+
+/* =====================================================
+   DIÁLOGOS DE LA APP (registrar mes / gestionar categorías
+   y subcategorías / confirmaciones)
+   Superficie redondeada y contenido que hace scroll sin
+   empujar fuera de pantalla las acciones.
+===================================================== */
+
+.dialogo-ancho,
+.dialog-formulario {
+  .mdc-dialog__surface {
+    border-radius: 20px !important;
+    box-shadow: 0 24px 60px -20px rgba(16, 24, 40, 0.45) !important;
+  }
+
+  .mat-mdc-dialog-content {
+    max-height: calc(90dvh - 150px);
+  }
+}
+
+.dialogo-ancho .mat-mdc-dialog-actions,
+.dialog-formulario .mat-mdc-dialog-actions {
+  padding: 12px 24px 16px;
+  gap: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--app-text, #1e1e1e) 10%, transparent);
+}
+
+@media (max-width: 520px) {
+  .dialogo-ancho .mat-mdc-dialog-content,
+  .dialog-formulario .mat-mdc-dialog-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .dialogo-ancho .mat-mdc-dialog-actions,
+  .dialog-formulario .mat-mdc-dialog-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Snackbar encima de los diálogos y con esquinas coherentes */
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-shape: 14px;
+}
+
+/* Botones de texto legibles en tema oscuro dentro de los diálogos */
+.dark-theme .dialogo-ancho .mat-mdc-button:not(:disabled),
+.dark-theme .dialog-formulario .mat-mdc-button:not(:disabled) {
+  color: #93c5fd;
+}

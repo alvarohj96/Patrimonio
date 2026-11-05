@@ -3,73 +3,30 @@
   <span>Registrar patrimonio mensual</span>
 </h2>
 
-<div class="header-actions">
-
-  <button
-    mat-raised-button
-    color="primary"
-    class="btn-gestionar"
-    (click)="abrirGestionCategorias()">
-
-    <mat-icon aria-hidden="true">category</mat-icon>
-    Gestionar categorías
-
-  </button>
-
-  <button
-    mat-raised-button
-    color="accent"
-    (click)="abrirGestionSubcategorias()">
-
-    <mat-icon aria-hidden="true">account_tree</mat-icon>
-    Gestionar subcategorías
-
-  </button>
-
-</div>
-
-<div class="entradas-sesion" *ngIf="entradasSesion.length">
-  <div class="entradas-titulo">
-    <mat-icon aria-hidden="true">check_circle</mat-icon>
-    Añadido en esta sesión
-  </div>
-
-  <div class="entrada-item" *ngFor="let e of entradasSesion; let i = index">
-    <span class="entrada-texto">
-      <strong>{{ e.categoria }}</strong> · {{ e.subcategoria }}:
-      {{ e.valor | number:'1.2-2' }} €
-      <span class="entrada-meta">{{ nombreMes(e.mes) }}<ng-container *ngIf="e.copiado"> · copiado</ng-container></span>
-    </span>
-
-    <button
-      mat-icon-button
-      type="button"
-      title="Deshacer esta entrada"
-      (click)="quitarEntrada(i)">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-</div>
-
 <mat-dialog-content>
 
-  <form (ngSubmit)="guardarYAnadirOtro()" class="form-grid">
+  <form id="form-mensual" (ngSubmit)="guardarYAnadirOtro()" class="form-grid">
 
-    <!-- MES (por defecto, el mes en curso) -->
-    <mat-form-field appearance="outline">
-      <mat-label>Mes</mat-label>
+    <!-- MES: anterior · selector · siguiente (por defecto, el mes en curso) -->
+    <div class="mes-nav">
+      <button mat-icon-button type="button" aria-label="Mes anterior" (click)="cambiarMes(-1)">
+        <mat-icon aria-hidden="true">chevron_left</mat-icon>
+      </button>
 
+      <button type="button" class="mes-actual" aria-label="Elegir mes" (click)="pickerMes.open()">
+        <mat-icon aria-hidden="true">calendar_month</mat-icon>
+        <span>{{ nombreMes(mes) }}</span>
+      </button>
+
+      <!-- Input solo para anclar el calendario; el mes se muestra en el botón de al lado -->
       <input
-        matInput
+        class="mes-ancla"
+        readonly
+        tabindex="-1"
+        aria-hidden="true"
         [matDatepicker]="pickerMes"
-        [(ngModel)]="mesSeleccionado"
-        name="mesSeleccionado"
-        required />
-
-      <mat-datepicker-toggle
-        matSuffix
-        [for]="pickerMes">
-      </mat-datepicker-toggle>
+        [ngModel]="mesSeleccionado"
+        name="mesSeleccionado" />
 
       <mat-datepicker
         #pickerMes
@@ -77,15 +34,26 @@
         (monthSelected)="seleccionarMes($event, pickerMes)">
       </mat-datepicker>
 
-    </mat-form-field>
+      <button mat-icon-button type="button" aria-label="Mes siguiente" (click)="cambiarMes(1)">
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      </button>
+    </div>
 
     <!-- PROGRESO DEL MES -->
     <div class="progreso-mes" *ngIf="progresoMes() as p">
       <div class="progreso-texto">
-        <span>{{ nombreMes(mes) }}</span>
-        <strong>{{ p.rellenas }} / {{ p.total }} introducidos</strong>
+        <span>Introducido</span>
+        <strong>{{ p.rellenas }} / {{ p.total }}</strong>
       </div>
-      <div class="progreso-barra"><div class="progreso-relleno" [style.width.%]="p.pct"></div></div>
+      <div
+        class="progreso-barra"
+        role="progressbar"
+        aria-label="Subcategorías introducidas este mes"
+        [attr.aria-valuenow]="p.pct"
+        aria-valuemin="0"
+        aria-valuemax="100">
+        <div class="progreso-relleno" [style.width.%]="p.pct"></div>
+      </div>
     </div>
 
     <!-- COPIAR DE MESES ANTERIORES -->
@@ -95,20 +63,21 @@
         mat-stroked-button
         type="button"
         class="btn-copiar"
+        [attr.aria-expanded]="mostrarCopia"
         (click)="alternarCopia()">
         <mat-icon aria-hidden="true">content_copy</mat-icon>
         Copiar valores de un mes anterior
         <mat-icon aria-hidden="true" class="chevron">{{ mostrarCopia ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
 
-      <p class="mensaje-copia" *ngIf="mensajeCopia">
+      <p class="mensaje-copia" role="status" *ngIf="mensajeCopia">
         <mat-icon aria-hidden="true">check_circle</mat-icon>
         {{ mensajeCopia }}
       </p>
 
       <div class="panel-copia" *ngIf="mostrarCopia">
 
-        <mat-form-field appearance="outline" class="origen-field">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="origen-field">
           <mat-label>Copiar desde</mat-label>
           <mat-select [value]="mesOrigen" (selectionChange)="cambiarMesOrigen($event.value)">
             <mat-option *ngFor="let m of mesesOrigen" [value]="m">{{ nombreMes(m) }}</mat-option>
@@ -141,8 +110,7 @@
         </div>
 
         <button
-          mat-raised-button
-          color="primary"
+          mat-flat-button
           type="button"
           class="btn-copiar-ahora"
           [disabled]="!totalSeleccionados()"
@@ -153,37 +121,56 @@
       </div>
     </div>
 
-    <!-- CATEGORÍA (con progreso por categoría) -->
-    <mat-form-field appearance="outline">
-      <mat-label>Categoría</mat-label>
+    <!-- CATEGORÍA: un toque, con progreso por categoría -->
+    <section class="seccion">
+      <div class="seccion-cab">
+        <span class="seccion-titulo">Categoría</span>
+        <button mat-button type="button" class="btn-gestionar" (click)="abrirGestionCategorias()">
+          <mat-icon aria-hidden="true">tune</mat-icon>
+          Gestionar
+        </button>
+      </div>
 
-      <mat-select
-        [(ngModel)]="categoria"
-        name="categoria"
-        (selectionChange)="onCategoriaChange()"
-        required>
-
-        <mat-option *ngFor="let c of categorias" [value]="c">
-          {{ c }}
-          <span class="opcion-progreso" [class.opcion-progreso--ok]="resumenCategoria(c).total && resumenCategoria(c).rellenas === resumenCategoria(c).total">
+      <div class="subcats-lista" role="group" aria-label="Categoría">
+        <button
+          type="button"
+          class="chip"
+          *ngFor="let c of categorias"
+          [class.chip--ok]="resumenCategoria(c).total && resumenCategoria(c).rellenas === resumenCategoria(c).total"
+          [class.chip--sel]="c === categoria"
+          [attr.aria-pressed]="c === categoria"
+          (click)="seleccionarCategoria(c)">
+          <span class="chip-nombre">{{ c }}</span>
+          <span class="opcion-progreso"
+            [class.opcion-progreso--ok]="resumenCategoria(c).total && resumenCategoria(c).rellenas === resumenCategoria(c).total">
             {{ resumenCategoria(c).rellenas }}/{{ resumenCategoria(c).total }}
           </span>
-        </mat-option>
+        </button>
+      </div>
 
-      </mat-select>
-    </mat-form-field>
+      <p class="aviso-completo" *ngIf="!categorias.length">
+        Aún no tienes categorías. Créalas con «Gestionar».
+      </p>
+    </section>
 
     <!-- SUBCATEGORÍAS: las ya introducidas este mes aparecen marcadas -->
-    <div class="subcats" *ngIf="categoria && subcategoriasDe(categoria).length">
-      <div class="subcats-titulo">Subcategoría</div>
+    <section class="seccion" *ngIf="categoria">
+      <div class="seccion-cab">
+        <span class="seccion-titulo">Subcategoría</span>
+        <button mat-button type="button" class="btn-gestionar" (click)="abrirGestionSubcategorias()">
+          <mat-icon aria-hidden="true">tune</mat-icon>
+          Gestionar
+        </button>
+      </div>
 
-      <div class="subcats-lista">
+      <div class="subcats-lista" role="group" aria-label="Subcategoría" *ngIf="subcategoriasDe(categoria).length">
         <button
           type="button"
           class="chip"
           *ngFor="let s of subcategoriasDe(categoria)"
           [class.chip--ok]="tieneValor(categoria, s)"
           [class.chip--sel]="s === subcategoria"
+          [attr.aria-pressed]="s === subcategoria"
           (click)="seleccionarSubcategoria(s)">
 
           <mat-icon aria-hidden="true" class="chip-icono">{{ tieneValor(categoria, s) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
@@ -191,16 +178,16 @@
           <span class="chip-valor" *ngIf="entradaDelMes(categoria, s) as e">{{ e.valor | number:'1.0-0' }} €</span>
         </button>
       </div>
-    </div>
 
-    <p class="aviso-completo" *ngIf="categoria && subcategoriasDe(categoria).length && resumenCategoria(categoria).rellenas === resumenCategoria(categoria).total">
-      ✅ Todas las subcategorías de "{{ categoria }}" tienen valor en {{ nombreMes(mes) }}.
-      Pulsa una para corregirla, elige otra categoría o pulsa "Guardar y cerrar".
-    </p>
+      <p class="aviso-completo" *ngIf="subcategoriasDe(categoria).length && resumenCategoria(categoria).rellenas === resumenCategoria(categoria).total">
+        ✅ Todas las subcategorías de «{{ categoria }}» tienen valor en {{ nombreMes(mes) }}.
+        Pulsa una para corregirla o elige otra categoría.
+      </p>
 
-    <p class="aviso-completo" *ngIf="categoria && !subcategoriasDe(categoria).length">
-      Esta categoría no tiene subcategorías. Créalas con "Gestionar subcategorías".
-    </p>
+      <p class="aviso-completo" *ngIf="!subcategoriasDe(categoria).length">
+        Esta categoría no tiene subcategorías. Créalas con «Gestionar».
+      </p>
+    </section>
 
     <ng-container *ngIf="subcategoria">
 
@@ -220,64 +207,81 @@
         <button mat-button type="button" class="btn-usar" (click)="usarAnterior()">Usar este valor</button>
       </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Valor (€)</mat-label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Valor de {{ subcategoria }}</mat-label>
 
         <input
           #valorInput
           matInput
           type="number"
+          inputmode="decimal"
+          step="any"
+          min="0"
           [(ngModel)]="valor"
           name="valor"
           required>
+
+        <span matSuffix>€&nbsp;</span>
       </mat-form-field>
 
       <!-- INMUEBLES -->
       <ng-container *ngIf="categoria === 'Inmuebles'">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Deuda pendiente</mat-label>
+        <div class="fila-doble">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Deuda pendiente</mat-label>
 
-          <input
-            matInput
-            type="number"
-            [(ngModel)]="deuda"
-            name="deuda">
+            <input
+              matInput
+              type="number"
+              inputmode="decimal"
+              step="any"
+              min="0"
+              [(ngModel)]="deuda"
+              name="deuda">
 
-          <span matSuffix>€</span>
-        </mat-form-field>
+            <span matSuffix>€&nbsp;</span>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>% propiedad</mat-label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>% propiedad</mat-label>
 
-          <input
-            matInput
-            type="number"
-            min="1"
-            max="100"
-            [(ngModel)]="porcentajePropiedad"
-            name="porcentajePropiedad">
+            <input
+              matInput
+              type="number"
+              inputmode="decimal"
+              min="1"
+              max="100"
+              [(ngModel)]="porcentajePropiedad"
+              name="porcentajePropiedad">
 
-          <span matSuffix>%</span>
-        </mat-form-field>
+            <span matSuffix>%&nbsp;</span>
+          </mat-form-field>
+        </div>
+
+        <p class="resumen-inmueble" *ngIf="valor !== null">
+          Tu parte neta ({{ porcentajePropiedad }} %):
+          <strong>{{ netoInmueble() | number:'1.2-2' }} €</strong>
+        </p>
 
       </ng-container>
 
       <!-- CANTIDAD DE ACTIVO (Cripto, Acciones, Fondos…) -->
       <ng-container *ngIf="mostrarCampoUnidades()">
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Cantidad ({{ unidadLabel() }})</mat-label>
 
           <input
             matInput
             type="number"
+            inputmode="decimal"
             [(ngModel)]="cantidad"
             name="cantidad"
             min="0"
             step="any">
 
-          <span matSuffix>{{ unidadLabel() }}</span>
+          <span matSuffix>{{ unidadLabel() }}&nbsp;</span>
           <mat-hint>Opcional · el precio/unidad se calcula automáticamente</mat-hint>
         </mat-form-field>
 
@@ -285,37 +289,58 @@
 
     </ng-container>
 
-    <div class="acciones">
+    <!-- AÑADIDO EN ESTA SESIÓN (con deshacer) -->
+    <div class="entradas-sesion" *ngIf="entradasSesion.length">
+      <div class="entradas-titulo">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        Añadido en esta sesión ({{ entradasSesion.length }})
+      </div>
 
-      <button mat-button mat-dialog-close *ngIf="!entradasSesion.length">
-        Cancelar
-      </button>
+      <div class="entrada-item" *ngFor="let e of entradasSesion; let i = index">
+        <span class="entrada-texto">
+          <strong>{{ e.categoria }}</strong> · {{ e.subcategoria }}:
+          {{ e.valor | number:'1.2-2' }} €
+          <span class="entrada-meta">{{ nombreMes(e.mes) }}<ng-container *ngIf="e.copiado"> · copiado</ng-container></span>
+        </span>
 
-      <button mat-button mat-dialog-close [mat-dialog-close]="true" *ngIf="entradasSesion.length">
-        Cerrar
-      </button>
-
-      <button
-        mat-raised-button
-        color="accent"
-        type="button"
-        class="btn-guardar"
-        (click)="guardarYCerrar()"
-        [disabled]="!categoria || !subcategoria || !valor || !mes">
-        Guardar y cerrar
-      </button>
-
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        class="btn-guardar-otro"
-        [disabled]="!categoria || !subcategoria || !valor || !mes">
-        Guardar y añadir otro
-      </button>
-
+        <button
+          mat-icon-button
+          type="button"
+          title="Deshacer esta entrada"
+          aria-label="Deshacer esta entrada"
+          (click)="quitarEntrada(i)">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
     </div>
 
   </form>
 
 </mat-dialog-content>
+
+<!-- Pie fijo: siempre visible aunque el formulario haga scroll -->
+<mat-dialog-actions align="end" class="acciones">
+
+  <button mat-button type="button" [mat-dialog-close]="entradasSesion.length > 0">
+    {{ entradasSesion.length ? 'Cerrar' : 'Cancelar' }}
+  </button>
+
+  <button
+    mat-button
+    type="button"
+    class="btn-guardar"
+    (click)="guardarYCerrar()"
+    [disabled]="!puedeGuardar()">
+    Guardar y cerrar
+  </button>
+
+  <button
+    mat-flat-button
+    type="submit"
+    form="form-mensual"
+    class="btn-guardar-otro"
+    [disabled]="!puedeGuardar()">
+    Guardar y añadir otro
+  </button>
+
+</mat-dialog-actions>

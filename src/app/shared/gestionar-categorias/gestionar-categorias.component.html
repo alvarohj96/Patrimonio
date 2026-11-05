@@ -1,34 +1,92 @@
-<div class="dialog-container">
-
-  <h2 class="titulo">
-    <mat-icon class="titulo-icon">category</mat-icon>
+<h2 mat-dialog-title class="dlg-titulo">
+  <span class="dlg-icono"><mat-icon aria-hidden="true">category</mat-icon></span>
+  <span class="dlg-titulo-texto">
     Gestionar categorías
-  </h2>
+    <small>{{ categorias().length }} {{ categorias().length === 1 ? 'categoría' : 'categorías' }}</small>
+  </span>
+</h2>
 
-  <!-- LISTA DE CATEGORÍAS -->
-  <div class="lista-categorias">
-    <div class="cat-item" *ngFor="let c of categorias">
-      <span class="cat-nombre">{{ c }}</span>
+<mat-dialog-content>
 
-      <button mat-icon-button color="warn" (click)="removeCat(c)">
-        <mat-icon>delete</mat-icon>
-      </button>
+  <!-- AÑADIR (Enter para confirmar) -->
+  <form class="dlg-add" (ngSubmit)="addCat()">
+    <mat-form-field appearance="outline">
+      <mat-label>Nueva categoría</mat-label>
+      <input
+        #nuevaInput
+        matInput
+        name="nuevaCat"
+        maxlength="40"
+        autocomplete="off"
+        placeholder="Ej.: Oro, Planes de pensiones…"
+        [ngModel]="nuevaCat()"
+        (ngModelChange)="nuevaCat.set($event)"
+        [attr.aria-invalid]="!!error()">
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" class="btn-add" [disabled]="!puedeAnadir()">
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Añadir
+    </button>
+  </form>
+
+  <p class="dlg-error" role="alert" *ngIf="error()">{{ error() }}</p>
+
+  <!-- LISTA -->
+  <ng-container *ngIf="categorias().length; else vacio">
+
+    <div class="dlg-lista-cab">
+      <span>Tus categorías</span>
+      <span class="dlg-pista">Arrastra para ordenar</span>
     </div>
-  </div>
 
-  <!-- AÑADIR CATEGORÍA -->
-  <mat-form-field appearance="outline" class="input-full">
-    <mat-label>Nueva categoría</mat-label>
-    <input matInput [(ngModel)]="nuevaCat">
-  </mat-form-field>
+    <div class="dlg-lista" cdkDropList (cdkDropListDropped)="soltar($event)">
+      <div class="dlg-item" *ngFor="let c of categorias(); let i = index" cdkDrag>
 
-  <button mat-raised-button color="primary" class="btn-add" (click)="addCat()">
-    <mat-icon>add</mat-icon>
-    Añadir categoría
-  </button>
+        <button
+          type="button"
+          class="dlg-handle"
+          cdkDragHandle
+          [attr.aria-label]="'Reordenar ' + c + ' (arrastra o usa Alt + flechas arriba/abajo)'"
+          (keydown.alt.arrowup)="mover(i, i - 1); $event.preventDefault()"
+          (keydown.alt.arrowdown)="mover(i, i + 1); $event.preventDefault()">
+          <mat-icon aria-hidden="true">drag_indicator</mat-icon>
+        </button>
 
-  <div class="acciones">
-    <button mat-button (click)="dialogRef.close()">Cerrar</button>
-  </div>
+        <span class="dlg-nombre" [title]="c">{{ c }}</span>
 
-</div>
+        <button
+          type="button"
+          class="dlg-badge"
+          [title]="'Gestionar subcategorías de ' + c"
+          (click)="abrirSubcategorias(c)">
+          {{ numSubs(c) }} {{ numSubs(c) === 1 ? 'subcategoría' : 'subcategorías' }}
+        </button>
+
+        <button
+          mat-icon-button
+          type="button"
+          class="dlg-eliminar"
+          [attr.aria-label]="'Eliminar categoría ' + c"
+          (click)="eliminar(c)">
+          <mat-icon aria-hidden="true">delete_outline</mat-icon>
+        </button>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-template #vacio>
+    <div class="dlg-vacio">
+      <mat-icon aria-hidden="true">category</mat-icon>
+      <strong>Aún no tienes categorías</strong>
+      <span>Escribe un nombre arriba y pulsa Enter para crear la primera.</span>
+    </div>
+  </ng-template>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dlg-acciones">
+  <button mat-button type="button" (click)="dialogRef.close(true)">Cerrar</button>
+</mat-dialog-actions>

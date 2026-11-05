@@ -162,6 +162,7 @@ export class PatrimonioMensualComponent implements OnInit {
       maxWidth: '95vw',
       height: 'auto',
       maxHeight: '90vh',
+      autoFocus: false,
       panelClass: 'dialogo-ancho'
     });
   }
@@ -171,6 +172,7 @@ export class PatrimonioMensualComponent implements OnInit {
       width: '520px',
       maxWidth: '95vw',
       maxHeight: '90vh',
+      autoFocus: false,
       panelClass: 'dialog-formulario'
     });
   }
@@ -318,6 +320,7 @@ export class PatrimonioMensualComponent implements OnInit {
       maxWidth: '95vw',
       height: 'auto',
       maxHeight: '90vh',
+      autoFocus: false,
       panelClass: 'dialogo-ancho'
     });
   }

@@ -83,7 +83,8 @@ export class FormularioMensualDialogComponent {
   categoria = '';
   subcategoria = '';
 
-  valor = 0;
+  /** null = campo vacío (así se distingue de un 0 € válido). */
+  valor: number | null = null;
   deuda = 0;
   cantidad: number | null = null;
 
@@ -146,6 +147,16 @@ export class FormularioMensualDialogComponent {
 
     this.refrescar();
     this.preseleccionarOrigen();
+
+    // Arrancamos en la primera categoría con subcategorías pendientes (un toque menos)
+    const incompleta = this.categorias.find(c => {
+      const r = this.resumenCategoria(c);
+      return r.total > 0 && r.rellenas < r.total;
+    });
+    if (incompleta) {
+      this.categoria = incompleta;
+      this.onCategoriaChange(false);
+    }
   }
 
   private recargarCatalogo() {
@@ -253,20 +264,29 @@ export class FormularioMensualDialogComponent {
 
   private cargarEnFormulario(f: ValoresFormulario) {
     this.valor = f.valor;
-    this.deuda = f.deuda;
+    this.deuda = f.deuda ?? 0;
     this.porcentajePropiedad = f.porcentaje;
     this.cantidad = f.cantidad;
   }
 
   private limpiarFormulario() {
-    this.cargarEnFormulario({ valor: 0, deuda: 0, porcentaje: 100, cantidad: null });
+    this.valor = null;
+    this.deuda = 0;
+    this.porcentajePropiedad = 100;
+    this.cantidad = null;
   }
 
   // =======================================================
   //  SELECCIÓN
   // =======================================================
 
-  onCategoriaChange() {
+  seleccionarCategoria(cat: string) {
+    if (cat === this.categoria) return;
+    this.categoria = cat;
+    this.onCategoriaChange();
+  }
+
+  onCategoriaChange(enfocar = true) {
     this.subcategoria = '';
     this.limpiarFormulario();
     this.anterior = null;
@@ -274,7 +294,7 @@ export class FormularioMensualDialogComponent {
     // Si solo queda una pendiente, ahorramos un clic
     const pendientes = this.subcategoriasDe(this.categoria).filter(s => !this.tieneValor(this.categoria, s));
     if (pendientes.length === 1) {
-      this.seleccionarSubcategoria(pendientes[0]);
+      this.seleccionarSubcategoria(pendientes[0], enfocar);
     }
   }
 
@@ -341,11 +361,9 @@ export class FormularioMensualDialogComponent {
       width: 'auto',
       maxWidth: '95vw',
       maxHeight: '90vh',
+      autoFocus: false,
       panelClass: 'dialogo-ancho'
-    }).afterClosed().subscribe(() => {
-      this.recargarCatalogo();
-      this.cdr.markForCheck();
-    });
+    }).afterClosed().subscribe(() => this.trasGestion());
   }
 
   abrirGestionSubcategorias() {
@@ -353,19 +371,46 @@ export class FormularioMensualDialogComponent {
       width: 'auto',
       maxWidth: '95vw',
       maxHeight: '90vh',
-      panelClass: 'dialogo-ancho'
-    }).afterClosed().subscribe(() => {
-      this.recargarCatalogo();
-      this.cdr.markForCheck();
-    });
+      autoFocus: false,
+      panelClass: 'dialogo-ancho',
+      data: { categoria: this.categoria || undefined }
+    }).afterClosed().subscribe(() => this.trasGestion());
+  }
+
+  /** Recarga el catálogo y descarta la selección si la categoría/subcategoría ya no existe. */
+  private trasGestion() {
+    this.recargarCatalogo();
+
+    if (!this.categorias.includes(this.categoria)) {
+      this.categoria = '';
+      this.subcategoria = '';
+      this.limpiarFormulario();
+      this.anterior = null;
+    } else if (this.subcategoria && !this.subcategoriasDe(this.categoria).includes(this.subcategoria)) {
+      this.subcategoria = '';
+      this.limpiarFormulario();
+      this.anterior = null;
+    }
+
+    this.refrescar();
+    this.cdr.markForCheck();
+  }
+
+  /** Mes anterior (-1) o siguiente (+1) respecto al seleccionado. */
+  cambiarMes(delta: number) {
+    const base = this.mesSeleccionado ?? new Date();
+    this.aplicarMes(new Date(base.getFullYear(), base.getMonth() + delta, 1));
   }
 
   seleccionarMes(event: Date, datepicker: any) {
+    datepicker.close();
+    this.aplicarMes(event);
+  }
+
+  private aplicarMes(event: Date) {
     this.mes = this.formatoMes(event);
     this.mesSeleccionado = event;
     this.mensajeCopia = '';
-
-    datepicker.close();
 
     this.refrescar();
     this.preseleccionarOrigen();
@@ -380,6 +425,18 @@ export class FormularioMensualDialogComponent {
   //  GUARDAR
   // =======================================================
 
+  /** Hay categoría, subcategoría, mes y un importe válido (0 € también lo es). */
+  puedeGuardar(): boolean {
+    return !!this.categoria && !!this.subcategoria && !!this.mes
+      && typeof this.valor === 'number' && Number.isFinite(this.valor) && this.valor >= 0;
+  }
+
+  /** Inmuebles: parte neta (valor − deuda) que corresponde al % de propiedad. */
+  netoInmueble(): number {
+    const pct = (this.porcentajePropiedad || 0) / 100;
+    return ((this.valor ?? 0) - (this.deuda || 0)) * pct;
+  }
+
   /**
    * Guarda la entrada actual (categoría + subcategoría + valor) sin tocar el
    * estado del diálogo (no resetea campos ni cierra). Devuelve false si faltan
@@ -387,14 +444,9 @@ export class FormularioMensualDialogComponent {
    */
   private guardarEntradaActual(): boolean {
 
-    if (
-      !this.categoria ||
-      !this.subcategoria ||
-      !this.valor ||
-      !this.mes
-    ) {
-      return false;
-    }
+    if (!this.puedeGuardar()) return false;
+
+    const valor = this.valor as number;
 
     const registros = this.patrimonioService.getRegistros();
 
@@ -418,7 +470,7 @@ export class FormularioMensualDialogComponent {
 
     const previo = registro.valores[this.categoria][this.subcategoria];
 
-    let valorGuardado = this.valor;
+    let valorGuardado = valor;
     let deudaGuardada = 0;
 
     // ===== INMUEBLES =====
@@ -426,7 +478,7 @@ export class FormularioMensualDialogComponent {
 
       const porcentaje = this.porcentajePropiedad / 100;
 
-      const valorNeto = this.valor * porcentaje;
+      const valorNeto = valor * porcentaje;
 
       const deudaNeta = this.deuda * porcentaje;
 
@@ -445,7 +497,7 @@ export class FormularioMensualDialogComponent {
     else {
 
       registro.valores[this.categoria][this.subcategoria] = {
-        valor: this.valor,
+        valor,
         deuda: 0,
         porcentaje: 100,
         ...(this.cantidad !== null && this.cantidad > 0 ? { cantidad: this.cantidad } : {})
@@ -503,7 +555,7 @@ export class FormularioMensualDialogComponent {
    */
   guardarYCerrar() {
 
-    if (this.categoria && this.subcategoria && this.valor && this.mes) {
+    if (this.puedeGuardar()) {
       this.guardarEntradaActual();
     }
 

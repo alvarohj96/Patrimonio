@@ -190,6 +190,27 @@ export class PatrimonioService {
     this.saveSubcategorias();
   }
 
+  /** Reordena las subcategorías de una categoría (no añade ni elimina ninguna). */
+  ordenarSubcategorias(categoria: string, subs: string[]) {
+    const actuales = this.subcategoriasMap[categoria];
+    if (!actuales) return;
+    const ordenadas = subs.filter(s => actuales.includes(s));
+    const resto = actuales.filter(s => !ordenadas.includes(s));
+    this.subcategoriasMap[categoria] = [...ordenadas, ...resto];
+    this.saveSubcategorias();
+  }
+
+  /** Nº de meses con dato registrado para cada subcategoría de una categoría. */
+  contarMesesPorSubcategoria(categoria: string): { [subcategoria: string]: number } {
+    const cuenta: { [subcategoria: string]: number } = {};
+    for (const r of this.getRegistros()) {
+      for (const sub of Object.keys(r.valores?.[categoria] || {})) {
+        cuenta[sub] = (cuenta[sub] || 0) + 1;
+      }
+    }
+    return cuenta;
+  }
+
   ordenarCategorias(cats: string[]) {
     this.categorias = [...cats];
     localStorage.setItem(this.categoriasKey, JSON.stringify(this.categorias));

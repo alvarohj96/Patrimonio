@@ -17,28 +17,10 @@
 
 mat-dialog-content {
   padding-top: 12px;
+  padding-bottom: 14px !important;
   overflow-x: hidden;
 }
 
-
-/* =====================================================
-   CABECERA – BOTONES DE GESTIÓN
-===================================================== */
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.header-actions button {
-  flex: 1;
-  min-width: 180px;
-  background-color: var(--card-bg);
-  color: var(--app-text);
-  border: 1px solid var(--border-color);
-}
 
 
 /* =====================================================
@@ -117,14 +99,11 @@ mat-dialog-content {
 
 
 /* =====================================================
-   ACCIONES
+   ACCIONES (pie fijo: mat-dialog-actions)
 ===================================================== */
 
 .acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 8px;
 }
 
 
@@ -254,22 +233,6 @@ mat-dialog-content {
   }
 }
 
-/* Botones de gestión en pill */
-.header-actions button {
-  border-radius: 999px !important;
-  box-shadow: none !important;
-  font-weight: 600;
-  background-color: transparent !important;
-  border-color: color-mix(in srgb, var(--app-text, #1e1e1e) 14%, transparent) !important;
-
-  mat-icon {
-    width: 18px;
-    height: 18px;
-    font-size: 18px;
-    margin-right: 6px;
-  }
-}
-
 /* Entradas añadidas: tile verde suave */
 .entradas-sesion {
   border-radius: 14px;
@@ -309,8 +272,6 @@ mat-dialog-content {
 /* Acciones */
 .acciones {
   align-items: center;
-  padding-top: 8px;
-  border-top: 1px solid color-mix(in srgb, var(--app-text, #1e1e1e) 10%, transparent);
 }
 
 .acciones button {
@@ -335,14 +296,20 @@ mat-dialog-content {
 }
 
 @media (max-width: 520px) {
+  /* Móvil: acción principal a todo el ancho y las otras dos en una fila debajo */
   .acciones {
     flex-wrap: wrap;
     justify-content: stretch;
   }
 
   .acciones button {
-    flex: 1 1 100%;
+    flex: 1 1 calc(50% - 4px);
     min-height: 44px;
+  }
+
+  .acciones .btn-guardar-otro {
+    flex: 1 1 100%;
+    order: -1;
   }
 }
 
@@ -651,3 +618,137 @@ mat-dialog-content {
   color: #fff !important;
   background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
 }
+
+
+/* =====================================================
+   MES (anterior · selector · siguiente)
+===================================================== */
+
+.mes-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mes-nav > button[mat-icon-button] {
+  flex: 0 0 auto;
+  color: var(--app-text);
+}
+
+.mes-actual {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--app-text, #1e1e1e) 18%, transparent);
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--hover);
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: #2563eb;
+  }
+}
+
+/* Solo ancla el calendario: invisible y sin foco */
+.mes-ancla {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* =====================================================
+   SECCIONES (Categoría / Subcategoría)
+===================================================== */
+
+.seccion {
+  display: grid;
+  gap: 8px;
+}
+
+.seccion-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+}
+
+.seccion-titulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.btn-gestionar {
+  --mdc-text-button-container-height: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    margin-right: 4px;
+  }
+}
+
+:host-context(.dark-theme) .btn-gestionar {
+  color: #93c5fd;
+}
+
+.seccion .aviso-completo {
+  margin: 0;
+}
+
+/* =====================================================
+   CAMPOS EN FILA / RESUMEN INMUEBLE
+===================================================== */
+
+.fila-doble {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .fila-doble {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resumen-inmueble {
+  margin: -6px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: var(--app-text);
+  background: color-mix(in srgb, #2563eb 8%, transparent);
+  border: 1px solid color-mix(in srgb, #2563eb 22%, transparent);
+}
+
