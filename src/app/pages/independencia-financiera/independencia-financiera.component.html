@@ -1,0 +1,446 @@
+<section class="contenedor-centrado">
+
+  <!-- =====================================================
+       HERO
+  ===================================================== -->
+  @let activo = resumenActivo();
+
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-label">
+        <mat-icon aria-hidden="true">beach_access</mat-icon>
+        <span>Simulador de independencia financiera</span>
+      </div>
+
+      <span class="hero-badge">
+        {{ activo.nombre }} · {{ porcentaje(activo.rentabilidad) }} % anual
+      </span>
+    </div>
+
+    <div class="hero-importe">{{ euros(activo.patrimonioFinal) }}</div>
+    <div class="hero-foot">
+      Patrimonio proyectado dentro de {{ textoAnios(horizonte()) }} ({{ anioActual + horizonte() }}), partiendo de
+      {{ euros(patrimonioInicial()) }} y ahorrando {{ euros(ahorroMensualEquivalente()) }} al mes.
+      Valores en {{ valoresReales() ? 'euros de hoy (descontada la inflación)' : 'euros futuros (sin descontar la inflación)' }}.
+    </div>
+
+    @if (hayObjetivo()) {
+      <div class="hero-progreso">
+        <div class="hero-progreso-texto">
+          <span>Hoy cubres el {{ porcentaje(progresoObjetivo()) }} % del capital necesario</span>
+          <strong>{{ euros(capitalObjetivoHoy() ?? 0) }}</strong>
+        </div>
+        <div class="hero-progreso-barra" role="progressbar" aria-label="Progreso hacia la independencia financiera"
+          aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progresoObjetivo()">
+          <div class="hero-progreso-fill" [style.width.%]="progresoObjetivo()"></div>
+        </div>
+      </div>
+    }
+  </header>
+
+  <!-- =====================================================
+       1 · TUS DATOS
+  ===================================================== -->
+  <div class="seccion-cabecera">
+    <h2 class="seccion-titulo">
+      <mat-icon aria-hidden="true">tune</mat-icon>
+      Tus datos
+    </h2>
+  </div>
+
+  <article class="panel">
+    <div class="form-grid">
+
+      <!-- Patrimonio inicial -->
+      <div class="grupo grupo--ancho">
+        <span class="grupo-titulo">Patrimonio actual</span>
+
+        <div class="segmentado" role="radiogroup" aria-label="Origen del patrimonio actual">
+          <button type="button" role="radio" [attr.aria-checked]="usarRegistrado()" [class.activo]="usarRegistrado()"
+            (click)="fijarUsarRegistrado(true)">
+            <mat-icon aria-hidden="true">account_balance</mat-icon>
+            Mi patrimonio registrado
+          </button>
+          <button type="button" role="radio" [attr.aria-checked]="!usarRegistrado()" [class.activo]="!usarRegistrado()"
+            (click)="fijarUsarRegistrado(false)">
+            <mat-icon aria-hidden="true">edit</mat-icon>
+            Introducirlo a mano
+          </button>
+        </div>
+
+        @if (usarRegistrado()) {
+          @if (!hayRegistros()) {
+            <div class="nota nota--aviso" role="status">
+              <mat-icon aria-hidden="true">warning_amber</mat-icon>
+              <span>Todavía no hay registros mensuales. Añade tu primer mes en «Entrada mensual» o introduce el patrimonio a mano.</span>
+            </div>
+          } @else {
+            <p class="grupo-ayuda">
+              Último mes registrado, neto de deudas. Desmarca las categorías que no quieras incluir
+              (por ejemplo, tu vivienda habitual si no piensas venderla).
+            </p>
+            <div class="chips-cat" role="group" aria-label="Categorías incluidas en la simulación">
+              @for (c of categoriasVista(); track c.id) {
+                <button type="button" class="chip-cat" [class.activo]="c.incluida" [attr.aria-pressed]="c.incluida"
+                  (click)="alternarCategoria(c.id)">
+                  <span class="dot" [style.background]="c.incluida ? c.color : 'transparent'" [style.border-color]="c.color"></span>
+                  <span>{{ c.nombre }}</span>
+                  <span class="chip-cat-valor">{{ euros(c.valor) }}</span>
+                </button>
+              }
+            </div>
+            <div class="total-linea">
+              <span>Patrimonio de partida</span>
+              <strong>{{ euros(patrimonioInicial()) }}</strong>
+            </div>
+          }
+        } @else {
+          <label class="campo campo--ancho">
+            <input type="number" inputmode="decimal" min="0" step="1000" placeholder="0"
+              aria-label="Patrimonio actual en euros"
+              [value]="patrimonioManual() ?? ''"
+              (input)="editarPatrimonioManual($any($event.target).value)">
+            <span class="suffix">€</span>
+          </label>
+        }
+      </div>
+
+      <!-- Ahorro -->
+      <div class="grupo">
+        <span class="grupo-titulo">Tasa de ahorro</span>
+
+        <div class="fila-campo">
+          <label class="campo campo--ancho">
+            <input type="number" inputmode="decimal" min="0" step="50" placeholder="0"
+              aria-label="Importe ahorrado"
+              [value]="aportacion() ?? ''"
+              (input)="editarAportacion($any($event.target).value)">
+            <span class="suffix">€</span>
+          </label>
+
+          <div class="segmentado segmentado--compacto" role="radiogroup" aria-label="Periodicidad del ahorro">
+            <button type="button" role="radio" [attr.aria-checked]="periodicidad() === 'mensual'"
+              [class.activo]="periodicidad() === 'mensual'" (click)="fijarPeriodicidad('mensual')">Al mes</button>
+            <button type="button" role="radio" [attr.aria-checked]="periodicidad() === 'anual'"
+              [class.activo]="periodicidad() === 'anual'" (click)="fijarPeriodicidad('anual')">Al año</button>
+          </div>
+        </div>
+
+        @if (ahorroSugerido(); as s) {
+          <button type="button" class="chip-btn chip-btn--sugerencia" (click)="usarAhorroSugerido()">
+            <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+            Usar {{ euros(s.importe) }}/mes
+            <span class="chip-btn-nota">variación media de tus últimos {{ s.meses }} meses (incluye revalorizaciones)</span>
+          </button>
+        }
+
+        <label class="campo-linea">
+          <span class="campo-etiqueta">Subida anual de la aportación</span>
+          <span class="campo">
+            <input type="number" inputmode="decimal" step="0.5" placeholder="0"
+              aria-label="Incremento anual de la aportación en porcentaje"
+              [value]="crecimientoAportacion() ?? ''"
+              (input)="editarCrecimiento($any($event.target).value)">
+            <span class="suffix">%</span>
+          </span>
+        </label>
+      </div>
+
+      <!-- Gastos / libertad financiera -->
+      <div class="grupo">
+        <span class="grupo-titulo">Libertad financiera</span>
+
+        <label class="campo-linea">
+          <span class="campo-etiqueta">Gastos mensuales (euros de hoy)</span>
+          <span class="campo">
+            <input type="number" inputmode="decimal" min="0" step="50" placeholder="0"
+              aria-label="Gastos mensuales estimados en euros"
+              [value]="gastosMensuales() ?? ''"
+              (input)="editarGastos($any($event.target).value)">
+            <span class="suffix">€</span>
+          </span>
+        </label>
+
+        <div class="campo-linea">
+          <span class="campo-etiqueta">Tasa de retirada segura</span>
+          <div class="chips-importe">
+            @for (t of tasasRapidas; track t) {
+              <button type="button" class="chip-btn" [class.activo]="tasaRetirada() === t" (click)="fijarTasa(t)">
+                {{ porcentaje(t) }} %
+              </button>
+            }
+            <span class="campo campo--corto">
+              <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="4"
+                aria-label="Tasa de retirada en porcentaje"
+                [value]="tasaRetirada() ?? ''"
+                (input)="editarTasa($any($event.target).value)">
+              <span class="suffix">%</span>
+            </span>
+          </div>
+        </div>
+
+        <p class="grupo-ayuda">
+          La regla del {{ porcentaje(tasaRetirada() ?? 0) }} % indica el capital necesario para vivir de tu patrimonio:
+          gastos anuales ÷ tasa de retirada.
+        </p>
+      </div>
+
+      <!-- Inflación -->
+      <div class="grupo">
+        <span class="grupo-titulo">Inflación</span>
+
+        <label class="campo-linea">
+          <span class="campo-etiqueta">Inflación anual estimada</span>
+          <span class="campo">
+            <input type="number" inputmode="decimal" step="0.1" placeholder="0"
+              aria-label="Inflación anual estimada en porcentaje"
+              [value]="inflacion() ?? ''"
+              (input)="editarInflacion($any($event.target).value)">
+            <span class="suffix">%</span>
+          </span>
+        </label>
+
+        <div class="segmentado" role="radiogroup" aria-label="Mostrar importes en euros reales o nominales">
+          <button type="button" role="radio" [attr.aria-checked]="valoresReales()" [class.activo]="valoresReales()"
+            (click)="fijarReales(true)">Euros de hoy</button>
+          <button type="button" role="radio" [attr.aria-checked]="!valoresReales()" [class.activo]="!valoresReales()"
+            (click)="fijarReales(false)">Euros futuros</button>
+        </div>
+        <p class="grupo-ayuda">
+          «Euros de hoy» descuenta la inflación para que veas el poder adquisitivo real del patrimonio.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- =====================================================
+       2 · ESCENARIOS
+  ===================================================== -->
+  <div class="seccion-cabecera">
+    <h2 class="seccion-titulo">
+      <mat-icon aria-hidden="true">stacked_line_chart</mat-icon>
+      Escenarios de rentabilidad
+    </h2>
+  </div>
+
+  <div class="escenarios" role="radiogroup" aria-label="Escenario de rentabilidad">
+    @for (e of resumenes(); track e.id) {
+      <div class="esc" [class.activo]="e.id === escenario()" [style.--esc-color]="e.color">
+        <button type="button" class="esc-sel" role="radio" [attr.aria-checked]="e.id === escenario()"
+          (click)="seleccionarEscenario(e.id)">
+          <span class="esc-nombre"><span class="dot" [style.background]="e.color"></span>{{ e.nombre }}</span>
+          @if (e.id !== 'personalizado') {
+            <span class="esc-rent">{{ porcentaje(e.rentabilidad) }} %</span>
+          }
+        </button>
+
+        @if (e.id === 'personalizado') {
+          <label class="campo campo--esc">
+            <input type="number" inputmode="decimal" step="0.5" placeholder="0"
+              aria-label="Rentabilidad anual personalizada en porcentaje"
+              [value]="rentabilidadPersonalizada() ?? ''"
+              (focus)="seleccionarEscenario('personalizado')"
+              (input)="editarRentabilidadPersonalizada($any($event.target).value)">
+            <span class="suffix">%</span>
+          </label>
+        }
+
+        <span class="esc-desc">{{ e.descripcion }}</span>
+        <span class="esc-final">{{ euros(e.patrimonioFinal) }}</span>
+        <span class="esc-final-etiqueta">en {{ textoAnios(horizonte()) }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- =====================================================
+       3 · EVOLUCIÓN
+  ===================================================== -->
+  <div class="seccion-cabecera">
+    <h2 class="seccion-titulo">
+      <mat-icon aria-hidden="true">show_chart</mat-icon>
+      Evolución del patrimonio
+    </h2>
+  </div>
+
+  <article class="panel">
+    <div class="horizonte">
+      <div class="horizonte-cabecera">
+        <span class="campo-etiqueta">Horizonte temporal</span>
+        <div class="chips-importe">
+          @for (h of horizontesRapidos; track h) {
+            <button type="button" class="chip-btn" [class.activo]="horizonte() === h" (click)="fijarHorizonte(h)">
+              {{ h }} años
+            </button>
+          }
+          <span class="horizonte-valor" aria-live="polite">{{ textoAnios(horizonte()) }}</span>
+        </div>
+      </div>
+
+      <input class="slider" type="range" [min]="horizonteMin" [max]="horizonteMax" step="1"
+        aria-label="Horizonte temporal en años"
+        [value]="horizonte()"
+        (input)="fijarHorizonte($any($event.target).value)">
+      <div class="slider-escala" aria-hidden="true">
+        <span>{{ horizonteMin }}</span>
+        <span>{{ horizonteMax }} años</span>
+      </div>
+    </div>
+
+    <div class="grafico">
+      <canvas baseChart [data]="chartData()" [options]="chartOptions" type="line"
+        role="img" aria-label="Gráfico de la evolución proyectada del patrimonio por escenario"></canvas>
+    </div>
+
+    <div class="resumen">
+      <div class="resumen-item resumen-item--ok">
+        <span class="resumen-label">Patrimonio final</span>
+        <span class="resumen-valor">{{ euros(activo.patrimonioFinal) }}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-label">Capital aportado</span>
+        <span class="resumen-valor">{{ euros(activo.aportado) }}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-label">Rendimientos generados</span>
+        <span class="resumen-valor">{{ euros(activo.rendimientos) }}</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- =====================================================
+       4 · HITOS
+  ===================================================== -->
+  <div class="seccion-cabecera">
+    <h2 class="seccion-titulo">
+      <mat-icon aria-hidden="true">flag</mat-icon>
+      Hitos clave · {{ activo.nombre }}
+    </h2>
+  </div>
+
+  @if (!hayGastos()) {
+    <div class="nota" role="status">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <span>Introduce tus gastos mensuales para ver cuándo podrías alcanzar la independencia financiera.</span>
+    </div>
+  }
+
+  @if (hitos().length === 0) {
+    <div class="vacio">
+      <mat-icon aria-hidden="true">flag</mat-icon>
+      <span>No hay hitos que mostrar con los datos actuales.</span>
+    </div>
+  } @else {
+    <ol class="hitos">
+      @for (h of hitos(); track $index) {
+        <li class="hito" [class.hito--libertad]="h.tipo === 'libertad'" [class.hito--no]="h.anio === null">
+          <span class="hito-icono"><mat-icon aria-hidden="true">{{ iconoHito(h) }}</mat-icon></span>
+          <div class="hito-cuerpo">
+            <span class="hito-titulo">{{ tituloHito(h) }}</span>
+            <span class="hito-detalle">{{ detalleHito(h) }}</span>
+          </div>
+          <div class="hito-cuando">
+            <span class="chip" [class.chip--ok]="h.anio === 0" [class.chip--fuera]="h.anio !== null && h.anio > horizonte()"
+              [class.chip--no]="h.anio === null">
+              {{ textoAnio(h.anio) }}
+            </span>
+            @if (h.anio !== null && h.anio > horizonte()) {
+              <span class="hito-nota">Más allá del horizonte</span>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+
+  <!-- =====================================================
+       5 · COMPARATIVA Y DETALLE
+  ===================================================== -->
+  <div class="seccion-cabecera">
+    <h2 class="seccion-titulo">
+      <mat-icon aria-hidden="true">table_chart</mat-icon>
+      Comparativa de escenarios
+    </h2>
+  </div>
+
+  <article class="panel">
+    <div class="tabla-scroll">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Escenario</th>
+            <th scope="col" class="num">Rentabilidad</th>
+            <th scope="col" class="num">Capital aportado</th>
+            <th scope="col" class="num">Rendimientos</th>
+            <th scope="col" class="num">Patrimonio en {{ textoAnios(horizonte()) }}</th>
+            <th scope="col" class="num">Independencia financiera</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of resumenes(); track e.id) {
+            <tr [class.fila-activa]="e.id === escenario()">
+              <td data-label="Escenario">
+                <span class="celda-cat"><span class="dot" [style.background]="e.color"></span>{{ e.nombre }}</span>
+              </td>
+              <td data-label="Rentabilidad" class="num">{{ porcentaje(e.rentabilidad) }} %</td>
+              <td data-label="Capital aportado" class="num">{{ euros(e.aportado) }}</td>
+              <td data-label="Rendimientos" class="num">{{ euros(e.rendimientos) }}</td>
+              <td data-label="Patrimonio final" class="num"><strong>{{ euros(e.patrimonioFinal) }}</strong></td>
+              <td data-label="Independencia financiera" class="num">
+                @if (!hayObjetivo()) {
+                  —
+                } @else {
+                  {{ textoAnio(e.anioLibertad) }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <details class="detalle">
+      <summary>
+        <mat-icon aria-hidden="true">expand_more</mat-icon>
+        Ver proyección año a año · {{ activo.nombre }}
+      </summary>
+
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Año</th>
+              <th scope="col" class="num">Capital aportado</th>
+              <th scope="col" class="num">Rendimientos</th>
+              <th scope="col" class="num">Patrimonio</th>
+              <th scope="col" class="num">Capital necesario</th>
+              <th scope="col" class="num">Rendimientos / gastos</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of tabla(); track f.anio) {
+              <tr [class.fila-recibe]="f.objetivo !== null && f.patrimonio >= f.objetivo">
+                <td data-label="Año">{{ f.anio === 0 ? 'Hoy' : 'Año ' + f.anio }} · {{ f.calendario }}</td>
+                <td data-label="Capital aportado" class="num">{{ euros(f.aportado) }}</td>
+                <td data-label="Rendimientos" class="num">{{ euros(f.rendimientos) }}</td>
+                <td data-label="Patrimonio" class="num"><strong>{{ euros(f.patrimonio) }}</strong></td>
+                <td data-label="Capital necesario" class="num">{{ f.objetivo === null ? '—' : euros(f.objetivo) }}</td>
+                <td data-label="Rendimientos / gastos" class="num">
+                  {{ f.cobertura === null ? '—' : porcentaje(f.cobertura * 100) + ' %' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </article>
+
+  <div class="nota nota--aviso nota--final" role="note">
+    <mat-icon aria-hidden="true">warning_amber</mat-icon>
+    <span>
+      Proyección orientativa con rentabilidad e inflación constantes: no garantiza resultados futuros ni tiene en cuenta
+      impuestos, comisiones, la secuencia de rentabilidades ni cambios en tus gastos. Los rendimientos del hito
+      «cubren tus gastos» se calculan sobre el patrimonio total.
+    </span>
+  </div>
+</section>

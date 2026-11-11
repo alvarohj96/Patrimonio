@@ -10,5 +10,10 @@ export const routes: Routes = [
     path: 'objetivos',
     loadComponent: () =>
       import('./pages/objetivos-inversion/objetivos-inversion.component').then(m => m.ObjetivosInversionComponent)
+  },
+  {
+    path: 'independencia',
+    loadComponent: () =>
+      import('./pages/independencia-financiera/independencia-financiera.component').then(m => m.IndependenciaFinancieraComponent)
   }
 ];
