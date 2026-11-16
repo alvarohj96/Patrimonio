@@ -153,6 +153,25 @@ describe('DashboardPatrimonioService', () => {
     });
   });
 
+  it('lista las subcategorías del último mes por valor neto, sin las de valor nulo o negativo', () => {
+    const registros = [
+      reg('2026-10', { Fondos: { Viejo: { valor: 9999 } } }),
+      reg('2026-11', {
+        Fondos: { Indexado: { valor: 600 }, Renta: { valor: 200 }, Vacio: { valor: 0 }, Hipoteca: { valor: 100, deuda: 500 } },
+        Cripto: { BTC: { valor: 50 } }
+      })
+    ];
+    const serie = service.construirSerie(registros, ['Fondos', 'Cripto']);
+    const sub = service.subcategoriasUltimoMes(registros, serie);
+
+    expect(sub['Fondos'].map(s => s.nombre)).toEqual(['Indexado', 'Renta']);
+    expect(sub['Fondos'][0].porcentaje).toBeCloseTo(75);
+    expect(sub['Fondos'][1].porcentaje).toBeCloseTo(25);
+    expect(sub['Fondos'][0].color).not.toBe(sub['Fondos'][1].color);
+    expect(sub['Cripto'].length).toBe(1);
+    expect(service.subcategoriasUltimoMes([], serie)).toEqual({});
+  });
+
   it('detecta categorías inmobiliarias sin distinguir tildes ni mayúsculas', () => {
     expect(service.esCategoriaInmobiliaria('Inmuebles')).toBe(true);
     expect(service.esCategoriaInmobiliaria('INMUEBLE alquiler')).toBe(true);

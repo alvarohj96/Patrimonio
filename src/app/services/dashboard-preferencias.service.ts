@@ -29,6 +29,13 @@ export class DashboardPreferenciasService {
   readonly gastoMensual = signal<number | null>(this.inicial.gastoMensual);
   readonly incluirInmuebles = signal<boolean>(this.inicial.incluirInmuebles);
 
+  /**
+   * Categorías ocultas con los chips de cada vista del gráfico de evolución. Se guardan
+   * ocultas (no visibles) para que una categoría nueva aparezca activada. Solo duran la sesión.
+   */
+  readonly categoriasOcultasBarras = signal<ReadonlySet<string>>(new Set());
+  readonly categoriasOcultasLineas = signal<ReadonlySet<string>>(new Set());
+
   constructor() {
     effect(() => this.guardar({
       version: 1,

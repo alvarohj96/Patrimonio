@@ -62,6 +62,7 @@ export class PatrimonioGeneralComponent {
   protected readonly serie = computed(() => this.calculo.construirSerie(this.registros(), this.nombresCategorias()));
   protected readonly resumen = computed(() => this.calculo.resumenMes(this.serie()));
   protected readonly filas = computed(() => this.calculo.filasCategorias(this.serie(), this.metas()));
+  protected readonly subcategorias = computed(() => this.calculo.subcategoriasUltimoMes(this.registros(), this.serie()));
   protected readonly inmuebles = computed(() => this.calculo.resumenInmuebles(this.registros()));
   protected readonly patrimonioInmobiliario = computed(() => this.calculo.patrimonioInmobiliario(this.serie()));
   protected readonly ahorroSugerido = computed(() => this.calculo.ahorroMensualSugerido(this.serie()));

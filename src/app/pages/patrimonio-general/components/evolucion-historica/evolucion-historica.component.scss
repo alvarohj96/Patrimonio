@@ -6,7 +6,7 @@
 
 .tarjeta {
   @include dash.tarjeta;
-  gap: 20px;
+  gap: 16px;
 }
 
 .cabecera {
@@ -30,6 +30,30 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+.accion {
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dash-acento);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+
+  &:hover {
+    background: color-mix(in srgb, var(--dash-acento) 10%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dash-acento);
+  }
+
+  &--secundaria {
+    color: var(--dash-texto-suave);
+  }
 }
 
 .grafico {

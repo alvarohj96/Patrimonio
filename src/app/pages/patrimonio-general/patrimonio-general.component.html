@@ -27,7 +27,7 @@
 
     <!-- FILA 2 · Distribución actual (5) + desglose y objetivos por categoría (7) -->
     <section class="fila" aria-label="Distribución y objetivos por categoría">
-      <app-distribucion-doughnut class="col-5" [filas]="filas()" [total]="r.total" />
+      <app-distribucion-doughnut class="col-5" [filas]="filas()" [total]="r.total" [subcategorias]="subcategorias()" />
       <app-desglose-categorias class="col-7" [filas]="filas()" [mes]="r.mes" [mesAnterior]="r.mesAnterior" />
     </section>
 

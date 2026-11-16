@@ -44,7 +44,11 @@
 }
 
 .centro-rotulo {
+  max-width: 8rem;
+  overflow: hidden;
   font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--dash-texto-tenue);
 }
 

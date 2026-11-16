@@ -1,0 +1,13 @@
+<div class="chips" role="group" [attr.aria-label]="etiqueta() || null">
+  @for (o of opciones(); track o.id) {
+    <button type="button" class="chip" [class.activo]="activos().has(o.id)"
+      [style.--chip-color]="o.color ?? 'var(--dash-acento, #4f46e5)'" [attr.aria-pressed]="activos().has(o.id)"
+      (click)="seleccion.emit(o.id)">
+      @if (o.color) {
+        <span class="punto"></span>
+      }
+      {{ o.etiqueta }}
+    </button>
+  }
+  <ng-content />
+</div>

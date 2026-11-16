@@ -4,6 +4,7 @@ import {
   ComparacionFechas,
   ConsistenciaAhorro,
   FilaCategoria,
+  FilaSubcategoria,
   MovimientoCategoria,
   ProyeccionObjetivo,
   PuntoMensual,
@@ -11,8 +12,10 @@ import {
   ResumenInmuebles,
   ResumenMes,
   RetiroSostenible,
-  SerieDashboard
+  SerieDashboard,
+  SubcategoriasPorCategoria
 } from '../models/dashboard-patrimonio';
+import { ajustarBrillo } from '../shared/color';
 import { sumarMeses } from '../shared/formato';
 import { ObjetivosSuggest } from './objetivos.model';
 import { RegistroMensual } from './patrimonio.service';
@@ -145,9 +148,8 @@ export class DashboardPatrimonioService {
 
   /** Valor bruto, deuda y equity de las categorías inmobiliarias en el último mes registrado. */
   resumenInmuebles(registros: readonly RegistroMensual[]): ResumenInmuebles | null {
-    const validos = registros.filter(r => MES_VALIDO.test(r.mes));
-    if (!validos.length) return null;
-    const ultimo = validos.reduce((a, b) => (b.mes.localeCompare(a.mes) >= 0 ? b : a));
+    const ultimo = this.ultimoRegistro(registros);
+    if (!ultimo) return null;
 
     let bruto = 0;
     let deuda = 0;
@@ -223,6 +225,37 @@ export class DashboardPatrimonioService {
         progreso: objetivo > 0 ? this.limitarPorcentaje((valor / objetivo) * 100) : null
       };
     });
+  }
+
+  /**
+   * Subcategorías de cada categoría en el último mes, de mayor a menor valor neto
+   * (se omiten las de valor neto cero o negativo, que no caben en un donut).
+   */
+  subcategoriasUltimoMes(registros: readonly RegistroMensual[], serie: SerieDashboard): SubcategoriasPorCategoria {
+    const ultimo = this.ultimoRegistro(registros);
+    if (!ultimo) return {};
+
+    const resultado: Record<string, FilaSubcategoria[]> = {};
+    for (const categoria of serie.categorias) {
+      const subs: Subcategorias = ultimo.valores?.[categoria.nombre] ?? {};
+      const netas = Object.entries(subs)
+        .map(([nombre, sub]) => {
+          const d = this.desglosar(sub);
+          return { nombre, valor: d.valor - d.deuda };
+        })
+        .filter(s => s.valor > 0)
+        .sort((a, b) => b.valor - a.valor);
+      const total = netas.reduce((suma, s) => suma + s.valor, 0);
+
+      resultado[categoria.nombre] = netas.map((s, i) => ({
+        nombre: s.nombre,
+        valor: s.valor,
+        porcentaje: total > 0 ? (s.valor / total) * 100 : 0,
+        // Cuatro tonos que se repiten: claros y oscuros alternos del color de la categoría
+        color: ajustarBrillo(categoria.color, -20 + (i % 4) * 14)
+      }));
+    }
+    return resultado;
   }
 
   // ------------------------------------------------------
@@ -301,6 +334,11 @@ export class DashboardPatrimonioService {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .includes('inmueble');
+  }
+
+  private ultimoRegistro(registros: readonly RegistroMensual[]): RegistroMensual | null {
+    const validos = registros.filter(r => MES_VALIDO.test(r.mes));
+    return validos.length ? validos.reduce((a, b) => (b.mes.localeCompare(a.mes) >= 0 ? b : a)) : null;
   }
 
   private desglosar(sub: ValorSubcategoria | null | undefined): { valor: number; deuda: number } {

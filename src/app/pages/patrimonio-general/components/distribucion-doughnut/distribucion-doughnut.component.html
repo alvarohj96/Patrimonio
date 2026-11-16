@@ -1,31 +1,36 @@
 <article class="tarjeta">
   <header class="cabecera">
     <h2 class="titulo">Distribución por categorías</h2>
-    <p class="subtitulo">Peso actual sobre el patrimonio neto</p>
+    <p class="subtitulo">{{ subtitulo() }}</p>
   </header>
 
-  @if (visibles().length) {
+  @if (opcionesChips().length > 1) {
+    <app-chips-categoria etiqueta="Ver distribución global o por categoría" [opciones]="opcionesChips()"
+      [activos]="chipsActivos()" (seleccion)="elegir($event)" />
+  }
+
+  @if (sectores().length) {
     <div class="contenido">
       <div class="grafico">
         <canvas baseChart type="doughnut" [data]="datos()" [options]="opciones()"
-          role="img" aria-label="Gráfico de distribución del patrimonio por categorías"></canvas>
+          role="img" aria-label="Gráfico de distribución del patrimonio"></canvas>
 
         <div class="centro">
-          <span class="centro-rotulo">Total neto</span>
-          <span class="centro-valor valor-sensible">{{ euros(total()) }}</span>
+          <span class="centro-rotulo">{{ categoriaActiva() ?? 'Total neto' }}</span>
+          <span class="centro-valor valor-sensible">{{ euros(totalCentro()) }}</span>
         </div>
       </div>
 
       <ul class="leyenda">
-        @for (f of visibles(); track f.nombre) {
+        @for (s of sectores(); track s.nombre) {
           <li class="leyenda-fila">
             <span class="leyenda-nombre">
-              <span class="punto" [style.background]="f.color"></span>
-              <span class="nombre">{{ f.nombre }}</span>
+              <span class="punto" [style.background]="s.color"></span>
+              <span class="nombre">{{ s.nombre }}</span>
             </span>
             <span class="leyenda-cifras">
-              <span class="importe valor-sensible">{{ euros(f.valor) }}</span>
-              <span class="peso">{{ porcentaje(f.porcentaje) }}</span>
+              <span class="importe valor-sensible">{{ euros(s.valor) }}</span>
+              <span class="peso">{{ porcentaje(s.porcentaje) }}</span>
             </span>
           </li>
         }

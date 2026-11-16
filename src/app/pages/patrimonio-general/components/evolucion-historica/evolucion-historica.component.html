@@ -17,6 +17,18 @@
   </header>
 
   @if (hayDatos()) {
+    <app-chips-categoria etiqueta="Categorías mostradas en el gráfico" [opciones]="opcionesCategorias()"
+      [activos]="categoriasActivas()" (seleccion)="alternarCategoria($event)">
+      <button type="button" class="accion" (click)="mostrarTodas()">Todas</button>
+      <button type="button" class="accion accion--secundaria" (click)="ocultarTodas()">Ninguna</button>
+    </app-chips-categoria>
+  }
+
+  @if (!hayDatos()) {
+    <div class="vacio">Registra algún mes para ver la evolución.</div>
+  } @else if (!categoriasVisibles().length) {
+    <div class="vacio">Selecciona al menos una categoría para ver el gráfico.</div>
+  } @else {
     <div class="grafico">
       @if (tipo() === 'barras') {
         <canvas baseChart type="bar" [data]="datosBarras()" [options]="opcionesBarras()"
@@ -26,7 +38,5 @@
           role="img" aria-label="Evolución del patrimonio por categoría en líneas"></canvas>
       }
     </div>
-  } @else {
-    <div class="vacio">Registra algún mes para ver la evolución.</div>
   }
 </article>

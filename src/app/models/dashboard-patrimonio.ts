@@ -63,6 +63,18 @@ export interface FilaCategoria {
   progreso: number | null;
 }
 
+/** Subcategoría de una categoría en el último mes (solo las de valor neto positivo). */
+export interface FilaSubcategoria {
+  nombre: string;
+  /** Tono derivado del color de su categoría. */
+  color: string;
+  valor: number;
+  /** Peso sobre el total de su categoría (0-100). */
+  porcentaje: number;
+}
+
+export type SubcategoriasPorCategoria = Readonly<Record<string, readonly FilaSubcategoria[]>>;
+
 export interface ResumenInmuebles {
   bruto: number;
   deuda: number;

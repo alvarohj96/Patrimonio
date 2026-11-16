@@ -10,6 +10,7 @@ import { DashboardPreferenciasService } from '../../../../services/dashboard-pre
 import { PrivacidadService } from '../../../../services/privacidad.service';
 import { etiquetaMes, euros, eurosCompactos } from '../../../../shared/formato';
 import { TOOLTIP_GRAFICO, coloresGrafico } from '../../../../shared/tema-graficos';
+import { ChipOpcion, ChipsCategoriaComponent } from '../chips-categoria/chips-categoria.component';
 import { OpcionSegmentada, SelectorSegmentadoComponent } from '../selector-segmentado/selector-segmentado.component';
 
 Chart.register(BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -24,7 +25,7 @@ const OPCIONES_RANGO: readonly OpcionSegmentada<RangoEvolucion>[] = [
 @Component({
   selector: 'app-evolucion-historica',
   standalone: true,
-  imports: [BaseChartDirective, SelectorSegmentadoComponent],
+  imports: [BaseChartDirective, SelectorSegmentadoComponent, ChipsCategoriaComponent],
   templateUrl: './evolucion-historica.component.html',
   styleUrl: './evolucion-historica.component.scss'
 })
@@ -59,6 +60,38 @@ export class EvolucionHistoricaComponent {
       ? 'Patrimonio acumulado mes a mes en barras apiladas'
       : 'Evolución individual por categoría en gráfico de líneas');
 
+  /** Cada vista (barras / líneas) recuerda sus propias categorías ocultas. */
+  private readonly ocultas = computed(() =>
+    this.tipo() === 'barras' ? this.prefs.categoriasOcultasBarras() : this.prefs.categoriasOcultasLineas());
+
+  protected readonly categoriasVisibles = computed(() =>
+    this.serie().categorias.filter(c => !this.ocultas().has(c.nombre)));
+
+  protected readonly opcionesCategorias = computed<readonly ChipOpcion[]>(() =>
+    this.serie().categorias.map(c => ({ id: c.nombre, etiqueta: c.nombre, color: c.color })));
+
+  protected readonly categoriasActivas = computed<ReadonlySet<string>>(() =>
+    new Set(this.categoriasVisibles().map(c => c.nombre)));
+
+  protected alternarCategoria(nombre: string) {
+    this.modificarOcultas(ocultas => (ocultas.has(nombre) ? ocultas.delete(nombre) : ocultas.add(nombre)));
+  }
+
+  protected mostrarTodas() {
+    this.modificarOcultas(ocultas => ocultas.clear());
+  }
+
+  protected ocultarTodas() {
+    this.modificarOcultas(ocultas => this.serie().categorias.forEach(c => ocultas.add(c.nombre)));
+  }
+
+  private modificarOcultas(cambio: (ocultas: Set<string>) => void) {
+    const destino = this.tipo() === 'barras' ? this.prefs.categoriasOcultasBarras : this.prefs.categoriasOcultasLineas;
+    const copia = new Set(destino());
+    cambio(copia);
+    destino.set(copia);
+  }
+
   private readonly puntos = computed(() => this.calculo.recortar(this.serie(), this.prefs.rangoEvolucion()));
   protected readonly hayDatos = computed(() => this.puntos().length > 0);
 
@@ -66,7 +99,7 @@ export class EvolucionHistoricaComponent {
 
   protected readonly datosBarras = computed<ChartData<'bar', number[], string>>(() => ({
     labels: this.etiquetas(),
-    datasets: this.serie().categorias.map(c => ({
+    datasets: this.categoriasVisibles().map(c => ({
       label: c.nombre,
       data: this.puntos().map(p => p.valores[c.nombre]),
       backgroundColor: c.color,
@@ -77,7 +110,7 @@ export class EvolucionHistoricaComponent {
 
   protected readonly datosLineas = computed<ChartData<'line', number[], string>>(() => ({
     labels: this.etiquetas(),
-    datasets: this.serie().categorias.map(c => ({
+    datasets: this.categoriasVisibles().map(c => ({
       label: c.nombre,
       data: this.puntos().map(p => p.valores[c.nombre]),
       borderColor: c.color,
