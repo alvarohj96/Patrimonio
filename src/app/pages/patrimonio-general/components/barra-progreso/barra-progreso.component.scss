@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.pista {
+  width: 100%;
+  overflow: hidden;
+  background: var(--dash-pista, rgba(127, 127, 127, 0.15));
+  border-radius: 999px;
+}
+
+.pista--fina { height: 6px; }
+.pista--normal { height: 8px; }
+.pista--gruesa { height: 10px; }
+
+.relleno {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.relleno--tenue {
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .relleno {
+    transition: none;
+  }
+}

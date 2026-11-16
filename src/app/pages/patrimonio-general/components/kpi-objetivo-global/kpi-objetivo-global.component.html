@@ -1,0 +1,46 @@
+<article class="tarjeta">
+  <div class="principal">
+    <div class="cabecera">
+      <h2 class="etiqueta">Objetivo global</h2>
+      @if (hayObjetivo()) {
+        <span class="insignia">{{ porcentaje(progreso()) }}</span>
+      }
+    </div>
+
+    @if (hayObjetivo()) {
+      <div class="meta-fila">
+        <p class="meta">
+          <span class="cifra valor-sensible">{{ euros(objetivo()) }}</span>
+          <span class="meta-rotulo">meta</span>
+        </p>
+        <p class="faltan">Faltan <strong class="valor-sensible">{{ euros(faltan()) }}</strong></p>
+      </div>
+
+      <app-barra-progreso class="barra" grosor="gruesa" etiqueta="Progreso hacia el objetivo global"
+        color="linear-gradient(90deg, #6366f1, #4f46e5)" [porcentaje]="progreso()" />
+    } @else {
+      <p class="sin-meta">
+        Aún no has definido una meta de patrimonio. Puedes hacerlo en «Gestionar objetivos», al final de esta página.
+      </p>
+    }
+  </div>
+
+  @if (hayObjetivo()) {
+    <div class="pie">
+      <div class="proyeccion">
+        <p class="rotulo">Proyección al ritmo indicado</p>
+        <p class="fecha" [class.fecha--ok]="proyeccion().estado === 'alcanzado'">{{ textoProyeccion() }}</p>
+        <p class="supuesto">Con una rentabilidad anual del {{ rentabilidad }} %</p>
+      </div>
+
+      <div class="ahorro">
+        <label class="rotulo" for="ahorro-mensual">Ahorro/mes</label>
+        <div class="campo">
+          <input id="ahorro-mensual" class="valor-sensible" type="number" inputmode="decimal" min="0" step="100"
+            [ngModel]="ahorro()" (ngModelChange)="editarAhorro($event)">
+          <span class="sufijo">€</span>
+        </div>
+      </div>
+    </div>
+  }
+</article>

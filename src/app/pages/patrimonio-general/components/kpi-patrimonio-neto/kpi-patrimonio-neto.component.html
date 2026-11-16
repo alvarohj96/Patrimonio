@@ -1,0 +1,53 @@
+@let r = resumen();
+
+<article class="tarjeta">
+  <div class="principal">
+    <div class="cabecera">
+      <h2 class="etiqueta">Patrimonio neto</h2>
+
+      @if (r.variacionPct !== null) {
+        <span class="insignia" [class]="'insignia insignia--' + tendencia()">
+          {{ simbolo() }} {{ porcentaje(r.variacionPct, 2, true) }} este mes
+        </span>
+      }
+    </div>
+
+    <div class="cifra-fila">
+      <p class="cifra valor-sensible">{{ euros(r.total) }}</p>
+
+      @if (r.mesAnterior) {
+        <span class="delta valor-sensible" [class]="'delta delta--' + tendencia()">
+          {{ euros(r.variacion, { signo: true }) }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <div class="movimientos">
+    <p class="subtitulo">Qué ha movido este mes</p>
+
+    <div class="movimientos-grid">
+      @let subida = r.mayorSubida;
+      <div class="movimiento movimiento--sube">
+        <div class="movimiento-texto">
+          <span class="movimiento-rotulo">Mayor subida</span>
+          <strong class="movimiento-nombre">{{ subida ? subida.categoria : 'Sin subidas' }}</strong>
+        </div>
+        @if (subida) {
+          <span class="movimiento-importe valor-sensible">{{ euros(subida.variacion, { signo: true }) }}</span>
+        }
+      </div>
+
+      @let bajada = r.mayorBajada;
+      <div class="movimiento movimiento--baja">
+        <div class="movimiento-texto">
+          <span class="movimiento-rotulo">Mayor bajada</span>
+          <strong class="movimiento-nombre">{{ bajada ? bajada.categoria : 'Sin bajadas' }}</strong>
+        </div>
+        @if (bajada) {
+          <span class="movimiento-importe valor-sensible">{{ euros(bajada.variacion, { signo: true }) }}</span>
+        }
+      </div>
+    </div>
+  </div>
+</article>

@@ -1,499 +1,72 @@
-<div class="contenedor-general">
-  <ng-container *ngIf="config$ | async as config">
+<div class="pagina">
 
-    <!-- ================================
-     OBJETIVOS FINANCIEROS
-================================= -->
-    <app-objetivos class="objetivos" *ngIf="config?.mostrarObjetivos"></app-objetivos>
-
-    <!-- ================================
-       GRID PRINCIPAL: columna izquierda (tabla + donut) y columna derecha (barras + líneas)
-  ================================= -->
-    <div class="grid-principal">
-
-      <!-- ============== COLUMNA IZQUIERDA: tabla del último mes + donut ============== -->
-      <div class="columna-izquierda">
-        <!-- ================================
-       TARJETA "PATRIMONIO GENERAL" DEL ÚLTIMO MES
-  ================================= -->
-        <mat-card class="card card-tabla">
-          <div class="card-head">
-            <span class="card-icono acc-azul"><mat-icon aria-hidden="true">account_balance</mat-icon></span>
-            <div class="card-titulo">
-              <h2>Patrimonio del último mes</h2>
-              <span class="card-sub">Desglose y variación por categoría</span>
-            </div>
-          </div>
-
-          <div class="tabla-scroll">
-            <table mat-table [dataSource]="datosUltimoMes" class="tabla-patrimonio">
-
-              <ng-container matColumnDef="categoria">
-                <th class="total-col" mat-header-cell *matHeaderCellDef>Categoría</th>
-                <td class="total-col" mat-cell *matCellDef="let r">
-                  <span class="celda-cat"><span class="dot" [style.background]="getColorCategoria(r.categoria) || '#94a3b8'"></span>{{ r.categoria }}</span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="total">
-                <th class="total-col" mat-header-cell *matHeaderCellDef>Total</th>
-                <td class="total-col" mat-cell *matCellDef="let r"><strong>{{ r.total | number:'1.2-2' }} €</strong></td>
-              </ng-container>
-
-              <ng-container matColumnDef="porcentaje">
-                <th class="total-col" mat-header-cell *matHeaderCellDef>Porcentaje</th>
-                <td class="total-col" mat-cell *matCellDef="let r"><span class="pill-pct">{{ r.porcentaje | number:'1.1-1' }} %</span></td>
-              </ng-container>
-
-              <ng-container matColumnDef="variacion">
-                <th class="total-col" mat-header-cell *matHeaderCellDef>Variacion</th>
-                <td class="total-col" mat-cell *matCellDef="let r"><span class="delta" [class.sube]="r.variacion > 0" [class.baja]="r.variacion < 0">{{ r.variacion > 0 ? '+' : '' }}{{ r.variacion | number:'1.2-2' }} €</span></td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="['categoria','total','porcentaje','variacion']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['categoria','total','porcentaje','variacion']"></tr>
-            </table>
-          </div>
-
-          <!-- 🔥 TARJETA DE VARIACIÓN -->
-          <div class="resumen-variacion">
-
-            <div class="numero-principal">
-              Total: {{ totalUltimoMes | number:'1.2-2' }} €
-            </div>
-
-            <div class="detalle-anterior">
-              Mes anterior: {{ totalMesAnterior | number:'1.2-2' }} €
-            </div>
-
-            <div class="variacion" [ngClass]="{
-         'sube': tendencia === 'sube',
-         'baja': tendencia === 'baja',
-         'igual': tendencia === 'igual'
-       }">
-
-              <mat-icon *ngIf="tendencia === 'sube'">trending_up</mat-icon>
-              <mat-icon *ngIf="tendencia === 'baja'">trending_down</mat-icon>
-              <mat-icon *ngIf="tendencia === 'igual'">horizontal_rule</mat-icon>
-
-              {{ variacionAbsoluta | number:'1.2-2' }} €
-              ({{ variacionPorcentaje | number:'1.0-2' }} %)
-            </div>
-
-            <ng-container *ngIf="comparativaInteranual.disponible">
-              <div class="detalle-anterior interanual">
-                Hace 1 año: {{ comparativaInteranual.totalAnterior | number:'1.2-2' }} €
-              </div>
-
-              <div class="variacion interanual" [ngClass]="{
-           'sube': comparativaInteranual.tendencia === 'sube',
-           'baja': comparativaInteranual.tendencia === 'baja',
-           'igual': comparativaInteranual.tendencia === 'igual'
-         }">
-
-                <mat-icon *ngIf="comparativaInteranual.tendencia === 'sube'">trending_up</mat-icon>
-                <mat-icon *ngIf="comparativaInteranual.tendencia === 'baja'">trending_down</mat-icon>
-                <mat-icon *ngIf="comparativaInteranual.tendencia === 'igual'">horizontal_rule</mat-icon>
-
-                {{ comparativaInteranual.absoluta | number:'1.2-2' }} €
-                ({{ comparativaInteranual.porcentaje | number:'1.0-2' }} %) interanual
-              </div>
-            </ng-container>
-          </div>
-        </mat-card>
-
-        <!-- ============== GRÁFICO DONUT (debajo de "Patrimonio del último mes") ============== -->
-        <mat-card class="card card-donut">
-          <div class="card-head">
-            <span class="card-icono acc-violeta"><mat-icon aria-hidden="true">donut_large</mat-icon></span>
-            <div class="card-titulo">
-              <h2>Distribución por categorías</h2>
-              <span class="card-sub">Reparto del patrimonio</span>
-            </div>
-          </div>
-
-          <!-- Botones de selección: Global + Categorías -->
-          <div class="filtros-donuts">
-            <button class="chip-donut-selector" [class.chip-donut-selector--activo]="donutModoGlobal"
-              (click)="seleccionarGlobalDonut()">
-              Global
-            </button>
-            <button *ngFor="let cat of categoriasDisponiblesDonut" class="chip-donut-selector"
-              [class.chip-donut-selector--activo]="!donutModoGlobal && categoriaSeleccionada === cat"
-              [style.--chip-color]="getColorCategoriaDonut(cat)" (click)="seleccionarCategoriaDonut(cat)">
-              <span class="chip-dot"></span>
-              {{ cat }}
-            </button>
-          </div>
-
-          <div class="donut-chart-container">
-            <canvas baseChart [data]="{
-    labels: chartLabels,
-    datasets: [
-      { data: chartData, backgroundColor: chartColors[0].backgroundColor }
-    ]
-  }" [options]="doughnutOptions" type="doughnut"></canvas>
-          </div>
-        </mat-card>
-      </div>
-
-      <!-- ============== COLUMNA DERECHA: barras (arriba) + líneas (abajo), mismo ancho ============== -->
-      <div class="columna-derecha">
-        <!-- ================================
-       GRÁFICO DE BARRAS
-  ================================= -->
-        <mat-card class="card card-evolucion" *ngIf="config?.mostrarBarras">
-          <div class="evolucion-header">
-            <div class="evolucion-titulo-bloque">
-              <div class="card-head card-head--sin-margen">
-                <span class="card-icono acc-cian"><mat-icon aria-hidden="true">bar_chart</mat-icon></span>
-                <div class="card-titulo">
-                  <h2>Evolución por categoría</h2>
-                  <span class="card-sub">Patrimonio acumulado mes a mes</span>
-                </div>
-              </div>
-            </div>
-            <mat-button-toggle-group class="rango-toggle" [(ngModel)]="rangoMeses" (change)="actualizarGraficos()">
-              <mat-button-toggle [value]="12">12m</mat-button-toggle>
-              <mat-button-toggle [value]="24">24m</mat-button-toggle>
-              <mat-button-toggle value="all">Todo</mat-button-toggle>
-            </mat-button-toggle-group>
-          </div>
-
-          <div class="filtros-chips">
-            <button *ngFor="let cat of categoriasDisponibles" class="chip-cat"
-              [class.chip-cat--activo]="categoriasBarras.has(cat)" [style.--chip-color]="getColorCategoria(cat)"
-              (click)="toggleCategoriaBarra(cat, !categoriasBarras.has(cat))">
-              <span class="chip-dot"></span>
-              {{ cat }}
-            </button>
-            <button class="chip-accion" (click)="seleccionarTodasBarras()">Todas</button>
-            <button class="chip-accion chip-accion--secondary" (click)="ocultarTodasBarras()">Ninguna</button>
-          </div>
-
-          <div class="chart-container">
-            <canvas baseChart [data]="barData" [options]="barOptions" type="bar"></canvas>
-          </div>
-        </mat-card>
-
-        <!-- ================================
-       GRÁFICO DE LÍNEAS
-  ================================= -->
-        <mat-card class="card card-evolucion" *ngIf="config?.mostrarLineas">
-          <div class="evolucion-header">
-            <div class="evolucion-titulo-bloque">
-              <div class="card-head card-head--sin-margen">
-                <span class="card-icono acc-verde"><mat-icon aria-hidden="true">show_chart</mat-icon></span>
-                <div class="card-titulo">
-                  <h2>Evolución por categoría</h2>
-                  <span class="card-sub">Patrimonio histórico por categoría</span>
-                </div>
-              </div>
-            </div>
-            <mat-button-toggle-group class="rango-toggle" [(ngModel)]="rangoMeses" (change)="actualizarGraficos()">
-              <mat-button-toggle [value]="12">12m</mat-button-toggle>
-              <mat-button-toggle [value]="24">24m</mat-button-toggle>
-              <mat-button-toggle value="all">Todo</mat-button-toggle>
-            </mat-button-toggle-group>
-          </div>
-
-          <div class="filtros-chips">
-            <button *ngFor="let cat of categoriasDisponibles" class="chip-cat"
-              [class.chip-cat--activo]="categoriasLineas.has(cat)" [style.--chip-color]="getColorCategoria(cat)"
-              (click)="toggleCategoriaLinea(cat, !categoriasLineas.has(cat))">
-              <span class="chip-dot"></span>
-              {{ cat }}
-            </button>
-            <button class="chip-accion" (click)="seleccionarTodasLineas()">Todas</button>
-            <button class="chip-accion chip-accion--secondary" (click)="ocultarTodasLineas()">Ninguna</button>
-          </div>
-
-          <div class="chart-container">
-            <canvas baseChart [data]="lineData" [options]="lineOptions" type="line"></canvas>
-          </div>
-        </mat-card>
-      </div>
+  <header class="cabecera">
+    <div>
+      <h1 class="titulo">Patrimonio general</h1>
+      @if (resumen(); as r) {
+        <p class="subtitulo">Actualizado a {{ mesLargo(r.mes) }}</p>
+      }
     </div>
 
-    <!-- ================================
-       FILA DE INSIGHTS: ranking + heatmap + proyección, lado a lado
-  ================================= -->
-    <div class="fila-insights">
+    <button type="button" class="btn-privacidad" [class.activo]="privacidad.activo()"
+      [attr.aria-pressed]="privacidad.activo()" title="Ocultar o mostrar importes" (click)="privacidad.alternar()">
+      <mat-icon aria-hidden="true">{{ privacidad.activo() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      <span>{{ privacidad.activo() ? 'Importes ocultos' : 'Privacidad' }}</span>
+    </button>
+  </header>
 
-      <!-- ================================
-       RANKING: qué ha movido el mes
-  ================================= -->
-      <mat-card class="card card-ranking" *ngIf="rankingMes.disponible">
-        <div class="card-head">
-          <span class="card-icono acc-ambar"><mat-icon aria-hidden="true">emoji_events</mat-icon></span>
-          <div class="card-titulo">
-            <h2>Qué ha movido este mes</h2>
-            <span class="card-sub">Mayor subida y mayor bajada</span>
-          </div>
-        </div>
+  @if (resumen(); as r) {
 
-        <div class="ranking-lista">
+    <!-- FILA 1 · Pulso ejecutivo (4 + 4 + 4; carrusel horizontal en móvil) -->
+    <section class="fila fila--carrusel" aria-label="Indicadores principales">
+      <app-kpi-patrimonio-neto class="col-4" [resumen]="r" />
+      <app-kpi-objetivo-global class="col-4" [patrimonio]="r.total" [objetivo]="objetivoTotal()" [mesBase]="r.mes"
+        [ahorroSugerido]="ahorroSugerido()" />
+      <app-kpi-inmuebles-deuda class="col-4" [inmuebles]="inmuebles()" />
+    </section>
 
-          <div class="ranking-item ranking-sube" *ngIf="rankingMes.mayorSubida as r">
-            <mat-icon>trending_up</mat-icon>
-            <span>
-              <strong>{{ r.categoria }}</strong> fue la categoría que más creció este mes
-              (+{{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, +{{
-                r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
-            </span>
-          </div>
+    <!-- FILA 2 · Distribución actual (5) + desglose y objetivos por categoría (7) -->
+    <section class="fila" aria-label="Distribución y objetivos por categoría">
+      <app-distribucion-doughnut class="col-5" [filas]="filas()" [total]="r.total" />
+      <app-desglose-categorias class="col-7" [filas]="filas()" [mes]="r.mes" [mesAnterior]="r.mesAnterior" />
+    </section>
 
-          <div class="ranking-item ranking-baja" *ngIf="rankingMes.mayorBajada as r">
-            <mat-icon>trending_down</mat-icon>
-            <span>
-              <strong>{{ r.categoria }}</strong> fue la que más cayó este mes
-              ({{ r.variacion | number:'1.2-2' }} €<ng-container *ngIf="r.variacionPorcentaje !== null">, {{
-                r.variacionPorcentaje | number:'1.1-1' }}%</ng-container>)
-            </span>
-          </div>
+    <!-- FILA 3 · Evolución histórica por categoría (12) -->
+    @if (mostrarEvolucion()) {
+      <section class="fila" aria-label="Evolución histórica">
+        <app-evolucion-historica class="col-12" [serie]="serie()" [permitirBarras]="config().mostrarBarras"
+          [permitirLineas]="config().mostrarLineas" />
+      </section>
+    }
 
-        </div>
-      </mat-card>
+    <!-- FILA 4 · Consistencia de ahorro (6) + comparador antes → después (6) -->
+    <section class="fila" aria-label="Consistencia y comparación entre fechas">
+      <app-consistencia-ahorro class="col-6" [serie]="serie()" />
+      <app-comparador-fechas class="col-6" [serie]="serie()" />
+    </section>
 
-      <!-- ================================
-        DEUDA ACTUAL (antes estaba sola a ancho completo)
-     ================================= -->
-      <mat-card class="card card-deuda" *ngIf="deudaInmuebles > 0">
-        <div class="card-head">
-          <span class="card-icono acc-rojo"><mat-icon aria-hidden="true">home_work</mat-icon></span>
-          <div class="card-titulo">
-            <h2>Deuda actual</h2>
-            <span class="card-sub">Inmuebles: valor bruto frente a neto</span>
-          </div>
-        </div>
-        <div class="deuda-layout">
+    <!-- FILA 5 · Simulador de la regla del 4 % (12) -->
+    <section class="fila" aria-label="Simulador de retiro sostenible">
+      <app-simulador-regla-4 class="col-12" [patrimonioTotal]="r.total"
+        [patrimonioInmobiliario]="patrimonioInmobiliario()" />
+    </section>
 
-          <!-- BARRA VISUAL -->
-          <div class="deuda-bar-visual">
-            <div class="deuda-bar-deuda" [style.width.%]="porcentajeDeuda">
-              {{ porcentajeDeuda | number:'1.0-0' }}%
-            </div>
-            <div class="deuda-bar-neto">
-              {{ (100 - porcentajeDeuda) | number:'1.0-0' }}%
-            </div>
-          </div>
-
-          <!-- LEYENDA -->
-          <div class="deuda-bar-leyenda">
-            <div class="deuda-bar-leyenda-item">
-              <span class="deuda-bar-leyenda-punto deuda"></span>
-              <span>Deuda</span>
-            </div>
-            <div class="deuda-bar-leyenda-item">
-              <span class="deuda-bar-leyenda-punto neto"></span>
-              <span>Valor neto</span>
-            </div>
-          </div>
-
-          <!-- VALORES NUMÉRICOS -->
-          <div class="deuda-valores">
-            <div class="deuda-linea">
-              <span>Valor bruto</span>
-              <strong>{{ valorBrutoInmuebles | number:'1.2-2' }} €</strong>
-            </div>
-            <div class="deuda-linea deuda">
-              <span>Deuda</span>
-              <strong>-{{ deudaInmuebles | number:'1.2-2' }} €</strong>
-            </div>
-            <div class="deuda-linea neto">
-              <span>Valor neto</span>
-              <strong>{{ valorNetoInmuebles | number:'1.2-2' }} €</strong>
-            </div>
-          </div>
-
-        </div>
-      </mat-card>
-
-      <!-- ================================
-       PROYECCIÓN HACIA EL OBJETIVO
-  ================================= -->
-      <mat-card class="card card-proyeccion">
-        <div class="card-head">
-          <span class="card-icono acc-azul"><mat-icon aria-hidden="true">rocket_launch</mat-icon></span>
-          <div class="card-titulo">
-            <h2>Proyección hacia tu objetivo</h2>
-            <span class="card-sub">Según tu ritmo de ahorro actual</span>
-          </div>
-        </div>
-
-        <div [ngSwitch]="proyeccion.estado">
-
-          <p *ngSwitchCase="'sin-objetivo'" class="proyeccion-mensaje aviso">
-            Define un objetivo de patrimonio total en la sección "Objetivos" (en esta
-            misma página) para ver aquí una estimación de cuándo lo alcanzarás según tu ritmo de
-            ahorro actual.
-          </p>
-
-          <p *ngSwitchCase="'datos-insuficientes'" class="proyeccion-mensaje aviso">
-            Todavía hay muy pocos meses registrados para calcular un ritmo de ahorro fiable.
-            Añade al menos un par de meses más y la proyección aparecerá aquí automáticamente.
-          </p>
-
-          <p *ngSwitchCase="'alcanzado'" class="proyeccion-mensaje exito">
-            🎉 ¡Ya has alcanzado tu objetivo de {{ objetivoTotal | number:'1.2-2' }} €!
-          </p>
-
-          <p *ngSwitchCase="'sin-ritmo'" class="proyeccion-mensaje aviso">
-            ⚠️ En los últimos meses tu patrimonio se ha mantenido estable o ha bajado, así que no
-            se puede estimar cuándo alcanzarás tu objetivo de {{ objetivoTotal | number:'1.2-2' }} €.
-            En cuanto recuperes un ritmo de ahorro positivo, aquí aparecerá una fecha estimada.
-          </p>
-
-          <div *ngSwitchCase="'en-progreso'" class="proyeccion-datos">
-
-            <div class="pg-progreso-bloque">
-              <div class="pg-progreso-label">
-                <span>Progreso hacia el objetivo</span>
-                <strong>{{ progresoObjetivo | number:'1.0-1' }} %</strong>
-              </div>
-              <div class="pg-progreso" role="progressbar" aria-label="Progreso hacia el objetivo total"
-                aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progresoObjetivo">
-                <div class="pg-progreso-fill" [style.width.%]="progresoObjetivo"></div>
-              </div>
-            </div>
-
-            <div class="proyeccion-dato">
-              <span>Ritmo medio mensual</span>
-              <strong class="positivo">+{{ proyeccion.ritmoMensual | number:'1.2-2' }} €/mes</strong>
-            </div>
-
-            <div class="proyeccion-dato">
-              <span>Falta para el objetivo</span>
-              <strong>{{ objetivoTotal - totalUltimoMes | number:'1.2-2' }} €</strong>
-            </div>
-
-            <div class="proyeccion-dato destacado">
-              <span>Fecha estimada</span>
-              <strong>
-                {{ proyeccion.fechaEstimadaTexto }}
-                ({{ proyeccion.mesesRestantes }} {{ proyeccion.mesesRestantes === 1 ? 'mes' : 'meses' }})
-              </strong>
-            </div>
-
-          </div>
-
-        </div>
-      </mat-card>
+  } @else {
+    <div class="vacio">
+      <mat-icon aria-hidden="true">insights</mat-icon>
+      <h2>Aún no hay datos de patrimonio</h2>
+      <p>Registra tu primer mes en «Entrada mensual» y aquí aparecerá tu panel completo.</p>
     </div>
+  }
 
-    <!-- ================================
-      FILA: DEUDA + COMPARATIVA DONUTS — misma fila
-   ================================= -->
-    <div class="fila-deuda-comparativa">
-
-      <!-- ================================
-       CALENDARIO DE VARIACIÓN (heatmap)
-  ================================= -->
-      <mat-card class="card card-heatmap" *ngIf="heatmapAnios.length">
-        <div class="card-head">
-          <span class="card-icono acc-verde"><mat-icon aria-hidden="true">calendar_month</mat-icon></span>
-          <div class="card-titulo">
-            <h2>Consistencia de ahorro</h2>
-            <span class="card-sub">Meses en que tu patrimonio sube o baja</span>
-          </div>
-        </div>
-
-        <div class="heatmap" #heatmapScroll>
-          <div class="heatmap-fila" *ngFor="let fila of heatmapAnios">
-            <span class="heatmap-anio">{{ fila.anio }}</span>
-
-            <div class="heatmap-celdas">
-              <div *ngFor="let m of fila.meses" class="heatmap-celda" [ngClass]="'estado-' + m.estado"
-                [title]="m.tooltip">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="heatmap-leyenda">
-          <span><i class="punto estado-sube"></i> Sube</span>
-          <span><i class="punto estado-baja"></i> Baja</span>
-          <span><i class="punto estado-igual"></i> Igual</span>
-          <span><i class="punto estado-sin-dato"></i> Sin datos</span>
-        </div>
-      </mat-card>
-
-      <!-- ================================
-       REGLA DEL 4% - Retiro mensual calculado
-  ================================= -->
-      <mat-card class="card card-regla-cuatro">
-        <div class="card-head">
-          <span class="card-icono acc-ambar"><mat-icon aria-hidden="true">savings</mat-icon></span>
-          <div class="card-titulo">
-            <h2>Regla del 4%</h2>
-            <span class="card-sub">Retiro sostenible estimado</span>
-          </div>
-        </div>
-        <div class="regla-cuatro-selector">
-          <label>Tasa de retiro:</label>
-          <div class="regla-cuatro-botones">
-            <button *ngFor="let pct of opcionesRegla" class="regla-boton"
-              [class.regla-boton--activo]="reglaPorcentaje === pct" (click)="reglaPorcentaje = pct">
-              {{ pct }}%
-            </button>
-          </div>
-        </div>
-        <div class="regla-cuatro-contenido">
-          <div class="regla-cuatro-dato">
-            <span>Patrimonio actual</span>
-            <strong>{{ totalUltimoMes | number:'1.2-2' }} €</strong>
-          </div>
-          <div class="regla-cuatro-dato">
-            <span>Retiro anual ({{ reglaPorcentaje }}%)</span>
-            <strong class="anual">{{ (totalUltimoMes * reglaPorcentaje / 100) | number:'1.2-2' }} €</strong>
-          </div>
-          <div class="regla-cuatro-dato destacado">
-            <span>Retiro mensual</span>
-            <strong class="mensual">{{ (totalUltimoMes * reglaPorcentaje / 100 / 12) | number:'1.2-2' }} €</strong>
-          </div>
-        </div>
-        <div class="regla-cuatro-aviso">
-          <small>Basado en la teoría SWR (Safe Withdrawal Rate)</small>
-        </div>
-      </mat-card>
-
-      <!-- ================================
-        COMPARATIVA DONUTS ANTES → DESPUÉS
-     ================================= -->
-      <mat-card class="card card-comparativa-donuts">
-        <div class="card-head">
-          <span class="card-icono acc-rosa"><mat-icon aria-hidden="true">compare_arrows</mat-icon></span>
-          <div class="card-titulo">
-            <h2>Composición antes → después</h2>
-            <span class="card-sub">Compara dos meses</span>
-          </div>
-        </div>
-        <div class="comparativa-donuts-controls">
-          <label class="comparativa-label">Comparar con:</label>
-          <select class="comparativa-select" [(ngModel)]="mesComparativaSeleccionado"
-            (ngModelChange)="actualizarComparativaDonuts()">
-            <option *ngFor="let mes of mesesDisponiblesComparativa" [value]="mes">{{ mes }}</option>
-          </select>
-        </div>
-        <div class="comparativa-donuts-wrapper">
-          <div class="comparativa-donut-bloque">
-            <span class="comparativa-donut-titulo">{{ mesComparativaSeleccionado || '—' }}</span>
-            <div class="comparativa-donut-canvas">
-              <canvas baseChart [data]="donutAntes" [options]="donutComparativaOptions" type="doughnut">
-              </canvas>
-            </div>
-          </div>
-          <div class="comparativa-flecha">→</div>
-          <div class="comparativa-donut-bloque">
-            <span class="comparativa-donut-titulo">{{ mesActual }}</span>
-            <div class="comparativa-donut-canvas">
-              <canvas baseChart [data]="donutDespues" [options]="donutComparativaOptions" type="doughnut">
-              </canvas>
-            </div>
-          </div>
-        </div>
-      </mat-card>
-
-    </div><!-- /fila-deuda-comparativa -->
-  </ng-container>
+  <!-- Edición de la meta total y de las metas por categoría (se activa en Configuración visual) -->
+  @if (config().mostrarObjetivos) {
+    <details class="gestion-objetivos">
+      <summary>
+        <mat-icon aria-hidden="true">flag</mat-icon>
+        Gestionar objetivos
+      </summary>
+      <app-objetivos />
+    </details>
+  }
 </div>

@@ -1,0 +1,111 @@
+@use '../../../../shared/dashboard' as dash;
+
+:host {
+  @include dash.celda-grid;
+}
+
+.tarjeta {
+  @include dash.tarjeta;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.etiqueta {
+  @include dash.etiqueta;
+}
+
+.insignia {
+  @include dash.insignia(var(--dash-positivo));
+  font-size: 11px;
+
+  &--baja { @include dash.insignia(var(--dash-negativo)); font-size: 11px; }
+  &--igual { @include dash.insignia(var(--dash-texto-suave)); font-size: 11px; }
+}
+
+.cifra-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-top: 8px;
+}
+
+.cifra {
+  @include dash.cifra(32px);
+}
+
+.delta {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+
+  &--sube { color: var(--dash-positivo); }
+  &--baja { color: var(--dash-negativo); }
+  &--igual { color: var(--dash-texto-suave); }
+}
+
+.movimientos {
+  @include dash.pie;
+  margin-top: 0;
+}
+
+.subtitulo {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dash-texto-tenue);
+}
+
+.movimientos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.movimiento {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: 12px;
+
+  &--sube { background: var(--dash-positivo-fondo); }
+  &--baja { background: var(--dash-negativo-fondo); }
+}
+
+.movimiento-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.movimiento-rotulo {
+  font-size: 11px;
+  color: var(--dash-texto-suave);
+}
+
+.movimiento-nombre {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movimiento-importe {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.movimiento--sube .movimiento-importe { color: var(--dash-positivo); }
+.movimiento--baja .movimiento-importe { color: var(--dash-negativo); }

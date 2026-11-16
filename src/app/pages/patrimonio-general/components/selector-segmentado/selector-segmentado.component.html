@@ -1,0 +1,8 @@
+<div class="grupo" role="group" [attr.aria-label]="etiqueta() || null">
+  @for (o of opciones(); track o.valor) {
+    <button type="button" class="opcion" [class.activa]="o.valor === valor()"
+      [attr.aria-pressed]="o.valor === valor()" (click)="cambio.emit(o.valor)">
+      {{ o.etiqueta }}
+    </button>
+  }
+</div>

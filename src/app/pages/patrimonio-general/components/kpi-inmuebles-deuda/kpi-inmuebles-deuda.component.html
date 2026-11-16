@@ -1,0 +1,45 @@
+<article class="tarjeta">
+  @if (inmuebles(); as i) {
+    <div class="principal">
+      <div class="cabecera">
+        <h2 class="etiqueta">Inmuebles y deuda</h2>
+        <span class="ltv" title="Loan-to-Value: porcentaje de deuda sobre el valor del inmueble">
+          LTV {{ porcentaje(i.ltv) }}
+        </span>
+      </div>
+
+      <div class="meta-fila">
+        <p class="meta">
+          <span class="cifra valor-sensible">{{ euros(i.equity) }}</span>
+          <span class="meta-rotulo">equity neto</span>
+        </p>
+        <p class="bruto">Bruto: <strong class="valor-sensible">{{ euros(i.bruto) }}</strong></p>
+      </div>
+
+      <div class="barra" role="img"
+        [attr.aria-label]="'Equity neto ' + porcentaje(pesoEquity(), 0) + ' y deuda hipotecaria ' + porcentaje(pesoDeuda(), 0) + ' del valor bruto'">
+        <div class="barra-equity" [style.width.%]="pesoEquity()"></div>
+        <div class="barra-deuda" [style.width.%]="pesoDeuda()"></div>
+      </div>
+    </div>
+
+    <dl class="pie leyenda">
+      <div class="leyenda-item">
+        <span class="punto punto--equity"></span>
+        <dt>Neto:</dt>
+        <dd class="valor-sensible">{{ euros(i.equity) }}</dd>
+      </div>
+      <div class="leyenda-item">
+        <span class="punto punto--deuda"></span>
+        <dt>Deuda:</dt>
+        <dd class="valor-sensible deuda">{{ euros(-i.deuda) }}</dd>
+      </div>
+    </dl>
+  } @else {
+    <h2 class="etiqueta">Inmuebles y deuda</h2>
+    <div class="vacio">
+      <span>Sin inmuebles registrados</span>
+      <small>Añade una categoría de inmuebles con su valor y su deuda para ver aquí el equity neto.</small>
+    </div>
+  }
+</article>

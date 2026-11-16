@@ -1,0 +1,49 @@
+@use '../../../../shared/dashboard' as dash;
+
+:host {
+  @include dash.celda-grid;
+}
+
+.tarjeta {
+  @include dash.tarjeta;
+  gap: 20px;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.titulo {
+  @include dash.titulo;
+}
+
+.subtitulo {
+  @include dash.subtitulo;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.grafico {
+  position: relative;
+  width: 100%;
+  height: 18rem;
+}
+
+.vacio {
+  @include dash.estado-vacio;
+}
+
+@media (min-width: 640px) {
+  .grafico {
+    height: 20rem;
+  }
+}

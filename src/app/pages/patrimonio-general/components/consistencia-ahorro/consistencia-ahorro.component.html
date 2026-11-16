@@ -1,0 +1,21 @@
+<article class="tarjeta">
+  <header class="cabecera">
+    <div>
+      <h2 class="titulo">Consistencia de ahorro</h2>
+      <p class="subtitulo">Variación neta mensual (meses en positivo vs negativo)</p>
+    </div>
+
+    @if (consistencia().puntos.length) {
+      <span class="insignia" [class.insignia--baja]="!mayoriaPositiva()">{{ resumen() }}</span>
+    }
+  </header>
+
+  @if (consistencia().puntos.length) {
+    <div class="grafico">
+      <canvas baseChart type="bar" [data]="datos()" [options]="opciones()"
+        role="img" aria-label="Variación neta mensual del patrimonio"></canvas>
+    </div>
+  } @else {
+    <div class="vacio">Necesitas al menos dos meses registrados para ver la consistencia.</div>
+  }
+</article>

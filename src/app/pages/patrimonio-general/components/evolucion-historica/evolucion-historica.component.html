@@ -1,0 +1,32 @@
+<article class="tarjeta">
+  <header class="cabecera">
+    <div>
+      <h2 class="titulo">Evolución histórica por categoría</h2>
+      <p class="subtitulo">{{ subtitulo() }}</p>
+    </div>
+
+    <div class="controles">
+      @if (opcionesTipo().length > 1) {
+        <app-selector-segmentado etiqueta="Tipo de gráfico" [opciones]="opcionesTipo()" [valor]="tipo()"
+          (cambio)="prefs.tipoEvolucion.set($event)" />
+      }
+
+      <app-selector-segmentado etiqueta="Periodo" [opciones]="opcionesRango" [valor]="prefs.rangoEvolucion()"
+        (cambio)="prefs.rangoEvolucion.set($event)" />
+    </div>
+  </header>
+
+  @if (hayDatos()) {
+    <div class="grafico">
+      @if (tipo() === 'barras') {
+        <canvas baseChart type="bar" [data]="datosBarras()" [options]="opcionesBarras()"
+          role="img" aria-label="Evolución del patrimonio por categoría en barras apiladas"></canvas>
+      } @else {
+        <canvas baseChart type="line" [data]="datosLineas()" [options]="opcionesLineas()"
+          role="img" aria-label="Evolución del patrimonio por categoría en líneas"></canvas>
+      }
+    </div>
+  } @else {
+    <div class="vacio">Registra algún mes para ver la evolución.</div>
+  }
+</article>

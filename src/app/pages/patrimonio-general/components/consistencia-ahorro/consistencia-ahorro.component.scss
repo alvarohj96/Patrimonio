@@ -1,0 +1,45 @@
+@use '../../../../shared/dashboard' as dash;
+
+:host {
+  @include dash.celda-grid;
+}
+
+.tarjeta {
+  @include dash.tarjeta;
+  gap: 16px;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.titulo {
+  @include dash.titulo;
+}
+
+.subtitulo {
+  @include dash.subtitulo;
+}
+
+.insignia {
+  @include dash.insignia(var(--dash-positivo));
+
+  &--baja {
+    @include dash.insignia(var(--dash-negativo));
+  }
+}
+
+.grafico {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 14rem;
+}
+
+.vacio {
+  @include dash.estado-vacio;
+}

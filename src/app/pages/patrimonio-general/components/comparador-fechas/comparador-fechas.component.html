@@ -1,0 +1,63 @@
+<article class="tarjeta">
+  <header class="cabecera">
+    <div>
+      <h2 class="titulo">Composición antes → después</h2>
+      <p class="subtitulo">Evolución del peso y valor entre dos fechas</p>
+    </div>
+
+    <div class="selectores">
+      <select aria-label="Fecha inicial" (change)="elegirInicio($event)">
+        @for (m of meses(); track m) {
+          <option [value]="m" [selected]="m === inicio()">{{ etiquetaMes(m) }}</option>
+        }
+      </select>
+      <span class="flecha" aria-hidden="true">→</span>
+      <select aria-label="Fecha final" (change)="elegirFin($event)">
+        @for (m of meses(); track m) {
+          <option [value]="m" [selected]="m === fin()">{{ etiquetaMes(m) }}</option>
+        }
+      </select>
+    </div>
+  </header>
+
+  @if (comparacion(); as c) {
+    <div class="resumen">
+      <span class="resumen-texto">
+        Patrimonio:
+        <strong class="valor-sensible">{{ euros(c.totalInicio) }}</strong> →
+        <strong class="valor-sensible">{{ euros(c.totalFin) }}</strong>
+      </span>
+      <span class="resumen-delta" [class.sube]="c.diferencia > 0" [class.baja]="c.diferencia < 0">
+        <span class="valor-sensible">{{ euros(c.diferencia, { signo: true }) }}</span>
+        @if (c.diferenciaPct !== null) {
+          ({{ porcentaje(c.diferenciaPct, 1, true) }})
+        }
+      </span>
+    </div>
+
+    <ul class="filas">
+      @for (f of c.filas; track f.nombre) {
+        <li class="fila">
+          <div class="fila-cabecera">
+            <span class="fila-nombre">
+              <span class="punto" [style.background]="f.color"></span>
+              {{ f.nombre }}
+            </span>
+            <span class="fila-cifras">
+              <span class="pesos">{{ porcentaje(f.pesoInicio) }} → <strong>{{ porcentaje(f.pesoFin) }}</strong></span>
+              <span class="diferencia valor-sensible" [class.sube]="f.diferencia > 0" [class.baja]="f.diferencia < 0">
+                ({{ euros(f.diferencia, { signo: true }) }})
+              </span>
+            </span>
+          </div>
+          <app-barra-progreso grosor="fina" [tenue]="true" [color]="f.color" [porcentaje]="f.pesoInicio"
+            [etiqueta]="'Peso de ' + f.nombre + ' en la fecha inicial'" />
+          <app-barra-progreso class="barra-fin" grosor="normal" [color]="f.color" [porcentaje]="f.pesoFin"
+            [etiqueta]="'Peso de ' + f.nombre + ' en la fecha final'" />
+        </li>
+      }
+    </ul>
+  } @else {
+    <div class="vacio">Registra al menos un mes para poder comparar fechas.</div>
+  }
+</article>

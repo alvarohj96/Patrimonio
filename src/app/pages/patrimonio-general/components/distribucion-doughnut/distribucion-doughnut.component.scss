@@ -1,0 +1,118 @@
+@use '../../../../shared/dashboard' as dash;
+
+:host {
+  @include dash.celda-grid;
+}
+
+.tarjeta {
+  @include dash.tarjeta;
+  gap: 16px;
+}
+
+.titulo {
+  @include dash.titulo;
+}
+
+.subtitulo {
+  @include dash.subtitulo;
+}
+
+.contenido {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px 28px;
+}
+
+.grafico {
+  position: relative;
+  flex: 0 0 12rem;
+  width: 12rem;
+  height: 12rem;
+}
+
+.centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.centro-rotulo {
+  font-size: 11px;
+  color: var(--dash-texto-tenue);
+}
+
+.centro-valor {
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.leyenda {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.leyenda-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.leyenda-nombre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nombre {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.punto {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.leyenda-cifras {
+  display: flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.importe {
+  font-weight: 600;
+}
+
+.peso {
+  min-width: 3.4em;
+  text-align: right;
+  font-weight: 600;
+  color: var(--dash-texto-tenue);
+}
+
+.vacio {
+  @include dash.estado-vacio;
+}

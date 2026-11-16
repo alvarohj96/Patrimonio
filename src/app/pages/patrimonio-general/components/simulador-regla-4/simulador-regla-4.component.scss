@@ -1,0 +1,206 @@
+@use '../../../../shared/dashboard' as dash;
+
+:host {
+  @include dash.celda-grid;
+}
+
+.tarjeta {
+  @include dash.tarjeta;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.bloque--controles {
+  padding: 16px;
+  background: var(--dash-fondo-suave);
+  border: 1px solid var(--dash-linea);
+  border-radius: 14px;
+}
+
+.bloque--resultado {
+  padding: 16px;
+  color: #fff;
+  background: #4f46e5;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px -14px rgba(79, 70, 229, 0.8);
+}
+
+.titulo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.etiqueta {
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dash-acento);
+  background: color-mix(in srgb, var(--dash-acento) 14%, transparent);
+  border-radius: 6px;
+}
+
+.titulo {
+  @include dash.titulo;
+}
+
+.descripcion {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--dash-texto-suave);
+}
+
+.base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.base-importe strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.base-nota {
+  color: var(--dash-texto-tenue);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--dash-acento);
+  }
+}
+
+.slider-cabecera {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+
+  .tasa {
+    color: var(--dash-acento);
+  }
+}
+
+.slider {
+  width: 100%;
+  cursor: pointer;
+  accent-color: var(--dash-acento);
+}
+
+.slider-marcas {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--dash-texto-tenue);
+}
+
+.gasto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-top: 1px solid var(--dash-linea);
+}
+
+.campo {
+  @include dash.campo-numerico;
+
+  input {
+    width: 4.5rem;
+  }
+}
+
+.resultado-rotulo {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.resultado-mensual {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+}
+
+.resultado-cifra {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.resultado-unidad {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.resultado-anual {
+  margin: -4px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+
+  span {
+    font-weight: 600;
+  }
+}
+
+.cobertura {
+  --dash-pista: rgba(0, 0, 0, 0.28);
+  padding-top: 10px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.cobertura-cabecera {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+
+  strong {
+    color: #fff;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tarjeta {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr);
+  }
+}

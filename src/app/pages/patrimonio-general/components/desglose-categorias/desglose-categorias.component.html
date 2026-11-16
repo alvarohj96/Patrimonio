@@ -1,0 +1,81 @@
+@let anterior = mesAnterior();
+
+<article class="tarjeta">
+  <header class="cabecera">
+    <div>
+      <h2 class="titulo">Desglose del último mes y objetivos por categoría</h2>
+      <p class="subtitulo">
+        @if (anterior) {
+          Variación respecto a {{ etiquetaMes(anterior) }} y progreso hacia la meta individual
+        } @else {
+          Progreso hacia la meta individual de cada categoría
+        }
+      </p>
+    </div>
+
+    @if (anterior) {
+      <span class="periodo">{{ etiquetaMes(mes()) }} vs {{ etiquetaMes(anterior) }}</span>
+    } @else {
+      <span class="periodo">{{ etiquetaMes(mes()) }}</span>
+    }
+  </header>
+
+  <div class="tabla-scroll">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Categoría</th>
+          <th scope="col" class="num">Valor actual</th>
+          <th scope="col" class="num">Var. mes</th>
+          <th scope="col" class="objetivo">Objetivo categoría</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of filas(); track f.nombre) {
+          <tr>
+            <th scope="row" class="categoria">
+              <span class="categoria-contenido">
+                <span class="punto" [style.background]="f.color"></span>
+                {{ f.nombre }}
+              </span>
+            </th>
+
+            <td class="num valor">
+              <span class="valor-sensible">{{ euros(f.valor) }}</span>
+            </td>
+
+            <td class="num">
+              @if (anterior) {
+                <div class="variacion" [class.variacion--sube]="f.variacion > 0" [class.variacion--baja]="f.variacion < 0">
+                  <span class="valor-sensible">{{ euros(f.variacion, { signo: true }) }}</span>
+                </div>
+                @if (f.variacionPct !== null) {
+                  <div class="variacion-pct">{{ porcentaje(f.variacionPct, 2, true) }}</div>
+                }
+              } @else {
+                <span class="sin-dato">—</span>
+              }
+            </td>
+
+            <td class="objetivo">
+              @if (f.progreso !== null) {
+                <div class="objetivo-texto">
+                  <span class="valor-sensible">{{ euros(f.valor) }} / {{ euros(f.objetivo) }}</span>
+                  <strong>{{ porcentaje(f.progreso, 0) }}</strong>
+                </div>
+                <app-barra-progreso grosor="fina" [color]="f.color" [porcentaje]="f.progreso"
+                  [etiqueta]="'Progreso de ' + f.nombre" />
+              } @else {
+                <span class="sin-dato">Sin meta definida</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="sin-dato vacio">Todavía no hay categorías con datos.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</article>

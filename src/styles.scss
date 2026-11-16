@@ -234,3 +234,17 @@ table {
 .dark-theme .dialog-formulario .mat-mdc-button:not(:disabled) {
   color: #93c5fd;
 }
+
+/* =====================================================
+   MODO PRIVACIDAD
+   Difumina los importes marcados con .valor-sensible
+   (se activa desde «Patrimonio general»).
+===================================================== */
+.valor-sensible {
+  transition: filter 0.2s ease;
+}
+
+body.modo-privacidad .valor-sensible {
+  filter: blur(7px);
+  user-select: none;
+}

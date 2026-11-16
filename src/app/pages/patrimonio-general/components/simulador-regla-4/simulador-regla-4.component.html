@@ -1,0 +1,68 @@
+@let r = retiro();
+
+<article class="tarjeta">
+  <div class="bloque bloque--info">
+    <div class="titulo-fila">
+      <span class="etiqueta">Planificación FIRE</span>
+      <h2 class="titulo">Regla del 4 % — Retiro sostenible</h2>
+    </div>
+    <p class="descripcion">
+      Estima la renta perpetua que tu cartera puede generar cada año sin agotar el capital a largo plazo.
+    </p>
+
+    <div class="base">
+      @if (hayInmuebles()) {
+        <label class="check">
+          <input type="checkbox" [checked]="prefs.incluirInmuebles()" (change)="alternarInmuebles($event)">
+          <span>Incluir equity inmobiliario</span>
+        </label>
+      } @else {
+        <span class="base-nota">Sin inmuebles: se usa todo el patrimonio neto</span>
+      }
+      <span class="base-importe">Base: <strong class="valor-sensible">{{ euros(r.capitalBase) }}</strong></span>
+    </div>
+  </div>
+
+  <div class="bloque bloque--controles">
+    <div>
+      <div class="slider-cabecera">
+        <label for="tasa-retiro">Tasa de retiro segura (SWR)</label>
+        <strong class="tasa">{{ porcentaje(prefs.tasaRetiro(), 1) }}</strong>
+      </div>
+      <input id="tasa-retiro" class="slider" type="range" [min]="tasaMin" [max]="tasaMax" [step]="tasaPaso"
+        [value]="prefs.tasaRetiro()" (input)="editarTasa($event)">
+      <div class="slider-marcas">
+        <span>Conservador (3,0 %)</span>
+        <span>Estándar (4,0 %)</span>
+        <span>Flexible (5,0 %)</span>
+      </div>
+    </div>
+
+    <div class="gasto">
+      <label for="gasto-mensual">Gasto mensual objetivo:</label>
+      <div class="campo">
+        <input id="gasto-mensual" class="valor-sensible" type="number" inputmode="decimal" min="0" step="100"
+          [ngModel]="prefs.gastoMensual()" (ngModelChange)="editarGasto($event)">
+        <span class="sufijo">€</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloque bloque--resultado">
+    <span class="resultado-rotulo">Retiro estimado</span>
+    <p class="resultado-mensual">
+      <span class="resultado-cifra valor-sensible">{{ euros(r.mensual) }}</span>
+      <span class="resultado-unidad">/ mes</span>
+    </p>
+    <p class="resultado-anual"><span class="valor-sensible">{{ euros(r.anual) }}</span> al año</p>
+
+    <div class="cobertura">
+      <div class="cobertura-cabecera">
+        <span>Cobertura de gastos</span>
+        <strong>{{ r.cobertura === null ? '—' : porcentaje(r.cobertura) }}</strong>
+      </div>
+      <app-barra-progreso grosor="fina" color="#ffffff" etiqueta="Cobertura de gastos mensuales"
+        [porcentaje]="coberturaBarra()" />
+    </div>
+  </div>
+</article>

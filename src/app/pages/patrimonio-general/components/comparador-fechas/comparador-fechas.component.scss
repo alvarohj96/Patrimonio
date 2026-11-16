@@ -1,0 +1,148 @@
+@use '../../../../shared/dashboard' as dash;
+
+:host {
+  @include dash.celda-grid;
+}
+
+.tarjeta {
+  @include dash.tarjeta;
+  gap: 16px;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.titulo {
+  @include dash.titulo;
+}
+
+.subtitulo {
+  @include dash.subtitulo;
+}
+
+.selectores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+select {
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-text);
+  background: var(--input-bg, var(--dash-fondo-suave));
+  border: 1px solid var(--input-border, var(--dash-borde));
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid var(--dash-acento);
+    outline-offset: 1px;
+  }
+}
+
+.flecha {
+  font-weight: 700;
+  color: var(--dash-texto-tenue);
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 9px 12px;
+  font-size: 12px;
+  background: var(--dash-fondo-suave);
+  border: 1px solid var(--dash-linea);
+  border-radius: 12px;
+}
+
+.resumen-texto {
+  color: var(--dash-texto-suave);
+
+  strong {
+    font-variant-numeric: tabular-nums;
+    color: var(--app-text);
+  }
+}
+
+.resumen-delta {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sube { color: var(--dash-positivo); }
+.baja { color: var(--dash-negativo); }
+
+.filas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  margin: auto 0;
+  list-style: none;
+}
+
+.fila {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fila-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 8px;
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.fila-nombre {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.fila-cifras {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pesos {
+  color: var(--dash-texto-tenue);
+
+  strong {
+    color: var(--app-text);
+  }
+}
+
+.diferencia {
+  font-weight: 600;
+  color: var(--dash-texto-suave);
+
+  &.sube { color: var(--dash-positivo); }
+  &.baja { color: var(--dash-negativo); }
+}
+
+.vacio {
+  @include dash.estado-vacio;
+}

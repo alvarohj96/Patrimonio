@@ -1,0 +1,165 @@
+/* =====================================================
+   Sistema de diseño del dashboard «Patrimonio general».
+
+   - `tokens` se incluye UNA vez, en el contenedor de la página; las variables
+     (--dash-*) se heredan por todas las tarjetas.
+   - El resto de mixins los usan las tarjetas para compartir superficie y tipografía.
+   Los colores neutros derivan de --app-text / --card-bg, así que siguen solos
+   al tema claro/oscuro de la aplicación.
+===================================================== */
+
+@mixin tokens {
+  --dash-radio: 18px;
+  --dash-espacio: 20px;
+
+  --dash-acento: #4f46e5;
+  --dash-positivo: #059669;
+  --dash-negativo: #e11d48;
+  --dash-positivo-fondo: color-mix(in srgb, #10b981 10%, transparent);
+  --dash-negativo-fondo: color-mix(in srgb, #f43f5e 10%, transparent);
+  --dash-equity: #14b8a6;
+  --dash-deuda: #f59e0b;
+
+  --dash-texto-suave: color-mix(in srgb, var(--app-text, #1e1e1e) 62%, transparent);
+  --dash-texto-tenue: color-mix(in srgb, var(--app-text, #1e1e1e) 45%, transparent);
+  --dash-pista: color-mix(in srgb, var(--app-text, #1e1e1e) 9%, transparent);
+  --dash-linea: color-mix(in srgb, var(--app-text, #1e1e1e) 8%, transparent);
+  --dash-fondo-suave: color-mix(in srgb, var(--app-text, #1e1e1e) 4%, transparent);
+  --dash-borde: color-mix(in srgb, var(--app-text, #1e1e1e) 11%, transparent);
+  --dash-sombra: 0 1px 2px rgba(16, 24, 40, 0.05), 0 8px 24px -14px rgba(16, 24, 40, 0.14);
+}
+
+@mixin tokens-oscuro {
+  --dash-acento: #818cf8;
+  --dash-positivo: #34d399;
+  --dash-negativo: #fb7185;
+  --dash-deuda: #fbbf24;
+  --dash-sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -14px rgba(0, 0, 0, 0.6);
+}
+
+/** Superficie de tarjeta que rellena todo el alto de su celda del grid. */
+@mixin tarjeta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 20px;
+  color: var(--app-text);
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--dash-borde);
+  border-radius: var(--dash-radio);
+  box-shadow: var(--dash-sombra);
+}
+
+@mixin celda-grid {
+  display: flex;
+  min-width: 0;
+}
+
+/** Etiqueta en mayúsculas de las tarjetas de indicadores. */
+@mixin etiqueta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dash-texto-tenue);
+}
+
+@mixin titulo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--app-text);
+}
+
+@mixin subtitulo {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--dash-texto-suave);
+}
+
+@mixin cifra($tamano: 30px) {
+  margin: 0;
+  font-size: $tamano;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+/** Zona inferior de una tarjeta separada por una línea. */
+@mixin pie {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--dash-linea);
+}
+
+@mixin insignia($color: var(--dash-acento)) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: $color;
+  background: color-mix(in srgb, #{$color} 12%, transparent);
+}
+
+@mixin estado-vacio {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  min-height: 140px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--dash-texto-suave);
+}
+
+@mixin campo-numerico {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--input-bg, var(--dash-fondo-suave));
+  border: 1px solid var(--input-border, var(--dash-borde));
+  border-radius: 10px;
+
+  &:focus-within {
+    border-color: var(--dash-acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dash-acento) 20%, transparent);
+  }
+
+  input {
+    min-width: 0;
+    padding: 0;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--app-text);
+    background: transparent;
+    border: 0;
+    outline: 0;
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+  }
+
+  .sufijo {
+    font-size: 12px;
+    color: var(--dash-texto-tenue);
+  }
+}

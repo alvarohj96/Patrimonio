@@ -1,0 +1,37 @@
+<article class="tarjeta">
+  <header class="cabecera">
+    <h2 class="titulo">Distribución por categorías</h2>
+    <p class="subtitulo">Peso actual sobre el patrimonio neto</p>
+  </header>
+
+  @if (visibles().length) {
+    <div class="contenido">
+      <div class="grafico">
+        <canvas baseChart type="doughnut" [data]="datos()" [options]="opciones()"
+          role="img" aria-label="Gráfico de distribución del patrimonio por categorías"></canvas>
+
+        <div class="centro">
+          <span class="centro-rotulo">Total neto</span>
+          <span class="centro-valor valor-sensible">{{ euros(total()) }}</span>
+        </div>
+      </div>
+
+      <ul class="leyenda">
+        @for (f of visibles(); track f.nombre) {
+          <li class="leyenda-fila">
+            <span class="leyenda-nombre">
+              <span class="punto" [style.background]="f.color"></span>
+              <span class="nombre">{{ f.nombre }}</span>
+            </span>
+            <span class="leyenda-cifras">
+              <span class="importe valor-sensible">{{ euros(f.valor) }}</span>
+              <span class="peso">{{ porcentaje(f.porcentaje) }}</span>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  } @else {
+    <div class="vacio">Ninguna categoría tiene valor positivo todavía.</div>
+  }
+</article>

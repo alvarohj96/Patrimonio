@@ -1,0 +1,4 @@
+<div class="pista" [class]="'pista pista--' + grosor()" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+  [attr.aria-label]="etiqueta() || null" [attr.aria-valuenow]="ancho()">
+  <div class="relleno" [class.relleno--tenue]="tenue()" [style.width.%]="ancho()" [style.background]="color()"></div>
+</div>
