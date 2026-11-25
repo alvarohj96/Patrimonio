@@ -1,0 +1,164 @@
+@use '../../plan' as plan;
+
+:host {
+  display: block;
+}
+
+mat-icon {
+  flex-shrink: 0;
+}
+
+.panel {
+  @include plan.panel;
+}
+
+.controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.etiqueta-control {
+  @include plan.etiqueta;
+}
+
+.segmentado {
+  @include plan.segmentado;
+}
+
+.grafico {
+  position: relative;
+  height: 380px;
+  margin-bottom: 14px;
+}
+
+.leyenda {
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--obj-muted);
+
+  strong {
+    color: var(--app-text);
+  }
+}
+
+/* Comparativa final */
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.resumen--uno {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.plan {
+  --plan-color: var(--c-acento);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--obj-field-bg);
+  border: 2px solid transparent;
+
+  &.plan--suyo {
+    border-color: var(--plan-color);
+    background: color-mix(in srgb, var(--plan-color) 7%, transparent);
+  }
+}
+
+.plan-cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--plan-color);
+}
+
+.etiqueta-suyo {
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--plan-color);
+}
+
+.plan-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+
+.dato {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+
+  dt {
+    color: var(--obj-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.dd-ok {
+  color: var(--c-ok);
+}
+
+.dd-mal {
+  color: var(--c-mal);
+}
+
+@media (max-width: 760px) {
+  .panel {
+    padding: 16px 14px;
+  }
+
+  .segmentado {
+    display: flex;
+    width: 100%;
+
+    button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  .grafico {
+    height: 300px;
+  }
+
+  .resumen {
+    grid-template-columns: 1fr;
+  }
+}

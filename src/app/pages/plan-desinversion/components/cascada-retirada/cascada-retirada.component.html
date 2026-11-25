@@ -1,0 +1,55 @@
+@if (alertas().length > 0) {
+  <div class="alertas" role="region" aria-label="Alertas del plan">
+    @for (a of alertas(); track a.id) {
+      <div class="alerta" [attr.data-nivel]="a.nivel" [attr.role]="a.nivel === 'critica' ? 'alert' : 'status'">
+        <mat-icon aria-hidden="true">{{ icono[a.nivel] }}</mat-icon>
+        <div class="alerta-cuerpo">
+          <strong>{{ a.titulo }}</strong>
+          <p class="valor-sensible">{{ a.texto }}</p>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<ol class="pasos">
+  @for (p of pasos(); track p.numero) {
+    <li class="paso" [attr.data-fase]="p.fase" [class.paso--vacio]="p.vacio">
+      <header class="paso-cab">
+        <span class="num" aria-hidden="true">{{ p.numero }}</span>
+        <div class="paso-titulo">
+          <span class="paso-etiqueta">Paso {{ p.numero }}</span>
+          <h3>{{ p.titulo }}</h3>
+        </div>
+        <mat-icon class="paso-icono" aria-hidden="true">{{ p.icono }}</mat-icon>
+      </header>
+
+      @if (!p.vacio) {
+        <div class="paso-importe valor-sensible">{{ euros(p.importe) }}</div>
+      }
+
+      @if (p.categorias.length > 0) {
+        <div class="paso-cats" aria-label="Categorías de esta fase">
+          @for (c of p.categorias; track c) {
+            <span class="chip-cat">{{ c }}</span>
+          }
+        </div>
+      }
+
+      @for (t of p.parrafos; track $index) {
+        <p class="paso-texto valor-sensible">{{ t }}</p>
+      }
+
+      @if (p.datos.length > 0) {
+        <dl class="datos">
+          @for (d of p.datos; track d.etiqueta) {
+            <div class="dato">
+              <dt>{{ d.etiqueta }}</dt>
+              <dd class="valor-sensible">{{ d.valor }}</dd>
+            </div>
+          }
+        </dl>
+      }
+    </li>
+  }
+</ol>

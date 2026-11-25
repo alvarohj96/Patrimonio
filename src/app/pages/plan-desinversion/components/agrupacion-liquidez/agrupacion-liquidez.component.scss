@@ -1,0 +1,275 @@
+@use '../../plan' as plan;
+
+:host {
+  display: block;
+}
+
+mat-icon {
+  flex-shrink: 0;
+}
+
+.panel {
+  @include plan.panel;
+}
+
+.vacio {
+  @include plan.vacio;
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ayuda {
+  flex: 1 1 320px;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--obj-muted);
+}
+
+.chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--obj-field-border);
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--obj-field-bg);
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+/* Color de cada fase */
+[data-fase='colchon'] {
+  --fase: var(--fase-colchon);
+}
+
+[data-fase='liquidos'] {
+  --fase: var(--fase-liquidos);
+}
+
+[data-fase='indivisibles'] {
+  --fase: var(--fase-indivisibles);
+}
+
+/* Barra de reparto por fases */
+.barra {
+  display: flex;
+  height: 10px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.barra-seg {
+  flex-basis: 0;
+  min-width: 4px;
+  background: var(--fase);
+  transition: flex-grow 0.5s var(--obj-ease);
+}
+
+/* Columnas */
+.columnas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--fase) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fase) 28%, transparent);
+}
+
+.col-cab {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--fase);
+}
+
+.col-titulo {
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--obj-muted);
+  }
+}
+
+.col-total {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-pct {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--obj-muted);
+}
+
+.col-desglose {
+  font-size: 12px;
+  color: var(--obj-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'dot nombre valor'
+    '. mover mover';
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 6px;
+  padding: 8px 0;
+  border-top: 1px solid var(--obj-line);
+  font-size: 13px;
+}
+
+.dot {
+  grid-area: dot;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.item-nombre {
+  grid-area: nombre;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.pers {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  color: var(--obj-muted);
+}
+
+.item-valor {
+  grid-area: valor;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.mover {
+  grid-area: mover;
+  display: inline-flex;
+  gap: 4px;
+
+  button {
+    width: 28px;
+    height: 24px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid var(--obj-field-border);
+    background: transparent;
+    color: var(--obj-muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover:not(.activo) {
+      background: var(--obj-field-bg);
+    }
+
+    &.activo {
+      color: #fff;
+      border-color: transparent;
+      background: var(--fase);
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--c-acento);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.vacio-col {
+  padding: 10px 0 2px;
+  font-size: 12.5px;
+  color: var(--obj-muted);
+}
+
+.aviso-sin-datos {
+  @include plan.nota;
+  --nota-color: var(--c-sobre);
+
+  margin: 16px 0 0;
+}
+
+@media (max-width: 1000px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+}

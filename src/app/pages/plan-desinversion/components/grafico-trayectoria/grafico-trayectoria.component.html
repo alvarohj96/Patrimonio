@@ -1,0 +1,77 @@
+<article class="panel">
+
+  <div class="controles">
+    @if (hayComparativa()) {
+      <div class="segmentado" role="radiogroup" aria-label="Planes mostrados en el gráfico">
+        <button type="button" role="radio" [attr.aria-checked]="vista() === 'comparar'"
+          [class.activo]="vista() === 'comparar'" (click)="fijarVista('comparar')">
+          <mat-icon aria-hidden="true">compare_arrows</mat-icon>
+          Comparar planes
+        </button>
+        <button type="button" role="radio" [attr.aria-checked]="vista() === 'plan'"
+          [class.activo]="vista() === 'plan'" (click)="fijarVista('plan')">
+          Solo mi plan
+        </button>
+      </div>
+    } @else {
+      <span class="etiqueta-control">Evolución del patrimonio líquido</span>
+    }
+
+    <div class="segmentado" role="radiogroup" aria-label="Mostrar importes en euros reales o nominales">
+      <button type="button" role="radio" [attr.aria-checked]="valoresReales()" [class.activo]="valoresReales()"
+        (click)="cambioReales.emit(true)">Euros de hoy</button>
+      <button type="button" role="radio" [attr.aria-checked]="!valoresReales()" [class.activo]="!valoresReales()"
+        (click)="cambioReales.emit(false)">Euros futuros</button>
+    </div>
+  </div>
+
+  <div class="grafico valor-sensible">
+    <canvas baseChart [data]="datos()" [options]="opciones()" [plugins]="plugins" type="line"
+      role="img" [attr.aria-label]="descripcion()"></canvas>
+  </div>
+
+  <p class="leyenda">
+    @if (hayComparativa()) {
+      La línea continua es el patrimonio <strong>líquido</strong> (lo que puedes gastar) y la discontinua el patrimonio
+      <strong>total</strong> (líquido + inmueble neto de deuda). Al vender, el inmueble desaparece y su importe neto
+      entra de golpe como liquidez; el total baja justo lo que cuestan los gastos de salida.
+    } @else {
+      Sin activos indivisibles, el patrimonio total coincide con el líquido.
+    }
+  </p>
+
+  <div class="resumen" [class.resumen--uno]="resumen().length === 1">
+    @for (r of resumen(); track r.id) {
+      <section class="plan" [class.plan--suyo]="r.suyo && resumen().length > 1" [style.--plan-color]="r.color">
+        <header class="plan-cab">
+          <span class="dot" aria-hidden="true"></span>
+          <h3>{{ r.nombre }}</h3>
+          @if (r.suyo && resumen().length > 1) {
+            <span class="etiqueta-suyo">Tu plan</span>
+          }
+        </header>
+
+        <dl class="plan-datos">
+          <div class="dato">
+            <dt>Liquidez al final</dt>
+            <dd class="valor-sensible">{{ euros(r.liquido) }}</dd>
+          </div>
+          <div class="dato">
+            <dt>Patrimonio total al final</dt>
+            <dd class="valor-sensible">{{ euros(r.total) }}</dd>
+          </div>
+          <div class="dato">
+            <dt>Cobertura de las retiradas</dt>
+            <dd [class.dd-mal]="!r.cubre" [class.dd-ok]="r.cubre">{{ r.cobertura }}</dd>
+          </div>
+          @if (r.costeVenta !== null) {
+            <div class="dato">
+              <dt>Costes de salida</dt>
+              <dd class="valor-sensible">{{ euros(r.costeVenta) }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+    }
+  </div>
+</article>

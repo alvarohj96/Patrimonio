@@ -1,0 +1,91 @@
+<article class="panel">
+  <div class="cabecera">
+    <p class="ayuda">
+      Último mes registrado, neto de deudas. Las categorías se agrupan según su liquidez; si alguna encaja mejor en
+      otra fase, muévela con los botones 1 · 2 · 3.
+    </p>
+
+    @if (hayPersonalizadas()) {
+      <button type="button" class="chip-btn" (click)="restablecer.emit()">
+        <mat-icon aria-hidden="true">restart_alt</mat-icon>
+        Restablecer agrupación
+      </button>
+    }
+  </div>
+
+  @if (categorias().length === 0) {
+    <div class="vacio">
+      <mat-icon aria-hidden="true">category</mat-icon>
+      <span>No hay categorías de patrimonio. Créalas en «Entrada mensual» para agruparlas por liquidez.</span>
+    </div>
+  } @else {
+    @if (hayPatrimonio()) {
+      <div class="barra" role="img" [attr.aria-label]="resumenBarra()">
+        @for (c of columnas(); track c.fase.id) {
+          @if (c.total > 0) {
+            <div class="barra-seg" [attr.data-fase]="c.fase.id" [style.flex-grow]="c.total"></div>
+          }
+        }
+      </div>
+    }
+
+    <div class="columnas">
+      @for (col of columnas(); track col.fase.id) {
+        <section class="col" [attr.data-fase]="col.fase.id">
+          <header class="col-cab">
+            <span class="num" aria-hidden="true">{{ col.fase.numero }}</span>
+            <div class="col-titulo">
+              <h3>{{ col.fase.titulo }}</h3>
+              <p>{{ col.fase.ayuda }}</p>
+            </div>
+          </header>
+
+          <div class="col-total">
+            <span class="valor-sensible">{{ euros(col.total) }}</span>
+            <span class="col-pct">{{ porcentaje(col.porcentaje, 0) }}</span>
+          </div>
+
+          @if (col.fase.id === 'indivisibles' && col.deuda > 0) {
+            <div class="col-desglose valor-sensible">
+              Valor bruto {{ euros(col.bruto) }} − deuda {{ euros(col.deuda) }}
+            </div>
+          }
+
+          <ul class="lista">
+            @for (c of col.categorias; track c.id) {
+              <li class="item">
+                <span class="dot" [style.background]="c.color" aria-hidden="true"></span>
+                <span class="item-nombre">
+                  {{ c.nombre }}
+                  @if (c.personalizada) {
+                    <mat-icon class="pers" aria-label="Movida manualmente" title="Movida manualmente">tune</mat-icon>
+                  }
+                </span>
+                <span class="item-valor valor-sensible">{{ euros(c.valorNeto) }}</span>
+
+                <div class="mover" role="group" [attr.aria-label]="'Fase de ' + c.nombre">
+                  @for (f of fases; track f.id) {
+                    <button type="button" [attr.data-fase]="f.id" [class.activo]="c.fase === f.id"
+                      [attr.aria-pressed]="c.fase === f.id"
+                      [attr.aria-label]="'Mover ' + c.nombre + ' a la fase ' + f.numero + ': ' + f.titulo"
+                      [attr.title]="'Fase ' + f.numero + ' · ' + f.titulo"
+                      (click)="mover(c, f.id)">{{ f.numero }}</button>
+                  }
+                </div>
+              </li>
+            } @empty {
+              <li class="vacio-col">Ninguna categoría en esta fase</li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+
+    @if (!hayPatrimonio()) {
+      <p class="aviso-sin-datos">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        Todavía no hay valores registrados: añade tu primer mes en «Entrada mensual» para ver el plan con tus datos.
+      </p>
+    }
+  }
+</article>

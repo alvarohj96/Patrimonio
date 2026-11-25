@@ -1,0 +1,38 @@
+<div class="tarjetas">
+  @for (t of tarjetas(); track t.fase) {
+    <article class="tarjeta" [attr.data-fase]="t.fase">
+      <header class="tarjeta-cab">
+        <span class="icono"><mat-icon aria-hidden="true">{{ t.icono }}</mat-icon></span>
+        <div class="tarjeta-titulo">
+          <h3>{{ t.titulo }}</h3>
+          @if (nombres(t.fase)) {
+            <p>{{ nombres(t.fase) }}</p>
+          }
+        </div>
+        @if (importe(t.fase) > 0) {
+          <span class="importe valor-sensible">{{ euros(importe(t.fase)) }}</span>
+        }
+      </header>
+
+      <ul class="factores">
+        @for (f of t.factores; track f.titulo) {
+          <li class="factor">
+            <mat-icon aria-hidden="true">{{ f.icono }}</mat-icon>
+            <div>
+              <strong>{{ f.titulo }}</strong>
+              <p>{{ f.texto }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    </article>
+  }
+</div>
+
+<p class="aviso">
+  <mat-icon aria-hidden="true">info</mat-icon>
+  <span>
+    Resumen orientativo basado en la normativa fiscal española (escala del ahorro 19 %–30 % vigente en 2026). No es
+    asesoramiento fiscal: los tipos y exenciones pueden cambiar y dependen de tu situación.
+  </span>
+</p>

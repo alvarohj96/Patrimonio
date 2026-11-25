@@ -119,3 +119,41 @@ button:hover mat-icon {
     padding: 0 10px;
   }
 }
+
+/* Con 5 secciones, las etiquetas se ocultan antes para que la barra no se desborde */
+@media (max-width: 1180px) {
+  .nav-buttons button span {
+    display: none;
+  }
+
+  .nav-buttons button {
+    min-width: 42px;
+    padding: 0 10px;
+  }
+}
+
+/* Móviles estrechos: caben las 5 secciones + los 3 iconos de la derecha */
+@media (max-width: 480px) {
+  .app-toolbar {
+    padding: 0 4px;
+  }
+
+  .toolbar-left {
+    display: none;
+  }
+
+  .nav-buttons {
+    gap: 0;
+  }
+
+  .nav-buttons button {
+    min-width: 36px;
+    padding: 0 6px;
+  }
+
+  .menu button {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+  }
+}

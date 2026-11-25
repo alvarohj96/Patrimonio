@@ -134,6 +134,32 @@ export class PatrimonioService {
     return resultado;
   }
 
+  /**
+   * Valor bruto y deuda por categoría del último mes registrado, indexados por nombre de
+   * categoría. Admite el formato antiguo (valores numéricos, sin deuda). Hace falta cuando
+   * importa la deuda por separado (p. ej. para vender un inmueble: valor − costes − deuda).
+   */
+  desgloseValorPorCategoria(registros: RegistroMensual[]): { [categoria: string]: { valor: number; deuda: number } } {
+    if (!registros || !registros.length) return {};
+
+    const ultimo = registros.reduce((a, b) => (b.mes.localeCompare(a.mes) >= 0 ? b : a));
+    const finito = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) ? n : 0);
+    const resultado: { [categoria: string]: { valor: number; deuda: number } } = {};
+
+    Object.keys(ultimo.valores || {}).forEach(cat => {
+      const subs = ultimo.valores[cat] || {};
+      resultado[cat] = Object.values(subs).reduce(
+        (suma: { valor: number; deuda: number }, item: any) => {
+          if (typeof item === 'number') return { valor: suma.valor + finito(item), deuda: suma.deuda }; // formato antiguo
+          return { valor: suma.valor + finito(item?.valor), deuda: suma.deuda + finito(item?.deuda) };
+        },
+        { valor: 0, deuda: 0 }
+      );
+    });
+
+    return resultado;
+  }
+
   addCategoria(cat: string) {
     if (!this.categorias.includes(cat)) {
       this.categorias.push(cat);

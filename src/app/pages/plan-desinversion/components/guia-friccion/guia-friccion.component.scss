@@ -1,0 +1,124 @@
+@use '../../plan' as plan;
+
+:host {
+  display: block;
+}
+
+mat-icon {
+  flex-shrink: 0;
+}
+
+[data-fase='colchon'] {
+  --fase: var(--fase-colchon);
+}
+
+[data-fase='liquidos'] {
+  --fase: var(--fase-liquidos);
+}
+
+[data-fase='indivisibles'] {
+  --fase: var(--fase-indivisibles);
+}
+
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.tarjeta {
+  @include plan.panel;
+
+  min-width: 0;
+  border-top: 4px solid var(--fase);
+}
+
+.tarjeta-cab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--fase);
+  background: color-mix(in srgb, var(--fase) 14%, transparent);
+}
+
+.tarjeta-titulo {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--obj-muted);
+  }
+}
+
+.importe {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.factores {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.factor {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  > mat-icon {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    font-size: 18px;
+    color: var(--obj-muted);
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--obj-muted);
+  }
+}
+
+.aviso {
+  @include plan.nota;
+
+  margin: 16px 0 0;
+}
+
+@media (max-width: 1000px) {
+  .tarjetas {
+    grid-template-columns: 1fr;
+  }
+}

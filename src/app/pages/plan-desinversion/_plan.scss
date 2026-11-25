@@ -1,0 +1,174 @@
+/* =====================================================
+   Sistema de diseño de «Plan de desinversión».
+
+   - `tokens` se incluye UNA vez, en el :host de la página; las variables (--obj-*, --fase-*)
+     se heredan por todos los subcomponentes.
+   - El resto de mixins los usan las tarjetas para compartir superficie y tipografía.
+   Los neutros derivan de --app-text / --card-bg, así que siguen solos al tema claro/oscuro.
+   (Mismos tokens que «Objetivos de inversión» e «Independencia financiera».)
+===================================================== */
+
+@mixin tokens {
+  display: block;
+  padding-bottom: 40px;
+
+  --obj-radius-lg: 24px;
+  --obj-radius-md: 16px;
+  --obj-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --obj-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.05),
+    0 10px 28px -12px rgba(16, 24, 40, 0.14);
+
+  --obj-muted: color-mix(in srgb, var(--app-text, #1e1e1e) 58%, transparent);
+  --obj-track: color-mix(in srgb, var(--app-text, #1e1e1e) 9%, transparent);
+  --obj-field-bg: color-mix(in srgb, var(--app-text, #1e1e1e) 5%, transparent);
+  --obj-field-border: color-mix(in srgb, var(--app-text, #1e1e1e) 14%, transparent);
+  --obj-line: color-mix(in srgb, var(--app-text, #1e1e1e) 9%, transparent);
+
+  --c-sobre: #f59e0b;
+  --c-infra: #3b82f6;
+  --c-ok: #10b981;
+  --c-mal: #ef4444;
+  --c-acento: #4f46e5;
+
+  /* Una identidad de color por fase de la cascada */
+  --fase-colchon: #06b6d4;
+  --fase-liquidos: #4f46e5;
+  --fase-indivisibles: #f59e0b;
+}
+
+@mixin tokens-oscuro {
+  --obj-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 10px 28px -12px rgba(0, 0, 0, 0.6);
+  --c-acento: #818cf8;
+}
+
+@mixin panel {
+  padding: 20px 22px;
+  border-radius: var(--obj-radius-md);
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--obj-line);
+  box-shadow: var(--obj-shadow);
+  color: var(--app-text);
+}
+
+@mixin seccion-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 30px 4px 14px;
+}
+
+@mixin seccion-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--app-text);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--c-acento);
+  }
+}
+
+@mixin etiqueta {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--obj-muted);
+}
+
+/** Aviso con icono. `--nota-color` fija el color (por defecto, azul informativo). */
+@mixin nota {
+  --nota-color: var(--c-infra);
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--nota-color) 11%, transparent);
+
+  > mat-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--nota-color);
+  }
+}
+
+/** Control segmentado (pastilla), como en el resto de pantallas. */
+@mixin segmentado {
+  display: inline-flex;
+  flex-wrap: wrap;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--obj-field-bg);
+  border: 1px solid var(--obj-field-border);
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+
+    &:hover:not(.activo) {
+      background: var(--obj-track);
+    }
+
+    &.activo {
+      color: #fff;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--c-acento);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@mixin vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 28px 20px;
+  border-radius: var(--obj-radius-md);
+  border: 1px dashed var(--obj-field-border);
+  text-align: center;
+  font-size: 14px;
+  color: var(--obj-muted);
+}

@@ -15,5 +15,10 @@ export const routes: Routes = [
     path: 'independencia',
     loadComponent: () =>
       import('./pages/independencia-financiera/independencia-financiera.component').then(m => m.IndependenciaFinancieraComponent)
+  },
+  {
+    path: 'desinversion',
+    loadComponent: () =>
+      import('./pages/plan-desinversion/plan-desinversion.component').then(m => m.PlanDesinversionComponent)
   }
 ];
