@@ -11,6 +11,13 @@ export interface CategoriaPatrimonio {
   nombre: string;
 }
 
+/**
+ * Tipo de activo/vehículo de una categoría. Determina el tratamiento práctico y fiscal de una
+ * salida al rebalancear: los fondos de inversión pueden traspasarse (diferimiento fiscal en España);
+ * el resto se vende (con posible ganancia o pérdida patrimonial).
+ */
+export type VehiculoInversion = 'fondos' | 'bolsa' | 'cripto' | 'liquidez' | 'iliquido' | 'otro';
+
 /** Configuración persistida de una categoría. */
 export interface ConfigCategoriaInversion {
   categoriaId: string;
@@ -22,6 +29,16 @@ export interface ConfigCategoriaInversion {
   importeMinimo: number | null;
   /** Incremento mínimo (€): la aportación debe ser múltiplo de este valor; `null` = sin incremento. */
   incrementoMinimo: number | null;
+  /**
+   * Tipo de activo. Opcional por compatibilidad con configuraciones guardadas antes de existir el
+   * rebalanceo: si falta, se deduce del nombre de la categoría.
+   */
+  vehiculo?: VehiculoInversion;
+  /**
+   * Si la categoría puede reducirse (vender / traspasar) al rebalancear. Opcional por compatibilidad:
+   * si falta, `true` salvo para los activos ilíquidos.
+   */
+  admiteVentas?: boolean;
 }
 
 export interface ObjetivosInversionConfig {
@@ -46,6 +63,8 @@ export interface EntradaCategoria {
   admiteAportaciones: boolean;
   importeMinimo: number | null;
   incrementoMinimo: number | null;
+  vehiculo?: VehiculoInversion;
+  admiteVentas?: boolean;
 }
 
 export type EstadoPonderacion = 'sobreponderada' | 'infraponderada' | 'equilibrada';

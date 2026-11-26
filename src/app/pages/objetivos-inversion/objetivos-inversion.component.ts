@@ -6,13 +6,61 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   CategoriaPatrimonio,
   ConfigCategoriaInversion,
-  EstadoPonderacion
+  EstadoPonderacion,
+  VehiculoInversion
 } from '../../models/objetivos-inversion';
-import { ObjetivosInversionService } from '../../services/objetivos-inversion.service';
+import { AccionRebalanceo, ModoRebalanceo, TratamientoSalida } from '../../models/rebalanceo';
+import { ObjetivosInversionService, VEHICULOS } from '../../services/objetivos-inversion.service';
 import { PatrimonioService } from '../../services/patrimonio.service';
+import { RebalanceoService } from '../../services/rebalanceo.service';
 import { SimuladorAportacionesService } from '../../services/simulador-aportaciones.service';
 
 type CampoEditable = 'porcentajeObjetivo' | 'importeMinimo' | 'incrementoMinimo';
+
+interface ModoVista {
+  id: ModoRebalanceo;
+  etiqueta: string;
+  icono: string;
+  ayuda: string;
+}
+
+const MODOS: readonly ModoVista[] = [
+  {
+    id: 'aportaciones',
+    etiqueta: 'Solo aportaciones',
+    icono: 'savings',
+    ayuda: 'Reparte el capital nuevo solo entre las categorías infraponderadas, sin vender nada.'
+  },
+  {
+    id: 'venta',
+    etiqueta: 'Venta / Traspaso',
+    icono: 'swap_horiz',
+    ayuda: 'Sin aportar dinero nuevo: vende o traspasa lo sobreponderado para comprar lo infraponderado hasta alcanzar el objetivo.'
+  },
+  {
+    id: 'mixto',
+    etiqueta: 'Mixto (Aportación + Ajuste)',
+    icono: 'merge_type',
+    ayuda: 'Invierte primero la aportación en lo infraponderado y vende o traspasa solo lo mínimo necesario para completar el ajuste.'
+  }
+];
+
+const ETIQUETAS_VEHICULO: Record<VehiculoInversion, string> = {
+  fondos: 'Fondos de inversión',
+  bolsa: 'Acciones / ETF',
+  cripto: 'Cripto',
+  liquidez: 'Liquidez',
+  iliquido: 'Ilíquido (inmuebles…)',
+  otro: 'Otro'
+};
+
+const ETIQUETAS_ACCION: Record<AccionRebalanceo, string> = {
+  aportar: 'Aportar',
+  comprar: 'Comprar',
+  vender: 'Vender',
+  traspasar: 'Traspasar',
+  mantener: 'Mantener'
+};
 
 /** Colores de los indicadores de categoría (asignados por posición). */
 const COLORES = ['#3b82f6', '#06b6d4', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6', '#ef4444', '#84cc16', '#f97316'];
@@ -29,8 +77,12 @@ export class ObjetivosInversionComponent implements OnDestroy {
   private readonly patrimonio = inject(PatrimonioService);
   private readonly objetivos = inject(ObjetivosInversionService);
   private readonly calculador = inject(SimuladorAportacionesService);
+  private readonly rebalanceo = inject(RebalanceoService);
 
   readonly importesRapidos = [500, 1000, 2000];
+  readonly umbralesRapidos = [25, 50, 100];
+  readonly modos = MODOS;
+  readonly vehiculos = VEHICULOS.map(id => ({ id, etiqueta: ETIQUETAS_VEHICULO[id] }));
   readonly tolerancia = SimuladorAportacionesService.TOLERANCIA_PP;
 
   // ------------------------------------------------------
@@ -94,8 +146,33 @@ export class ObjetivosInversionComponent implements OnDestroy {
 
   readonly importe = signal<number | null>(1000);
 
-  readonly simulacion = computed(() =>
-    this.configUtilizable() ? this.calculador.simularAportacion(this.entradas(), this.importe() ?? 0) : null);
+  // ------------------------------------------------------
+  // Calculadora de rebalanceo (misma configuración y mismos valores que la distribución)
+  // ------------------------------------------------------
+  readonly modo = signal<ModoRebalanceo>('aportaciones');
+  /** Umbral mínimo por operación (€); `null` = sin umbral. */
+  readonly umbral = signal<number | null>(null);
+
+  readonly modoActual = computed(() => MODOS.find(m => m.id === this.modo()) ?? MODOS[0]);
+  /** La cantidad a aportar solo tiene sentido si hay capital nuevo. */
+  readonly muestraAportacion = computed(() => this.modo() !== 'venta');
+
+  readonly plan = computed(() =>
+    this.configUtilizable()
+      ? this.rebalanceo.calcular(this.entradas(), {
+          modo: this.modo(),
+          aportacion: this.importe() ?? 0,
+          umbralMinimo: this.umbral() ?? 0
+        })
+      : null);
+
+  /** Salidas (vender / traspasar), de mayor a menor importe. */
+  readonly salidas = computed(() =>
+    (this.plan()?.filas ?? []).filter(f => f.movimiento < 0).sort((a, b) => a.movimiento - b.movimiento));
+
+  /** Entradas (comprar / aportar), de mayor a menor importe. */
+  readonly entradasPlan = computed(() =>
+    (this.plan()?.filas ?? []).filter(f => f.movimiento > 0).sort((a, b) => b.movimiento - a.movimiento));
 
   readonly colores = computed(() => new Map(this.categorias().map((c, i) => [c.id, COLORES[i % COLORES.length]])));
 
@@ -133,6 +210,15 @@ export class ObjetivosInversionComponent implements OnDestroy {
     this.modificar(id, c => ({ ...c, admiteAportaciones: admite }));
   }
 
+  editarVehiculo(id: string, vehiculo: string) {
+    if (!(VEHICULOS as readonly string[]).includes(vehiculo)) return;
+    this.modificar(id, c => ({ ...c, vehiculo: vehiculo as VehiculoInversion }));
+  }
+
+  editarAdmiteVentas(id: string, admite: boolean) {
+    this.modificar(id, c => ({ ...c, admiteVentas: admite }));
+  }
+
   guardar() {
     const resultado = this.objetivos.guardar(
       this.filasEdicion().map(f => this.soloConfig(f)), this.categorias());
@@ -157,6 +243,19 @@ export class ObjetivosInversionComponent implements OnDestroy {
     this.importe.set(valor);
   }
 
+  fijarModo(modo: ModoRebalanceo) {
+    this.modo.set(modo);
+  }
+
+  editarUmbral(texto: string) {
+    const n = texto.trim() === '' ? null : Number(texto.replace(',', '.'));
+    this.umbral.set(n === null || !Number.isFinite(n) || n < 0 ? null : n);
+  }
+
+  fijarUmbral(valor: number) {
+    this.umbral.set(this.umbral() === valor ? null : valor);
+  }
+
   // ------------------------------------------------------
   // Presentación
   // ------------------------------------------------------
@@ -174,6 +273,21 @@ export class ObjetivosInversionComponent implements OnDestroy {
 
   puntos(v: number): string {
     return this.formatoPuntos.format(Math.abs(v) < 0.05 ? 0 : v);
+  }
+
+  etiquetaAccion(accion: AccionRebalanceo): string {
+    return ETIQUETAS_ACCION[accion];
+  }
+
+  etiquetaVehiculo(vehiculo: VehiculoInversion): string {
+    return ETIQUETAS_VEHICULO[vehiculo];
+  }
+
+  textoTratamiento(t: TratamientoSalida | null): string {
+    return t === 'traspaso' ? 'Traspaso entre fondos'
+      : t === 'sin-efecto' ? 'Sin efecto fiscal'
+      : t === 'tributable' ? 'Venta con posible impacto fiscal'
+      : '';
   }
 
   etiquetaEstado(estado: EstadoPonderacion): string {
@@ -214,7 +328,9 @@ export class ObjetivosInversionComponent implements OnDestroy {
       porcentajeObjetivo: f.porcentajeObjetivo,
       admiteAportaciones: f.admiteAportaciones,
       importeMinimo: f.importeMinimo,
-      incrementoMinimo: f.incrementoMinimo
+      incrementoMinimo: f.incrementoMinimo,
+      vehiculo: f.vehiculo,
+      admiteVentas: f.admiteVentas
     };
   }
 }

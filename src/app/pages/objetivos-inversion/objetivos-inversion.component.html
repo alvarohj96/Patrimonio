@@ -17,8 +17,8 @@
 
     <div class="hero-importe">{{ euros(distribucion().patrimonioTotal) }}</div>
     <div class="hero-foot">
-      Patrimonio total (último mes registrado). Define cómo quieres repartirlo y simula
-      cómo repartir nuevas aportaciones para acercarte a ese reparto.
+      Patrimonio total (último mes registrado). Define cómo quieres repartirlo y calcula cómo acercarte a ese
+      reparto: con nuevas aportaciones, vendiendo o traspasando, o combinando ambas cosas.
     </div>
   </header>
 
@@ -42,8 +42,9 @@
 
     <article class="panel">
       <p class="panel-ayuda">
-        Reparte el 100 % entre tus categorías y marca cuáles pueden recibir nuevas aportaciones en el simulador.
-        Una categoría que no admite aportaciones (p. ej. un inmueble) sigue contando en tu patrimonio y en el reparto.
+        Reparte el 100 % entre tus categorías, indica de qué tipo de activo se trata y marca cuáles pueden recibir
+        dinero (aportaciones y compras) y cuáles pueden reducirse (ventas o traspasos) en la calculadora de rebalanceo.
+        Una categoría que no admite ninguna de las dos (p. ej. un inmueble) sigue contando en tu patrimonio y en el reparto.
       </p>
 
       <div class="tabla-scroll">
@@ -53,6 +54,8 @@
               <th scope="col">Categoría</th>
               <th scope="col" class="num">% objetivo</th>
               <th scope="col" class="centro">Admite aportaciones</th>
+              <th scope="col">Tipo de activo</th>
+              <th scope="col" class="centro">Admite ventas</th>
               <th scope="col" class="num">Importe mínimo</th>
               <th scope="col" class="num">Incremento mínimo</th>
             </tr>
@@ -82,6 +85,28 @@
                       (change)="editarAdmite(f.categoriaId, $any($event.target).checked)">
                     <span class="switch-pista"></span>
                     <span class="switch-texto">{{ f.admiteAportaciones ? 'Sí' : 'No' }}</span>
+                  </label>
+                </td>
+
+                <td data-label="Tipo de activo">
+                  <label class="campo campo--select">
+                    <select [attr.aria-label]="'Tipo de activo de ' + f.nombre"
+                      (change)="editarVehiculo(f.categoriaId, $any($event.target).value)">
+                      @for (v of vehiculos; track v.id) {
+                        <option [value]="v.id" [selected]="f.vehiculo === v.id">{{ v.etiqueta }}</option>
+                      }
+                    </select>
+                  </label>
+                </td>
+
+                <td data-label="Admite ventas" class="centro">
+                  <label class="switch">
+                    <input type="checkbox" role="switch"
+                      [attr.aria-label]="f.nombre + ' admite ventas o traspasos al rebalancear'"
+                      [checked]="f.admiteVentas !== false"
+                      (change)="editarAdmiteVentas(f.categoriaId, $any($event.target).checked)">
+                    <span class="switch-pista"></span>
+                    <span class="switch-texto">{{ f.admiteVentas !== false ? 'Sí' : 'No' }}</span>
                   </label>
                 </td>
 
@@ -120,8 +145,9 @@
                   {{ porcentaje(validacion().sumaPorcentajes) }} %
                 </span>
               </td>
-              <td colspan="3" class="pie-ayuda">
-                El incremento mínimo obliga a aportar en múltiplos de ese importe (p. ej. 500 €).
+              <td colspan="5" class="pie-ayuda">
+                El incremento mínimo obliga a aportar en múltiplos de ese importe (p. ej. 500 €). El tipo de activo
+                decide cómo se trata una salida: los fondos de inversión pueden traspasarse; el resto se vende.
               </td>
             </tr>
           </tfoot>
@@ -251,12 +277,13 @@
     }
 
     <!-- =====================================================
-         3 · SIMULADOR DE APORTACIONES
+         3 · CALCULADORA DE REBALANCEO
+         (misma configuración y mismos valores que las secciones anteriores)
     ===================================================== -->
     <div class="seccion-cabecera">
       <h2 class="seccion-titulo">
-        <mat-icon aria-hidden="true">savings</mat-icon>
-        Simulador de nuevas aportaciones
+        <mat-icon aria-hidden="true">balance</mat-icon>
+        Calculadora de rebalanceo
       </h2>
     </div>
 
@@ -266,73 +293,192 @@
         <span>Guarda unos objetivos que sumen el 100 % para activar el simulador.</span>
       </div>
     } @else {
-      @let sim = simulacion();
+      @let r = plan();
 
       <article class="panel">
-        <div class="sim-entrada">
-          <label class="campo campo--grande">
-            <span class="campo-etiqueta">Cantidad a aportar</span>
-            <input type="number" inputmode="decimal" min="0" step="50" placeholder="0"
-              aria-label="Cantidad a aportar en euros"
-              [value]="importe() ?? ''"
-              (input)="editarImporte($any($event.target).value)">
-            <span class="suffix">€</span>
-          </label>
+        <div class="modos" role="radiogroup" aria-label="Modo de rebalanceo">
+          @for (m of modos; track m.id) {
+            <button type="button" role="radio" [attr.aria-checked]="modo() === m.id"
+              [class.activo]="modo() === m.id" (click)="fijarModo(m.id)">
+              <mat-icon aria-hidden="true">{{ m.icono }}</mat-icon>
+              {{ m.etiqueta }}
+            </button>
+          }
+        </div>
+        <p class="modo-ayuda">{{ modoActual().ayuda }}</p>
 
-          <div class="chips-importe">
-            @for (v of importesRapidos; track v) {
-              <button type="button" class="chip-btn" [class.activo]="importe() === v" (click)="fijarImporte(v)">
-                {{ euros(v) }}
-              </button>
-            }
+        <div class="sim-entrada">
+          @if (muestraAportacion()) {
+            <div class="entrada-grupo">
+              <label class="campo campo--grande">
+                <span class="campo-etiqueta">Cantidad a aportar</span>
+                <input type="number" inputmode="decimal" min="0" step="50" placeholder="0"
+                  aria-label="Cantidad a aportar en euros"
+                  [value]="importe() ?? ''"
+                  (input)="editarImporte($any($event.target).value)">
+                <span class="suffix">€</span>
+              </label>
+
+              <div class="chips-importe">
+                @for (v of importesRapidos; track v) {
+                  <button type="button" class="chip-btn" [class.activo]="importe() === v" (click)="fijarImporte(v)">
+                    {{ euros(v) }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="entrada-grupo">
+            <label class="campo campo--medio">
+              <span class="campo-etiqueta">Umbral mínimo por operación</span>
+              <input type="number" inputmode="decimal" min="0" step="5" placeholder="Sin umbral"
+                aria-label="Umbral mínimo por operación en euros"
+                [value]="umbral() ?? ''"
+                (input)="editarUmbral($any($event.target).value)">
+              <span class="suffix">€</span>
+            </label>
+
+            <div class="chips-importe">
+              @for (v of umbralesRapidos; track v) {
+                <button type="button" class="chip-btn" [class.activo]="umbral() === v" (click)="fijarUmbral(v)">
+                  {{ euros(v) }}
+                </button>
+              }
+            </div>
           </div>
         </div>
 
-        @if (sim) {
+        @if (r) {
           <div class="resumen">
-            <div class="resumen-item">
-              <span class="resumen-label">Aportación total</span>
-              <span class="resumen-valor">{{ euros(sim.importe) }}</span>
-            </div>
-            <div class="resumen-item resumen-item--ok">
-              <span class="resumen-label">Importe asignado</span>
-              <span class="resumen-valor">{{ euros(sim.asignado) }}</span>
-            </div>
-            <div class="resumen-item" [class.resumen-item--aviso]="sim.noAsignado > 0">
-              <span class="resumen-label">Sin asignar</span>
-              <span class="resumen-valor">{{ euros(sim.noAsignado) }}</span>
-            </div>
+            @if (muestraAportacion()) {
+              <div class="resumen-item">
+                <span class="resumen-label">Aportación total</span>
+                <span class="resumen-valor">{{ euros(r.aportacion) }}</span>
+              </div>
+              <div class="resumen-item resumen-item--ok">
+                <span class="resumen-label">Importe asignado</span>
+                <span class="resumen-valor">{{ euros(r.aportacionUsada) }}</span>
+              </div>
+              <div class="resumen-item" [class.resumen-item--aviso]="r.aportacionNoAsignada > 0">
+                <span class="resumen-label">Sin asignar</span>
+                <span class="resumen-valor">{{ euros(r.aportacionNoAsignada) }}</span>
+              </div>
+            }
+            @if (modo() !== 'aportaciones') {
+              <div class="resumen-item resumen-item--salida">
+                <span class="resumen-label">Salidas (vender / traspasar)</span>
+                <span class="resumen-valor">{{ euros(r.totalSalidas) }}</span>
+              </div>
+              <div class="resumen-item resumen-item--entrada">
+                <span class="resumen-label">Entradas (comprar)</span>
+                <span class="resumen-valor">{{ euros(r.totalEntradas) }}</span>
+              </div>
+            }
           </div>
 
-          @if (sim.importe > 0) {
+          @if (muestraAportacion() && r.aportacion > 0) {
             <div class="progreso" role="progressbar" aria-label="Porcentaje de la aportación asignado"
-              aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="limitar((sim.asignado / sim.importe) * 100)">
-              <div class="progreso-fill" [style.width.%]="limitar((sim.asignado / sim.importe) * 100)"></div>
+              aria-valuemin="0" aria-valuemax="100"
+              [attr.aria-valuenow]="limitar((r.aportacionUsada / r.aportacion) * 100)">
+              <div class="progreso-fill" [style.width.%]="limitar((r.aportacionUsada / r.aportacion) * 100)"></div>
             </div>
-          } @else {
+          } @else if (modo() === 'aportaciones') {
             <div class="nota" role="status">
               <mat-icon aria-hidden="true">info</mat-icon>
               <span>Introduce una cantidad mayor que 0 € para ver la propuesta de reparto.</span>
             </div>
+          } @else if (modo() === 'mixto') {
+            <div class="nota" role="status">
+              <mat-icon aria-hidden="true">info</mat-icon>
+              <span>Sin aportación, el modo mixto equivale a «Venta / Traspaso». Introduce una cantidad para reducir las ventas.</span>
+            </div>
           }
 
-          @if (sim.explicacion) {
-            <div class="nota" [class.nota--aviso]="sim.noAsignado > 0" role="status">
-              <mat-icon aria-hidden="true">{{ sim.noAsignado > 0 ? 'warning_amber' : 'info' }}</mat-icon>
-              <span>{{ sim.explicacion }}</span>
+          @if (r.explicacion) {
+            <div class="nota" [class.nota--aviso]="r.aportacionNoAsignada > 0 || !r.alcanzaObjetivos" role="status">
+              <mat-icon aria-hidden="true">{{ r.aportacionNoAsignada > 0 ? 'warning_amber' : 'info' }}</mat-icon>
+              <span>{{ r.explicacion }}</span>
             </div>
-          } @else if (sim.importe > 0 && sim.alcanzaObjetivos) {
+          } @else if (r.alcanzaObjetivos && (modo() !== 'aportaciones' || r.aportacion > 0)) {
             <div class="nota nota--ok" role="status">
               <mat-icon aria-hidden="true">check_circle</mat-icon>
-              <span>Con este reparto la cartera queda muy próxima a los objetivos (dentro de ±{{ porcentaje(tolerancia) }} pp).</span>
+              <span>
+                @if (r.totalEntradas === 0 && r.totalSalidas === 0) {
+                  La cartera ya está dentro de los objetivos (±{{ porcentaje(tolerancia) }} pp): no hace falta operar.
+                } @else {
+                  Con este plan la cartera queda muy próxima a los objetivos (dentro de ±{{ porcentaje(tolerancia) }} pp).
+                }
+              </span>
             </div>
           }
 
-          @for (a of sim.avisos; track $index) {
+          @for (a of r.avisos; track $index) {
             <div class="nota nota--aviso" role="status">
               <mat-icon aria-hidden="true">info</mat-icon>
               <span>{{ a }}</span>
             </div>
+          }
+
+          <!-- Plan de acción: salidas y entradas por separado -->
+          @if (r.totalEntradas > 0 || r.totalSalidas > 0) {
+            <div class="plan-accion" [class.plan-accion--una]="modo() === 'aportaciones'">
+              @if (modo() !== 'aportaciones') {
+                <section class="bloque bloque--salidas" aria-label="Salidas: vender o traspasar">
+                  <header class="bloque-cab">
+                    <mat-icon aria-hidden="true">logout</mat-icon>
+                    <h3>Salidas · Vender / Traspasar</h3>
+                    <span class="bloque-total">{{ euros(r.totalSalidas) }}</span>
+                  </header>
+                  <ul class="ops">
+                    @for (f of salidas(); track f.categoriaId) {
+                      <li class="op">
+                        <span class="dot" [style.background]="colores().get(f.categoriaId)"></span>
+                        <div class="op-info">
+                          <strong>{{ f.nombre }}</strong>
+                          <small>{{ etiquetaVehiculo(f.vehiculo) }} · {{ textoTratamiento(f.tratamiento) }}</small>
+                        </div>
+                        <span class="accion accion--{{ f.accion }}">{{ etiquetaAccion(f.accion) }}</span>
+                        <span class="op-importe">{{ euros(-f.movimiento) }}</span>
+                      </li>
+                    } @empty {
+                      <li class="op-vacio">No hace falta vender ni traspasar nada.</li>
+                    }
+                  </ul>
+                </section>
+              }
+
+              <section class="bloque bloque--entradas" aria-label="Entradas: comprar o aportar">
+                <header class="bloque-cab">
+                  <mat-icon aria-hidden="true">login</mat-icon>
+                  <h3>Entradas · Comprar / Aportar</h3>
+                  <span class="bloque-total">{{ euros(r.totalEntradas) }}</span>
+                </header>
+                <ul class="ops">
+                  @for (f of entradasPlan(); track f.categoriaId) {
+                    <li class="op">
+                      <span class="dot" [style.background]="colores().get(f.categoriaId)"></span>
+                      <div class="op-info">
+                        <strong>{{ f.nombre }}</strong>
+                        <small>{{ etiquetaVehiculo(f.vehiculo) }}</small>
+                      </div>
+                      <span class="accion accion--{{ f.accion }}">{{ etiquetaAccion(f.accion) }}</span>
+                      <span class="op-importe">{{ euros(f.movimiento) }}</span>
+                    </li>
+                  } @empty {
+                    <li class="op-vacio">No hay compras ni aportaciones que realizar.</li>
+                  }
+                </ul>
+              </section>
+            </div>
+
+            @if (modo() !== 'aportaciones') {
+              <p class="cuadre" [class.cuadre--mal]="!r.cuadra">
+                <mat-icon aria-hidden="true">{{ r.cuadra ? 'balance' : 'error_outline' }}</mat-icon>
+                Entradas {{ euros(r.totalEntradas) }} = salidas {{ euros(r.totalSalidas) }} + aportación
+                {{ euros(r.aportacionUsada) }}
+              </p>
+            }
           }
 
           <div class="tabla-scroll">
@@ -340,30 +486,53 @@
               <thead>
                 <tr>
                   <th scope="col">Categoría</th>
-                  <th scope="col" class="num">Aportación recomendada</th>
-                  <th scope="col" class="num">Valor proyectado</th>
-                  <th scope="col" class="num">% proyectado</th>
+                  <th scope="col" class="num">Valor actual</th>
+                  <th scope="col" class="num">% actual</th>
                   <th scope="col" class="num">% objetivo</th>
-                  <th scope="col" class="num">Desviación proyectada</th>
+                  <th scope="col" class="num">Desviación inicial</th>
+                  <th scope="col" class="centro col-accion">Acción recomendada</th>
+                  <th scope="col" class="num">Valor tras el plan</th>
+                  <th scope="col" class="num">% tras el plan</th>
                 </tr>
               </thead>
               <tbody>
-                @for (f of sim.filas; track f.categoriaId) {
-                  <tr [class.fila-recibe]="f.aportacion > 0">
+                @for (f of r.filas; track f.categoriaId) {
+                  <tr [class.fila-recibe]="f.movimiento > 0" [class.fila-sale]="f.movimiento < 0">
                     <td data-label="Categoría">
                       <span class="celda-cat">
                         <span class="dot" [style.background]="colores().get(f.categoriaId)"></span>{{ f.nombre }}
-                        @if (!f.admiteAportaciones) {
-                          <span class="etiqueta etiqueta--no">No admite</span>
+                        <span class="etiqueta">{{ etiquetaVehiculo(f.vehiculo) }}</span>
+                        @if (!f.puedeComprar && modo() !== 'venta') {
+                          <span class="etiqueta etiqueta--no">No admite aportaciones</span>
+                        }
+                        @if (!f.puedeVender && modo() !== 'aportaciones') {
+                          <span class="etiqueta etiqueta--no">No admite ventas</span>
                         }
                       </span>
                     </td>
-                    <td data-label="Aportación recomendada" class="num"><strong>{{ euros(f.aportacion) }}</strong></td>
-                    <td data-label="Valor proyectado" class="num">{{ euros(f.valorProyectado) }}</td>
-                    <td data-label="% proyectado" class="num">{{ porcentaje(f.porcentajeProyectado) }} %</td>
+                    <td data-label="Valor actual" class="num">{{ euros(f.valorActual) }}</td>
+                    <td data-label="% actual" class="num">{{ porcentaje(f.porcentajeActual) }} %</td>
                     <td data-label="% objetivo" class="num">{{ porcentaje(f.porcentajeObjetivo) }} %</td>
-                    <td data-label="Desviación proyectada" class="num" [class]="'dev dev--' + f.estadoProyectado">
-                      {{ puntos(f.desviacionProyectada) }} pp
+                    <td data-label="Desviación inicial" class="num dev"
+                      [class.dev--sobreponderada]="f.desviacionPuntos > tolerancia"
+                      [class.dev--infraponderada]="f.desviacionPuntos < -tolerancia"
+                      [class.dev--equilibrada]="f.desviacionPuntos >= -tolerancia && f.desviacionPuntos <= tolerancia">
+                      {{ puntos(f.desviacionPuntos) }} pp · {{ eurosConSigno(f.desviacionImporte) }}
+                    </td>
+                    <td data-label="Acción recomendada" class="centro col-accion">
+                      <span class="accion-celda">
+                        <span class="accion accion--{{ f.accion }}">{{ etiquetaAccion(f.accion) }}</span>
+                        @if (f.movimiento !== 0) {
+                          <strong>{{ eurosConSigno(f.movimiento) }}</strong>
+                        }
+                      </span>
+                    </td>
+                    <td data-label="Valor tras el plan" class="num">{{ euros(f.valorObjetivo) }}</td>
+                    <td data-label="% tras el plan" class="num">
+                      {{ porcentaje(f.porcentajeFinal) }} %
+                      <span class="dev-final" [class]="'dev dev--' + (f.desviacionFinalPuntos > tolerancia ? 'sobreponderada' : f.desviacionFinalPuntos < -tolerancia ? 'infraponderada' : 'equilibrada')">
+                        ({{ puntos(f.desviacionFinalPuntos) }} pp)
+                      </span>
                     </td>
                   </tr>
                 }
@@ -371,16 +540,83 @@
               <tfoot>
                 <tr>
                   <td data-label="Total">Total</td>
-                  <td data-label="Aportación recomendada" class="num">{{ euros(sim.asignado) }}</td>
-                  <td data-label="Valor proyectado" class="num">{{ euros(sim.patrimonioProyectado) }}</td>
+                  <td data-label="Valor actual" class="num">{{ euros(r.patrimonioActual) }}</td>
                   <td colspan="3" class="pie-ayuda">
-                    El patrimonio proyectado incluye todas las categorías, también las que no admiten aportaciones.
-                    No se contemplan ventas de activos.
+                    Desviación inicial = % actual − % objetivo (pp) y valor actual − importe ideal (€).
+                  </td>
+                  <td data-label="Neto de movimientos" class="num">{{ eurosConSigno(r.totalEntradas - r.totalSalidas) }}</td>
+                  <td data-label="Valor tras el plan" class="num">{{ euros(r.patrimonioFinal) }}</td>
+                  <td class="pie-ayuda">
+                    Todas las categorías cuentan, también las que no se pueden mover.
                   </td>
                 </tr>
               </tfoot>
             </table>
           </div>
+
+          <!-- Implicaciones operativas y fiscales (solo si hay salidas) -->
+          @if (r.totalSalidas > 0) {
+            <section class="fiscal" aria-label="Implicaciones operativas y fiscales">
+              <h3><mat-icon aria-hidden="true">receipt_long</mat-icon>Implicaciones operativas y fiscales</h3>
+
+              <ul class="fiscal-lista">
+                @if (r.fiscal.traspasable > 0) {
+                  <li>
+                    <mat-icon class="ico--ok" aria-hidden="true">swap_horiz</mat-icon>
+                    <div>
+                      <strong>Traspaso entre fondos · hasta {{ euros(r.fiscal.traspasable) }}</strong>
+                      <p>
+                        Lo que sale de un fondo y entra en otro fondo de inversión puede hacerse mediante traspaso:
+                        en España no tributa en el momento (la ganancia o pérdida queda diferida) si cumple los
+                        requisitos legales, y el dinero nunca pasa por tu cuenta. Pide la orden de traspaso a la entidad
+                        de destino. El traspaso no existe entre fondos y acciones, ETF o cripto.
+                      </p>
+                    </div>
+                  </li>
+                }
+                @if (r.fiscal.tributable > 0) {
+                  <li>
+                    <mat-icon class="ico--aviso" aria-hidden="true">sell</mat-icon>
+                    <div>
+                      <strong>Venta con posible impacto fiscal · {{ euros(r.fiscal.tributable) }}</strong>
+                      <p>
+                        La venta de acciones, ETF, cripto y el reembolso de fondos (que no se traspasan) puede generar
+                        una ganancia o pérdida patrimonial que tributa en la base del ahorro. Con valores homogéneos se
+                        aplica el criterio FIFO. Si tienes pérdidas latentes, vender esas posiciones puede compensar
+                        ganancias.
+                      </p>
+                    </div>
+                  </li>
+                }
+                @if (r.fiscal.sinEfecto > 0) {
+                  <li>
+                    <mat-icon class="ico--ok" aria-hidden="true">account_balance_wallet</mat-icon>
+                    <div>
+                      <strong>Liquidez · {{ euros(r.fiscal.sinEfecto) }}</strong>
+                      <p>Reducir efectivo o cuentas no genera ganancia patrimonial.</p>
+                    </div>
+                  </li>
+                }
+                <li>
+                  <mat-icon class="ico--info" aria-hidden="true">schedule</mat-icon>
+                  <div>
+                    <strong>Fricciones prácticas</strong>
+                    <p>
+                      Revisa las comisiones de compraventa y custodia, la horquilla de precios en acciones y ETF, y los
+                      plazos: la liquidación de una venta, los reembolsos y los traspasos de fondos tardan varios días
+                      hábiles y se ejecutan a un valor liquidativo que aún no conoces, así que los importes finales
+                      variarán algo. Mientras tanto, el dinero puede quedar sin invertir.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+
+              <p class="fiscal-aviso">
+                Cálculo orientativo: no constituye asesoramiento fiscal ni financiero. La fiscalidad depende de tu
+                situación y puede cambiar; consúltala con un profesional.
+              </p>
+            </section>
+          }
         }
       </article>
     }

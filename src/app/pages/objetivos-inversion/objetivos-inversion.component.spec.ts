@@ -91,12 +91,12 @@ describe('ObjetivosInversionComponent', () => {
     component.fijarImporte(2000);
     await fixture.whenStable();
 
-    const sim = component.simulacion()!;
-    expect(sim.asignado).toBe(2000);
-    expect(sim.noAsignado).toBe(0);
-    expect(sim.filas.find(f => f.nombre === 'Inmuebles')!.aportacion).toBe(0);
-    expect(sim.filas.find(f => f.nombre === 'Inmuebles')!.valorProyectado).toBe(50000);
-    expect(sim.patrimonioProyectado).toBe(62000);
+    const sim = component.plan()!;
+    expect(sim.aportacionUsada).toBe(2000);
+    expect(sim.aportacionNoAsignada).toBe(0);
+    expect(sim.filas.find(f => f.nombre === 'Inmuebles')!.movimiento).toBe(0);
+    expect(sim.filas.find(f => f.nombre === 'Inmuebles')!.valorObjetivo).toBe(50000);
+    expect(sim.patrimonioFinal).toBe(62000);
     expect(texto()).toContain('Importe asignado');
     expect(texto()).toContain('Sin asignar');
   });
@@ -114,15 +114,15 @@ describe('ObjetivosInversionComponent', () => {
     component.editarImporte('700');
     await fixture.whenStable();
 
-    const sim = component.simulacion()!;
-    expect(sim.asignado).toBe(500);
-    expect(sim.noAsignado).toBe(200);
+    const sim = component.plan()!;
+    expect(sim.aportacionUsada).toBe(500);
+    expect(sim.aportacionNoAsignada).toBe(200);
     expect(el().querySelector('.nota--aviso')).toBeTruthy();
     expect(texto()).toContain('No se han podido asignar');
 
     component.editarImporte('1000');
     await fixture.whenStable();
-    expect(component.simulacion()!.noAsignado).toBe(0);
+    expect(component.plan()!.aportacionNoAsignada).toBe(0);
   });
 
   it('descartar elimina los cambios sin guardar', async () => {
@@ -149,7 +149,7 @@ describe('ObjetivosInversionComponent', () => {
 
     expect(component.categorias().length).toBe(4);
     expect(component.configUtilizable()).toBe(false);
-    expect(component.simulacion()).toBeNull();
+    expect(component.plan()).toBeNull();
     expect(texto()).toContain('ya no suman el 100 %');
   });
 
@@ -163,8 +163,91 @@ describe('ObjetivosInversionComponent', () => {
     await fixture.whenStable();
 
     expect(component.distribucion().patrimonioTotal).toBe(0);
-    const sim = component.simulacion()!;
-    expect(sim.filas[0].aportacion).toBe(500);
-    expect(sim.filas[1].aportacion).toBe(500);
+    const sim = component.plan()!;
+    expect(sim.filas[0].movimiento).toBe(500);
+    expect(sim.filas[1].movimiento).toBe(500);
+  });
+
+  describe('calculadora de rebalanceo', () => {
+    async function guardarObjetivos() {
+      await crear();
+      ['40', '30', '10', '10', '10'].forEach((v, i) => component.editarNumero(component.categorias()[i].id, 'porcentajeObjetivo', v));
+      component.guardar();
+      await fixture.whenStable();
+    }
+
+    it('los tres modos usan la misma configuración y el selector alterna la entrada de aportación', async () => {
+      await guardarObjetivos();
+      const selector = () => el().querySelectorAll<HTMLButtonElement>('.modos button');
+      expect(selector().length).toBe(3);
+      expect(el().querySelector('.campo--grande')).toBeTruthy();
+
+      component.fijarModo('venta');
+      await fixture.whenStable();
+      expect(el().querySelector('.campo--grande')).toBeNull();
+      expect(component.plan()!.modo).toBe('venta');
+
+      selector()[2].click();
+      await fixture.whenStable();
+      expect(component.modo()).toBe('mixto');
+      expect(el().querySelector('.campo--grande')).toBeTruthy();
+    });
+
+    it('en «Venta / Traspaso» muestra salidas y entradas que cuadran, y el resumen fiscal', async () => {
+      await guardarObjetivos();
+      component.fijarModo('venta');
+      await fixture.whenStable();
+
+      const plan = component.plan()!;
+      expect(plan.totalSalidas).toBeGreaterThan(0);
+      expect(plan.cuadra).toBe(true);
+      expect(plan.totalEntradas).toBeCloseTo(plan.totalSalidas, 2);
+      // El inmueble (activo ilíquido) no se vende ni recibe dinero por defecto
+      expect(plan.filas.find(f => f.nombre === 'Inmuebles')!.movimiento).toBe(0);
+
+      expect(el().querySelector('.bloque--salidas')).toBeTruthy();
+      expect(el().querySelector('.bloque--entradas')).toBeTruthy();
+      expect(texto()).toContain('Implicaciones operativas y fiscales');
+      expect(texto()).toContain('no constituye asesoramiento fiscal ni financiero');
+    });
+
+    it('en «Solo aportaciones» no hay bloque de salidas ni resumen fiscal', async () => {
+      await guardarObjetivos();
+      component.fijarImporte(1000);
+      await fixture.whenStable();
+
+      expect(el().querySelector('.bloque--salidas')).toBeNull();
+      expect(el().querySelector('.fiscal')).toBeNull();
+      expect(component.plan()!.totalSalidas).toBe(0);
+    });
+
+    it('el umbral mínimo descarta operaciones pequeñas', async () => {
+      await guardarObjetivos();
+      component.fijarModo('venta');
+      component.fijarUmbral(100000);
+      await fixture.whenStable();
+      expect(component.plan()!.filas.every(f => f.accion === 'mantener')).toBe(true);
+    });
+
+    it('guarda el tipo de activo y si admite ventas, deducidos del nombre y editables', async () => {
+      await crear();
+      const porNombre = (n: string) => component.filasEdicion().find(f => f.nombre === n)!;
+      expect(porNombre('Fondos').vehiculo).toBe('fondos');
+      expect(porNombre('Acciones').vehiculo).toBe('bolsa');
+      expect(porNombre('Inmuebles').vehiculo).toBe('iliquido');
+      expect(porNombre('Inmuebles').admiteVentas).toBe(false);
+
+      ['40', '30', '10', '10', '10'].forEach((v, i) => component.editarNumero(component.categorias()[i].id, 'porcentajeObjetivo', v));
+      component.editarVehiculo(porNombre('Cripto').categoriaId, 'liquidez');
+      component.editarAdmiteVentas(porNombre('Fondos').categoriaId, false);
+      component.guardar();
+      await fixture.whenStable();
+
+      const guardado = JSON.parse(localStorage.getItem('objetivos_inversion')!);
+      const idCripto = component.categorias().find(c => c.nombre === 'Cripto')!.id;
+      const idFondos = component.categorias().find(c => c.nombre === 'Fondos')!.id;
+      expect(guardado.categorias.find((c: any) => c.categoriaId === idCripto).vehiculo).toBe('liquidez');
+      expect(guardado.categorias.find((c: any) => c.categoriaId === idFondos).admiteVentas).toBe(false);
+    });
   });
 });

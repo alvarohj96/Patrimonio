@@ -62,8 +62,29 @@ describe('ObjetivosInversionService', () => {
       const otra = new ObjetivosInversionService();
       const efectiva = otra.configEfectiva(CATS);
       expect(efectiva[0].porcentajeObjetivo).toBe(60);
-      expect(efectiva[1]).toEqual(config('b', 40, { importeMinimo: 50, incrementoMinimo: 25 }));
+      // Las configuraciones guardadas sin tipo de activo se completan según el nombre de la categoría
+      expect(efectiva[1]).toEqual(config('b', 40, { importeMinimo: 50, incrementoMinimo: 25, vehiculo: 'fondos', admiteVentas: true }));
       expect(efectiva[2].admiteAportaciones).toBe(false);
+    });
+
+    it('deduce el tipo de activo del nombre y no permite vender por defecto los ilíquidos', () => {
+      const v = (n: string) => service.vehiculoPorDefecto(n);
+      expect(v('Fondos indexados')).toBe('fondos');
+      expect(v('Acciones')).toBe('bolsa');
+      expect(v('ETF')).toBe('bolsa');
+      expect(v('Cripto')).toBe('cripto');
+      expect(v('Liquidez')).toBe('liquidez');
+      expect(v('Inmuebles')).toBe('iliquido');
+      expect(v('Colecciónables')).toBe('otro');
+      expect(service.configPorDefecto({ id: 'x', nombre: 'Inmuebles' }).admiteVentas).toBe(false);
+    });
+
+    it('conserva el tipo de activo y el permiso de venta elegidos por el usuario', () => {
+      service.guardar(
+        [config('a', 60, { vehiculo: 'cripto', admiteVentas: false }), config('b', 40), config('c', 0)], CATS);
+      const a = new ObjetivosInversionService().configEfectiva(CATS)[0];
+      expect(a.vehiculo).toBe('cripto');
+      expect(a.admiteVentas).toBe(false);
     });
 
     it('no guarda una configuración inválida', () => {
@@ -86,7 +107,7 @@ describe('ObjetivosInversionService', () => {
       const efectiva = service.configEfectiva(nuevas);
       expect(efectiva.map(c => c.categoriaId)).toEqual(['a', 'd']);
       expect(efectiva[0].porcentajeObjetivo).toBe(70);
-      expect(efectiva[1]).toEqual(config('d', 0));
+      expect(efectiva[1]).toEqual(config('d', 0, { vehiculo: 'cripto', admiteVentas: true }));
 
       // Al guardar se descartan las configuraciones de categorías que ya no existen
       service.guardar([config('a', 60), config('d', 40)], nuevas);

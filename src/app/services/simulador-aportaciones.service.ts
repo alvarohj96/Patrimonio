@@ -58,7 +58,9 @@ export class SimuladorAportacionesService {
         porcentajeObjetivo: c?.porcentajeObjetivo ?? 0,
         admiteAportaciones: c?.admiteAportaciones ?? true,
         importeMinimo: c?.importeMinimo ?? null,
-        incrementoMinimo: c?.incrementoMinimo ?? null
+        incrementoMinimo: c?.incrementoMinimo ?? null,
+        vehiculo: c?.vehiculo,
+        admiteVentas: c?.admiteVentas
       };
     });
   }

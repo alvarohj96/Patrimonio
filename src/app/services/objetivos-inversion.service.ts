@@ -4,8 +4,11 @@ import {
   CategoriaPatrimonio,
   ConfigCategoriaInversion,
   ObjetivosInversionConfig,
-  ResultadoValidacion
+  ResultadoValidacion,
+  VehiculoInversion
 } from '../models/objetivos-inversion';
+
+export const VEHICULOS: readonly VehiculoInversion[] = ['fondos', 'bolsa', 'cripto', 'liquidez', 'iliquido', 'otro'];
 
 /**
  * Gestiona y persiste (localStorage, como el resto de servicios) los objetivos
@@ -30,7 +33,18 @@ export class ObjetivosInversionService {
    */
   configEfectiva(categorias: CategoriaPatrimonio[]): ConfigCategoriaInversion[] {
     const guardadas = new Map(this.subject.value.categorias.map(c => [c.categoriaId, c]));
-    return categorias.map(cat => structuredClone(guardadas.get(cat.id) ?? this.configPorDefecto(cat)));
+    return categorias.map(cat => {
+      const guardada = guardadas.get(cat.id);
+      if (!guardada) return this.configPorDefecto(cat);
+
+      // Configuraciones guardadas antes del rebalanceo: se completan según el nombre de la categoría
+      const vehiculo = guardada.vehiculo ?? this.vehiculoPorDefecto(cat.nombre);
+      return structuredClone({
+        ...guardada,
+        vehiculo,
+        admiteVentas: guardada.admiteVentas ?? this.admiteVentasPorDefecto(vehiculo)
+      });
+    });
   }
 
   /** `true` si ya hay una configuración guardada para alguna de las categorías vigentes. */
@@ -39,15 +53,38 @@ export class ObjetivosInversionService {
     return this.subject.value.categorias.some(c => ids.has(c.categoriaId));
   }
 
-  /** Valores por defecto: 0 %, y admite aportaciones salvo los inmuebles. */
+  /** Valores por defecto: 0 %, admite aportaciones salvo los inmuebles y no se venden los activos ilíquidos. */
   configPorDefecto(categoria: CategoriaPatrimonio): ConfigCategoriaInversion {
+    const vehiculo = this.vehiculoPorDefecto(categoria.nombre);
     return {
       categoriaId: categoria.id,
       porcentajeObjetivo: 0,
       admiteAportaciones: this.admiteAportacionesPorDefecto(categoria.nombre),
       importeMinimo: null,
-      incrementoMinimo: null
+      incrementoMinimo: null,
+      vehiculo,
+      admiteVentas: this.admiteVentasPorDefecto(vehiculo)
     };
+  }
+
+  /**
+   * Tipo de activo deducido del nombre de la categoría (el usuario puede cambiarlo).
+   * Orden: ilíquidos, cripto, liquidez, fondos y, por último, bolsa (acciones/ETF).
+   */
+  vehiculoPorDefecto(nombre: string): VehiculoInversion {
+    const n = nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const contiene = (...claves: string[]) => claves.some(c => n.includes(c));
+
+    if (contiene('inmueble', 'vivienda', 'terreno', 'parcela', 'garaje', 'iliquid', 'private equity')) return 'iliquido';
+    if (contiene('cripto', 'bitcoin', 'crypto')) return 'cripto';
+    if (contiene('liquidez', 'efectivo', 'cuenta', 'deposito', 'cash')) return 'liquidez';
+    if (contiene('fondo')) return 'fondos';
+    if (contiene('accion', 'etf', 'bolsa', 'renta variable', 'valores')) return 'bolsa';
+    return 'otro';
+  }
+
+  admiteVentasPorDefecto(vehiculo: VehiculoInversion): boolean {
+    return vehiculo !== 'iliquido';
   }
 
   /**
@@ -130,7 +167,9 @@ export class ObjetivosInversionService {
       porcentajeObjetivo: pct === null ? 0 : Number.isNaN(pct) ? pct : Math.round(pct * 100) / 100,
       admiteAportaciones: !!c.admiteAportaciones,
       importeMinimo: limite(c.importeMinimo),
-      incrementoMinimo: limite(c.incrementoMinimo)
+      incrementoMinimo: limite(c.incrementoMinimo),
+      vehiculo: (VEHICULOS as readonly unknown[]).includes(c.vehiculo) ? c.vehiculo : undefined,
+      admiteVentas: typeof c.admiteVentas === 'boolean' ? c.admiteVentas : undefined
     };
   }
 
