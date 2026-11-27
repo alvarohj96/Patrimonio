@@ -121,7 +121,7 @@ button:hover mat-icon {
 }
 
 /* Con 5 secciones, las etiquetas se ocultan antes para que la barra no se desborde */
-@media (max-width: 1180px) {
+@media (max-width: 1360px) {
   .nav-buttons button span {
     display: none;
   }
@@ -155,5 +155,25 @@ button:hover mat-icon {
     width: 40px;
     height: 40px;
     padding: 8px;
+  }
+}
+
+/* Móviles muy estrechos (≤ 400 px): con el icono de copias en Drive hay 5 secciones + 3 iconos */
+@media (max-width: 400px) {
+  .nav-buttons button {
+    min-width: 32px;
+    padding: 0 4px;
+  }
+
+  .menu button {
+    width: 36px;
+    padding: 6px;
+  }
+}
+
+/* El área táctil invisible de Material (48 px) no debe ensanchar la página en móvil */
+@media (max-width: 480px) {
+  :host ::ng-deep .menu .mat-mdc-button-touch-target {
+    width: 100%;
   }
 }

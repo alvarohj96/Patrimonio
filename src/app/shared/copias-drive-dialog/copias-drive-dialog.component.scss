@@ -1,0 +1,258 @@
+:host {
+  display: block;
+
+  --cd-muted: color-mix(in srgb, var(--app-text, #1e1e1e) 60%, transparent);
+  --cd-line: color-mix(in srgb, var(--app-text, #1e1e1e) 12%, transparent);
+  --cd-field-bg: color-mix(in srgb, var(--app-text, #1e1e1e) 6%, transparent);
+  --cd-ok: #10b981;
+  --cd-mal: #ef4444;
+  --cd-aviso: #f59e0b;
+  --cd-info: #3b82f6;
+  --cd-acento: #4f46e5;
+}
+
+:host-context(.dark-theme) {
+  --cd-acento: #818cf8;
+}
+
+mat-icon {
+  flex-shrink: 0;
+}
+
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+
+  mat-icon {
+    color: var(--cd-acento);
+  }
+}
+
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--app-text);
+}
+
+.bloque {
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--cd-line);
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--cd-muted);
+  }
+}
+
+.fila,
+.acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.acciones {
+  margin-top: 12px;
+}
+
+.ayuda {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--cd-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--cd-field-bg);
+
+  .punto {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--cd-aviso);
+  }
+
+  &.chip--ok .punto {
+    background: var(--cd-ok);
+  }
+
+  &.chip--no .punto {
+    background: var(--cd-muted);
+  }
+}
+
+.ruta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--cd-field-bg);
+  font-weight: 600;
+
+  mat-icon {
+    color: var(--cd-acento);
+  }
+}
+
+.ruta-texto {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nueva-carpeta {
+  margin-top: 12px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  input {
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--cd-line);
+    background: var(--cd-field-bg);
+    color: inherit;
+    font: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--cd-acento);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.campo-etiqueta {
+  font-size: 12px;
+  color: var(--cd-muted);
+}
+
+.datos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 13.5px;
+  }
+
+  dt {
+    flex-shrink: 0;
+    color: var(--cd-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .romper {
+    overflow-wrap: anywhere;
+  }
+
+  .ok {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--cd-ok);
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+}
+
+.nota {
+  --nota: var(--cd-info);
+
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--nota) 12%, transparent);
+
+  > mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--nota);
+  }
+
+  > span {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+
+  &.nota--ok { --nota: var(--cd-ok); }
+  &.nota--error { --nota: var(--cd-mal); }
+  &.nota--aviso { --nota: var(--cd-aviso); }
+}
+
+.contenido > .nota {
+  margin-top: 0;
+}
+
+.boton-copia {
+  mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+}
+
+.pie {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--cd-muted);
+}
+
+@media (max-width: 600px) {
+  .bloque {
+    padding: 14px;
+  }
+
+  .acciones button,
+  .fila button {
+    flex: 1 1 100%;
+  }
+
+  .datos > div {
+    flex-direction: column;
+    gap: 2px;
+
+    dd {
+      text-align: left;
+    }
+  }
+}

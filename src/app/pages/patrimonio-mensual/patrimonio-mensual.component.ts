@@ -1,3 +1,4 @@
+import { serializarRegistrosCsv } from '../../shared/csv-patrimonio';
 import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -417,32 +418,8 @@ export class PatrimonioMensualComponent implements OnInit {
       return;
     }
 
-    let lineas: string[] = [];
-
-    // Cabecera CSV
-    lineas.push("Mes;Categoría;Subcategoría;Valor (€);Deuda (€);Cantidad");
-
-    // Cada registro → muchas líneas
-    this.registros.forEach(reg => {
-      const mes = reg.mes;
-
-      Object.keys(reg.valores).forEach(cat => {
-        const subs = reg.valores[cat];
-
-        Object.keys(subs).forEach(sub => {
-          const dato = subs[sub];
-          if (typeof dato === 'number') {
-            lineas.push(`${mes};${cat};${sub};${dato};0;`);
-          } else {
-            const cantidad = (dato.cantidad != null && dato.cantidad > 0) ? dato.cantidad : '';
-            lineas.push(`${mes};${cat};${sub};${dato.valor};${dato.deuda || 0};${cantidad}`);
-          }
-        });
-      });
-    });
-
-    // Convertir a CSV texto
-    const csvContent = lineas.join("\n");
+    // Serialización compartida con las copias de seguridad en Drive (mismo formato exacto)
+    const csvContent = serializarRegistrosCsv(this.registros);
 
     // Crear Blob descargable
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });

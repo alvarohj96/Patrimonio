@@ -1,0 +1,180 @@
+<h2 mat-dialog-title class="titulo">
+  <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+  Copias de seguridad en Google Drive
+</h2>
+
+<mat-dialog-content class="contenido">
+
+  @if (!backup.configurado()) {
+    <div class="nota nota--aviso" role="status">
+      <mat-icon aria-hidden="true">settings_suggest</mat-icon>
+      <span>
+        Esta instalación todavía no tiene credenciales de Google (Client ID), así que las copias en Drive están
+        desactivadas. Las instrucciones están en el apartado «Copias en Google Drive» del README.
+      </span>
+    </div>
+  }
+
+  <!-- Conexión -->
+  <section class="bloque" aria-labelledby="t-conexion">
+    <h3 id="t-conexion">Conexión</h3>
+    <div class="fila">
+      <span class="chip" [class.chip--ok]="backup.estadoConexion() === 'conectado'"
+        [class.chip--no]="backup.estadoConexion() === 'no-configurado'">
+        <span class="punto" aria-hidden="true"></span>{{ etiquetaConexion() }}
+      </span>
+
+      @if (backup.estadoConexion() === 'conectado') {
+        <button mat-stroked-button type="button" (click)="desconectar()" [disabled]="backup.trabajando()">
+          Desconectar
+        </button>
+      } @else {
+        <button mat-flat-button type="button" (click)="conectar()"
+          [disabled]="!backup.configurado() || backup.trabajando()">
+          <mat-icon aria-hidden="true">login</mat-icon>
+          Conectar con Google
+        </button>
+      }
+    </div>
+    <p class="ayuda">
+      Solo se pide el permiso mínimo (<em>drive.file</em>): la app únicamente accede a los archivos que crea y a la
+      carpeta que elijas, nunca al resto de tu Drive. El acceso no se guarda en el navegador.
+    </p>
+  </section>
+
+  <!-- Carpeta -->
+  <section class="bloque" aria-labelledby="t-carpeta">
+    <h3 id="t-carpeta">Carpeta de destino</h3>
+    <div class="ruta" aria-live="polite">
+      <mat-icon aria-hidden="true">folder</mat-icon>
+      <span class="ruta-texto">{{ backup.config().carpetaRuta }}</span>
+    </div>
+
+    <div class="acciones">
+      <button mat-stroked-button type="button" (click)="elegirCarpeta()"
+        [disabled]="!backup.selectorDisponible() || backup.trabajando()"
+        [attr.title]="backup.selectorDisponible() ? null : 'Falta la API key o el appId del selector de Google'">
+        <mat-icon aria-hidden="true">drive_folder_upload</mat-icon>
+        Elegir carpeta…
+      </button>
+      <button mat-stroked-button type="button" (click)="mostrarCrearCarpeta()"
+        [disabled]="!backup.configurado() || backup.trabajando()">
+        <mat-icon aria-hidden="true">create_new_folder</mat-icon>
+        Carpeta nueva
+      </button>
+      @if (!esRaiz()) {
+        <button mat-button type="button" (click)="usarRaiz()" [disabled]="backup.trabajando()">
+          Usar «Mi unidad»
+        </button>
+      }
+    </div>
+
+    @if (creandoCarpeta()) {
+      <div class="nueva-carpeta">
+        <label class="campo">
+          <span class="campo-etiqueta">Nombre (se crea dentro de la carpeta actual)</span>
+          <input type="text" name="nombreCarpeta" maxlength="120" autocomplete="off" placeholder="Copias patrimonio"
+            [value]="nombreCarpeta" (input)="nombreCarpeta = $any($event.target).value"
+            (keydown.enter)="crearCarpeta()">
+        </label>
+        <div class="acciones">
+          <button mat-flat-button type="button" (click)="crearCarpeta()"
+            [disabled]="!nombreCarpeta.trim() || backup.trabajando()">Crear y usar</button>
+          <button mat-button type="button" (click)="creandoCarpeta.set(false)">Cancelar</button>
+        </div>
+      </div>
+    }
+
+    @if (!backup.selectorDisponible() && backup.configurado()) {
+      <p class="ayuda">
+        Sin API key y appId del selector solo se puede usar «Mi unidad» o crear una carpeta nueva.
+      </p>
+    }
+  </section>
+
+  <!-- Automática -->
+  <section class="bloque" aria-labelledby="t-auto">
+    <h3 id="t-auto">Copia mensual automática</h3>
+    <mat-slide-toggle [checked]="backup.config().automatica" (change)="cambiarAutomatica($event.checked)"
+      [disabled]="!backup.configurado()">
+      {{ backup.config().automatica ? 'Activada' : 'Desactivada' }}
+    </mat-slide-toggle>
+    <p class="ayuda">
+      Una app web no puede trabajar en segundo plano: la copia del mes se hace al abrir la aplicación (si Google
+      necesita tu confirmación, verás un aviso con un botón para hacerla con un clic). Se guarda una copia por mes:
+      <em>patrimonio-backup-AAAA-MM.csv</em>.
+    </p>
+  </section>
+
+  <!-- Última copia -->
+  <section class="bloque" aria-labelledby="t-ultima">
+    <h3 id="t-ultima">Última copia</h3>
+
+    @if (backup.ultimaCopia(); as u) {
+      <dl class="datos">
+        <div><dt>Fecha</dt><dd>{{ formatearFecha(u.lastBackupAt) }}</dd></div>
+        <div><dt>Archivo</dt><dd class="romper">{{ u.fileName }}</dd></div>
+        <div><dt>Carpeta</dt><dd class="romper">{{ u.driveFolderPath }}</dd></div>
+        <div>
+          <dt>Resultado</dt>
+          <dd class="ok"><mat-icon aria-hidden="true">check_circle</mat-icon>Correcta ({{ u.tipo === 'automatica' ? 'mensual' : 'manual' }})</dd>
+        </div>
+      </dl>
+    } @else {
+      <p class="ayuda">Todavía no se ha hecho ninguna copia en Drive.</p>
+    }
+
+    @if (backup.ultimoError(); as e) {
+      <div class="nota nota--error" role="status">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <span><strong>Último intento fallido</strong> ({{ formatearFecha(e.at) }}): {{ e.mensaje }}</span>
+      </div>
+    }
+
+    @if (backup.hayPendiente()) {
+      <div class="nota nota--aviso" role="status">
+        <mat-icon aria-hidden="true">schedule_send</mat-icon>
+        <span>
+          Hay una copia guardada en este equipo pendiente de subir ({{ backup.pendiente()!.nombreArchivo }}).
+        </span>
+        <button mat-stroked-button type="button" (click)="reintentar()" [disabled]="backup.trabajando()">Reintentar</button>
+      </div>
+    }
+
+    <div class="acciones acciones--copia">
+      <button mat-flat-button type="button" class="boton-copia" (click)="copiarAhora()"
+        [disabled]="!backup.configurado() || backup.trabajando()">
+        @if (backup.trabajando()) {
+          <mat-spinner diameter="18" aria-label="Subiendo"></mat-spinner>
+        } @else {
+          <mat-icon aria-hidden="true">backup</mat-icon>
+        }
+        Crear copia ahora
+      </button>
+    </div>
+  </section>
+
+  @if (mensaje(); as m) {
+    <div class="nota" [class.nota--ok]="m.tipo === 'ok'" [class.nota--error]="m.tipo === 'error'" role="status"
+      aria-live="polite">
+      <mat-icon aria-hidden="true">{{ m.tipo === 'ok' ? 'check_circle' : m.tipo === 'error' ? 'error_outline' : 'info' }}</mat-icon>
+      <span>{{ m.texto }}</span>
+    </div>
+  }
+
+  @for (a of avisosCsv(); track $index) {
+    <div class="nota nota--aviso" role="status">
+      <mat-icon aria-hidden="true">warning_amber</mat-icon>
+      <span>{{ a }}</span>
+    </div>
+  }
+
+  <p class="pie">
+    El archivo es el mismo CSV que genera «Exportar CSV» (separador «;», UTF-8): puedes importarlo desde «Entrada
+    mensual».
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cerrar()">Cerrar</button>
+</mat-dialog-actions>

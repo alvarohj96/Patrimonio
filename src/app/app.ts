@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Injector, inject } from '@angular/core';
 
 // Formularios
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,6 +23,7 @@ import { PatrimonioMensualComponent } from './pages/patrimonio-mensual/patrimoni
 import { ThemeService } from './services/theme/theme.service';
 import { ConfiguracionVisualComponent } from './pages/configuracion-visual/configuracion-visual.component';
 import { GuiaUsoDialogComponent } from './shared/guia-uso-dialog/guia-uso-dialog.component';
+import { AvisoCopiaDriveComponent } from './shared/aviso-copia-drive/aviso-copia-drive.component';
 
 @Component({
   selector: 'app-root',
@@ -40,6 +41,7 @@ import { GuiaUsoDialogComponent } from './shared/guia-uso-dialog/guia-uso-dialog
     MatSelectModule,
     MatToolbarModule,
     MatMenuModule,
+    AvisoCopiaDriveComponent,
 
     // Formularios
     ReactiveFormsModule
@@ -49,7 +51,22 @@ import { GuiaUsoDialogComponent } from './shared/guia-uso-dialog/guia-uso-dialog
 })
 
 export class App {
-  constructor(public theme: ThemeService, private dialog: MatDialog) { }
+  private readonly injector = inject(Injector);
+
+  constructor(public theme: ThemeService, private dialog: MatDialog) {
+    // Copia mensual en Google Drive: se comprueba al abrir la app, sin retrasar la primera pantalla
+    // (el servicio se descarga entonces, no forma parte de la carga inicial)
+    setTimeout(async () => {
+      const { BackupDriveService } = await import('./services/backup-drive.service');
+      void this.injector.get(BackupDriveService).comprobarCopiaMensual();
+    }, 2000);
+  }
+
+  /** El panel se descarga al abrirlo (no pesa en la carga inicial de la app). */
+  async abrirCopiasDrive() {
+    const { CopiasDriveDialogComponent } = await import('./shared/copias-drive-dialog/copias-drive-dialog.component');
+    this.dialog.open(CopiasDriveDialogComponent, { width: '560px', maxWidth: '95vw', maxHeight: '90vh' });
+  }
 
   abrirConfiguracion() {
     this.dialog.open(ConfiguracionVisualComponent, {
